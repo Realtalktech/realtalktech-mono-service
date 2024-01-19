@@ -20,6 +20,10 @@ def get_db_connection():
                            charset='utf8mb4',
                            cursorclass=pymysql.cursors.DictCursor)
 
+@app.route('/')
+def index():
+    return "Hello, World!"
+
 @app.route('/getComments', methods=['GET'])
 def get_comments():
     post_id = request.args.get('postId', type=int)
