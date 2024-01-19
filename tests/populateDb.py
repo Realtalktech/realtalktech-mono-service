@@ -3,7 +3,7 @@ import uuid
 import random
 
 # Database connection details
-HOST = 'rttdbstack-mydbinstance-tp7pbw68iu1e.cnqm62ueodz0.us-east-1.rds.amazonaws.com'
+HOST = 'rttdbstore-mydbinstance-msavqjqavkev.cnqm62ueodz0.us-east-1.rds.amazonaws.com'
 USER = 'dbmaster'
 PASSWORD = 'masterUser123!'
 DB = 'RttAppDB'
