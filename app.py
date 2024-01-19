@@ -26,7 +26,7 @@ def index():
 
 @app.route('/getComments', methods=['GET'])
 def get_comments():
-    post_id = request.args.get('postId', type=int)
+    post_id = request.args.get('postId', type=str)
     page = request.args.get('page', default=0, type=int)
     count = request.args.get('count', default=10, type=int)
 
