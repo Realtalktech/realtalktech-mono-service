@@ -11,7 +11,7 @@ CREATE TABLE Post (
     post_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     body TEXT,
-    creation_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     FOREIGN KEY (user_id) REFERENCES User(id)
 );
 
@@ -23,8 +23,8 @@ CREATE TABLE Category (
 CREATE TABLE PostCategory (
     post_id INT,
     category_id INT,
-    FOREIGN KEY (post_id) REFERENCES Posts(post_id),
-    FOREIGN KEY (category_id) REFERENCES Categories(category_id),
+    FOREIGN KEY (post_id) REFERENCES Post(post_id),
+    FOREIGN KEY (category_id) REFERENCES Category(category_id),
     PRIMARY KEY (post_id, category_id)
 );
 
@@ -47,23 +47,23 @@ CREATE TABLE Comment (
     user_id INT,
     comment_text TEXT,
     creation_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (post_id) REFERENCES Posts(post_id),
+    FOREIGN KEY (post_id) REFERENCES Post(post_id),
     FOREIGN KEY (user_id) REFERENCES User(id)
 );
 
-CREATE TABLE CommentTags (
+CREATE TABLE CommentTag (
     comment_id INT,
     tagged_user_id INT,
-    FOREIGN KEY (comment_id) REFERENCES Comments(comment_id),
+    FOREIGN KEY (comment_id) REFERENCES Comment(comment_id),
     FOREIGN KEY (tagged_user_id) REFERENCES User(id),
     PRIMARY KEY (comment_id, tagged_user_id)
 );
 
-CREATE TABLE PostUpvotes (
+CREATE TABLE PostUpvote (
     upvote_id INT AUTO_INCREMENT PRIMARY KEY,
     post_id INT,
     user_id INT,
-    FOREIGN KEY (post_id) REFERENCES Posts(post_id),
+    FOREIGN KEY (post_id) REFERENCES Post(post_id),
     FOREIGN KEY (user_id) REFERENCES User(id)
 );
 
@@ -71,6 +71,6 @@ CREATE TABLE CommentUpvote (
     upvote_id INT AUTO_INCREMENT PRIMARY KEY,
     comment_id INT,
     user_id INT,
-    FOREIGN KEY (comment_id) REFERENCES Comments(comment_id),
+    FOREIGN KEY (comment_id) REFERENCES Comment(comment_id),
     FOREIGN KEY (user_id) REFERENCES User(id)
 );
