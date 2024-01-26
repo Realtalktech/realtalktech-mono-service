@@ -1,40 +1,15 @@
--- No clue why this works but it does
-ALTER TABLE User DROP FOREIGN KEY 'Post_ibfk_1';
-DROP TABLE User;
-ALTER TABLE Post DROP FOREIGN KEY 'PostCategory_ibfk_1';
-DROP TABLE Post;
-ALTER TABLE Category DROP FOREIGN KEY 'PostCategory_ibfk_2';
-DROP TABLE Category;
-DROP TABLE PostCategory;
-ALTER TABLE TechStack DROP FOREIGN KEY 'UserTechStack_ibfk_2';
-DROP TABLE TechStack;
-DROP TABLE UserTechStack;
-ALTER TABLE Comment DROP FOREIGN KEY 'CommentTag_ibfk_1';
-DROP TABLE Comment;
-DROP TABLE CommentTag;
-DROP TABLE PostUpvote;
-DROP TABLE CommentUpvote;
-ALTER TABLE User DROP FOREIGN KEY 'Post_ibfk_1';
-DROP TABLE User;
-ALTER TABLE Post DROP FOREIGN KEY 'PostCategory_ibfk_1';
-DROP TABLE Post;
-ALTER TABLE Category DROP FOREIGN KEY 'PostCategory_ibfk_2';
-DROP TABLE Category;
-DROP TABLE PostCategory;
-ALTER TABLE TechStack DROP FOREIGN KEY 'UserTechStack_ibfk_2';
-DROP TABLE TechStack;
-DROP TABLE UserTechStack;
-ALTER TABLE Comment DROP FOREIGN KEY 'CommentTag_ibfk_1';
-DROP TABLE Comment;
-DROP TABLE CommentTag;
-DROP TABLE PostUpvote;
-DROP TABLE CommentUpvote;
-DROP TABLE User;
-DROP TABLE Post;
-DROP TABLE User;
-SELECT ' ' as '';
-SELECT ' ' as '';
-SELECT ' ' as '';
-SELECT ' ' as '';
-SELECT '<--------- Remaining Tables --------->' as '';
-SHOW TABLES;
+SET FOREIGN_KEY_CHECKS = 0;  -- Disable foreign key checking to avoid issues with dropping tables
+
+DROP TABLE IF EXISTS CommentUpvote;
+DROP TABLE IF EXISTS PostUpvote;
+DROP TABLE IF EXISTS CommentTag;
+DROP TABLE IF EXISTS Comment;
+DROP TABLE IF EXISTS PostVendor;
+DROP TABLE IF EXISTS UserVendor;
+DROP TABLE IF EXISTS Vendor;
+DROP TABLE IF EXISTS PostCategory;
+DROP TABLE IF EXISTS Category;
+DROP TABLE IF EXISTS Post;
+DROP TABLE IF EXISTS User;
+
+SET FOREIGN_KEY_CHECKS = 1;  -- Re-enable foreign key checking
