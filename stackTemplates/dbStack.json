@@ -1,8 +1,8 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "AWS CloudFormation Template for VPC, Subnets, DB Subnet Group, Security Group, and RDS MySQL Instance",
+    "Description": "Template for RealTalkTech app infrastructure including VPC, Subnets, DB Subnet Group, Security Group, and RDS MySQL Instance",
     "Resources": {
-        "MyVPC": {
+        "RealTalkTechVPC": {
             "Type": "AWS::EC2::VPC",
             "Properties": {
                 "CidrBlock": "10.0.0.0/16",
@@ -10,63 +10,63 @@
                 "EnableDnsSupport": true
             }
         },
-        "MySubnetOne": {
+        "PublicSubnet1": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
-                "VpcId": {"Ref": "MyVPC"},
+                "VpcId": {"Ref": "RealTalkTechVPC"},
                 "CidrBlock": "10.0.1.0/24",
                 "AvailabilityZone": "us-east-1a"
             }
         },
-        "MySubnetTwo": {
+        "PublicSubnet2": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
-                "VpcId": {"Ref": "MyVPC"},
+                "VpcId": {"Ref": "RealTalkTechVPC"},
                 "CidrBlock": "10.0.2.0/24",
                 "AvailabilityZone": "us-east-1b"
             }
         },
-        "MyDBSubnetGroup": {
+        "DBSubnetGroup": {
             "Type": "AWS::RDS::DBSubnetGroup",
             "Properties": {
-                "DBSubnetGroupDescription": "My DB subnet group",
-                "SubnetIds": [{"Ref": "MySubnetOne"}, {"Ref": "MySubnetTwo"}]
+                "DBSubnetGroupDescription": "Subnet group for RealTalkTech RDS",
+                "SubnetIds": [{"Ref": "PublicSubnet1"}, {"Ref": "PublicSubnet2"}]
             }
         },
-        "MySecurityGroup": {
+        "RDSSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
-                "GroupDescription": "Security Group for RDS DB Instance",
-                "VpcId": {"Ref": "MyVPC"},
+                "GroupDescription": "Security Group for RealTalkTech RDS instance",
+                "VpcId": {"Ref": "RealTalkTechVPC"},
                 "SecurityGroupIngress": [{
                     "IpProtocol": "tcp",
                     "FromPort": "3306",
                     "ToPort": "3306",
-                    "CidrIp": "0.0.0.0/0"
+                    "CidrIp": "0.0.0.0/0" 
                 }]
             }
         },
-        "MyDBInstance": {
+        "RealTalkTechDBInstance": {
             "Type": "AWS::RDS::DBInstance",
             "Properties": {
                 "AllocatedStorage": "20",
-                "DBInstanceClass": "db.t2.micro",
+                "DBInstanceClass": "db.t2.micro", 
                 "Engine": "MySQL",
-                "EngineVersion": "8.0",
-                "MasterUsername": "dbmaster",
-                "MasterUserPassword": "masterUser123!",
-                "DBName": "RttAppDB",
+                "EngineVersion": "8.0", 
+                "MasterUsername": "admin", 
+                "MasterUserPassword": "ReallyRealAboutTech123!", 
+                "DBName": "RealTalkTechDB",
                 "BackupRetentionPeriod": 7,
-                "DBSubnetGroupName": {"Ref": "MyDBSubnetGroup"},
-                "VPCSecurityGroups": [{"Ref": "MySecurityGroup"}],
-                "MultiAZ": false
+                "DBSubnetGroupName": {"Ref": "DBSubnetGroup"},
+                "VPCSecurityGroups": [{"Ref": "RDSSecurityGroup"}],
+                "MultiAZ": true
             }
         }
     },
     "Outputs": {
         "DBInstanceEndpoint": {
-            "Description": "Connection endpoint of the RDS instance",
-            "Value": {"Fn::GetAtt": ["MyDBInstance", "Endpoint.Address"]}
+            "Description": "Connection endpoint of the RealTalkTech RDS instance",
+            "Value": {"Fn::GetAtt": ["RealTalkTechDBInstance", "Endpoint.Address"]}
         }
     }
 }
