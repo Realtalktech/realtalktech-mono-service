@@ -50,6 +50,8 @@ CREATE TABLE PostCategory (
 CREATE TABLE Vendor (
     id INT AUTO_INCREMENT PRIMARY KEY,
     vendor_name VARCHAR(255) UNIQUE NOT NULL,
+    decription TEXT NOT NULL,
+    vendor_url URL,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
