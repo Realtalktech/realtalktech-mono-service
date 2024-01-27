@@ -27,6 +27,16 @@ CREATE TABLE Category (
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
 
+CREATE TABLE UserCategory (
+    user_id INT,
+    category_id INT,
+    creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (category_id) REFERENCES Category(id),
+    PRIMARY KEY (user_id, category_id)
+);
+
 CREATE TABLE PostCategory (
     post_id INT,
     category_id INT,
@@ -39,7 +49,7 @@ CREATE TABLE PostCategory (
 
 CREATE TABLE Vendor (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    tech_name VARCHAR(255) UNIQUE NOT NULL,
+    vendor_name VARCHAR(255) UNIQUE NOT NULL,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
