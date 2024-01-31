@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
 
 app.register_blueprint(get_bp)
-app.register_blueprint(get_bp)
+app.register_blueprint(post_put_bp)
 
 
 def create_app():
