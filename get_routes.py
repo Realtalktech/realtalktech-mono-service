@@ -21,6 +21,7 @@ def get_db_connection():
 
 @get_bp.route('/feed', methods=['GET'])
 def get_feed():
+    # Test change
     category_id = request.args.get('categoryId', type=int) # None if "All" screen
     user_id = request.args.get('userId', type=int)  # Assuming you can get the user_id from the request
     page = request.args.get('page', 1, type=int)
