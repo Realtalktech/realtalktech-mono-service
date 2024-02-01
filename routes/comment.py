@@ -10,26 +10,54 @@ db_manager = DBManager()
 @comment_bp.route('/getComments', methods=['GET'])
 def get_comments():
     post_id = request.args.get('postId', type=int)
+    user_id = request.args.get('userId', type=int)  # Assuming you can get the user_id from the request
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
 
     conn = db_manager.get_db_connection()
     cursor = conn.cursor()
 
+    # Query to fetch comments and their upvote count
     query = """
-    SELECT c.id, c.user_id, c.comment_text, c.id, c.creation_time
+    SELECT c.id, c.user_id, u.username, c.comment_text, c.creation_time, c.update_time,
+           (SELECT COUNT(*) FROM CommentUpvote WHERE comment_id = c.id) as upvotes,
+           IF((SELECT COUNT(*) FROM CommentUpvote WHERE comment_id = c.id AND user_id = %s) > 0, TRUE, NULL) as user_upvotes
     FROM Comment AS c
+    JOIN User AS u ON c.user_id = u.id
     WHERE c.post_id = %s
     ORDER BY c.id DESC
     LIMIT %s OFFSET %s
     """
-    cursor.execute(query, (post_id, count, (page - 1) * count))
+    cursor.execute(query, (user_id, post_id, count, (page - 1) * count))
     comments = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
-    return jsonify(comments)
+    # Prepare metadata
+    metadata = {
+        'postId': post_id,
+        'userId': user_id,
+        'page': page,
+        'count': count
+    }
+
+    # Format response
+    formatted_comments = [{
+        'id': comment['id'],
+        'user': {
+            'id': comment['user_id'],
+            'username': comment['username']
+        },
+        'text': comment['comment_text'],
+        'upvotes': comment['upvotes'],
+        'userUpvotes': comment['user_upvotes'],
+        'createdTimestamp': comment['creation_time'].isoformat(),
+        'updatedTimestamp': comment['update_time'].isoformat()
+    } for comment in comments]
+
+    return jsonify({"metadata": metadata, "comments": formatted_comments})
+
 
 @comment_bp.route('/makeComment', methods=['POST'])
 def make_comment():
