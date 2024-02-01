@@ -1,15 +1,24 @@
 class Config(object):
+    # Common Configurations like SECRET_KEY
     DEBUG = False
     TESTING = False
-    # Common Configurations like DATABASE_URI
 
 class ProductionConfig(Config):
-    DATABASE_URI = 'mysql+pymysql://user:pwd@production_host/db_name'
+    DB_HOST = 'realtalktechrdsstack-realtalktechdbinstance-c7ciisdczocf.cnqm62ueodz0.us-east-1.rds.amazonaws.com'
+    DB_USER = 'admin'
+    DB_PASSWORD = 'ReallyRealAboutTech123!'
+    DB_NAME = 'RealTalkTechDB'
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    DATABASE_URI = 'mysql+pymysql://user:pwd@localhost/db_name'
+    DB_HOST = 'localhost'
+    DB_USER = 'dev_user'
+    DB_PASSWORD = 'dev_password'
+    DB_NAME = 'dev_db'
 
 class TestingConfig(Config):
     TESTING = True
-    DATABASE_URI = 'mysql+pymysql://user:pwd@localhost/test_db_name'
+    DB_HOST = 'localhost'
+    DB_USER = 'test_user'
+    DB_PASSWORD = 'test_password'
+    DB_NAME = 'test_db'

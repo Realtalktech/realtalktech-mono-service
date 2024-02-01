@@ -3,17 +3,15 @@ import pymysql
 from get_routes import get_bp
 from post_put_routes import post_put_bp
 import pymysql.cursors
-from config import DevelopmentConfig
+from config import DevelopmentConfig, ProductionConfig, TestingConfig
 
-app = Flask(__name__)
-app.config.from_object(DevelopmentConfig)
-
-app.register_blueprint(get_bp)
-app.register_blueprint(post_put_bp)
-
-
-def create_app():
+def create_app(config_class=ProductionConfig):
+    app = Flask(__name__)
+    app.config.from_object(config_class)
+    app.register_blueprint(get_bp)
+    app.register_blueprint(post_put_bp)
     return app
+    
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app = create_app(config_class=ProductionConfig)
