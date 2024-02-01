@@ -134,26 +134,31 @@ class TestAPI:
 
         assert response1.status_code == 200
         assert response2.status_code == 200
-        assert len(posts_page_1) == 10
-        assert len(posts_page_2) == 10
+
 
         expected_post_ids_page_1 = post_ids[-1:-11:-1]  # Last 10 post IDs
         expected_post_ids_page_2 = post_ids[-11:-21:-1]  # Previous 10 post IDs
 
-        for i, post in enumerate(posts_page_1):
+        post_objects_page_1 = posts_page_1['posts']
+        post_objects_page_2 = posts_page_2['posts']
+        assert len(post_objects_page_1) == 10
+        assert len(post_objects_page_2) == 10
+
+
+        for i, post in enumerate(post_objects_page_1):
             assert post['id'] == expected_post_ids_page_1[i]
             assert post['title'] == f'Mock title {80 - i}'
             assert post['body'] == f'Mock body {80 - i}'
-            assert 'creation_time' in post  # Check if creation_time is present
+            assert 'createdTimestamp' in post  # Check if createdTimestamp is present
             assert isinstance(post['id'], int)  # Check if post_id is an integer
             assert isinstance(post['body'], str)  # Check if body is a string
 
 
-        for i, post in enumerate(posts_page_2):
+        for i, post in enumerate(post_objects_page_2):
             assert post['id'] == expected_post_ids_page_2[i]
             assert post['title'] == f'Mock title {70 - i}'
             assert post['body'] == f'Mock body {70 - i}'
-            assert 'creation_time' in post  # Check if creation_time is present
+            assert 'createdTimestamp' in post  # Check if createdTimestamp is present
             assert isinstance(post['id'], int)  # Check if post_id is an integer
             assert isinstance(post['body'], str)  # Check if body is a string
 
@@ -174,6 +179,10 @@ class TestAPI:
             json_formatted_str_page_2 = json.dumps(posts_page_2, indent = 2)
             print("Response for All category Page 1:\n",json_formatted_str_page_1)
             print("Response for All category Page 2:\n",json_formatted_str_page_2)
+
+            posts_page_1 = posts_page_1['posts']
+            posts_page_2 = posts_page_2['posts']
+
 
             assert response_page_1.status_code == 200
             assert response_page_2.status_code == 200
@@ -204,24 +213,26 @@ class TestAPI:
 
         assert response1.status_code == 200
         assert response2.status_code == 200
+        comments_page_1 = comments_page_1['comments']
+        comments_page_2 = comments_page_2['comments']
         assert len(comments_page_1) == 10
         assert len(comments_page_2) == 10
 
         # Assertions for the first page of comments
         for i, comment in enumerate(comments_page_1):
-            assert comment['user_id'] == user_id  # Check if the user_id matches
-            assert f"Mock Comment {20 - i}" in comment['comment_text']  # Check the presence of comment text
-            assert 'creation_time' in comment  # Check if creation_time is present
+            assert comment['user']['id'] == user_id  # Check if the user_id matches
+            assert f"Mock Comment {20 - i}" in comment['text']  # Check the presence of comment text
+            assert 'createdTimestamp' in comment  # Check if createdTimestamp is present
             assert isinstance(comment['id'], int)  # Check if comment_id is an integer
-            assert isinstance(comment['comment_text'], str)  # Check if comment_text is a string
+            assert isinstance(comment['text'], str)  # Check if comment text is a string
 
         # Assertions for the second page of comments
         for i, comment in enumerate(comments_page_2):
-            assert comment['user_id'] == user_id
-            assert f"Mock Comment {10 - i}"  in comment['comment_text']
-            assert 'creation_time' in comment
+            assert comment['user']['id'] == user_id
+            assert f"Mock Comment {10 - i}"  in comment['text']
+            assert 'createdTimestamp' in comment
             assert isinstance(comment['id'], int)
-            assert isinstance(comment['comment_text'], str)
+            assert isinstance(comment['text'], str)
 
         print("Test for get_comments completed.")
 
