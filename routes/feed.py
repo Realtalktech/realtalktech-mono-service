@@ -44,12 +44,35 @@ def get_feed():
     postBodies = cursor.fetchall()
 
     for post in postBodies:
+        # Process categories
         if post['categories']:
             post['categories'] = post['categories'].split(', ')
         else:
             post['categories'] = []
 
+        # Calculate userVote for each post
+        cursor.execute("""
+            SELECT IF(COUNT(*) > 0, TRUE, NULL) as user_vote
+            FROM PostUpvote
+            WHERE post_id = %s AND user_id = %s
+        """, (post['id'], user_id))
+        vote_result = cursor.fetchone()
+        post['userVote'] = vote_result['user_vote'] if vote_result else None
+
+        # Convert timestamps to ISO
+        post['createdTimestamp'] = post.pop('creation_time').isoformat()
+        post['updatedTimestamp'] = post.pop('update_time').isoformat()
+
+
     cursor.close()
     conn.close()
 
-    return jsonify(postBodies)
+    # Prepare metadata
+    metadata = {
+        'categoryId': category_id,
+        'userId': user_id,
+        'page': page,
+        'count': count
+    }
+
+    return jsonify({"metadata": metadata, "posts": postBodies})
