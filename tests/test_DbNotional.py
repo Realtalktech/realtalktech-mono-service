@@ -5,13 +5,13 @@ import sys
 # Add the parent directory to the system path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app import app
+from app import create_app
 from flask_testing import TestCase
 import pytest
 from app import create_app
+from config import ProductionConfig
 import pymysql
 import pymysql.cursors
-import time
 import json
 
 # Database connection details
@@ -20,7 +20,7 @@ USER="admin"
 PASSWORD="ReallyRealAboutTech123!"
 DB = "RealTalkTechDB"
 
-def get_db_connection():
+def get_db_testing_connection():
     return pymysql.connect(host=HOST,
                            user=USER,
                            password=PASSWORD,
@@ -28,9 +28,11 @@ def get_db_connection():
                            charset='utf8mb4',
                            cursorclass=pymysql.cursors.DictCursor)
 
+app = create_app(config_class=ProductionConfig)
+
 @pytest.fixture(scope="module")
 def setup_and_teardown_db():
-    conn = get_db_connection()
+    conn = get_db_testing_connection()
     cursor = conn.cursor()
 
     print("Inserting test data...")

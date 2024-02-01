@@ -1,15 +1,21 @@
 from flask import Flask, jsonify, request
 import pymysql
-from get_routes import get_bp
-from post_put_routes import post_put_bp
+from routes.feed import feed_bp
+from routes.comment import comment_bp
+from routes.vendor import vendor_bp
+from routes.user import user_bp
+from routes.post import post_bp
 import pymysql.cursors
 from config import DevelopmentConfig, ProductionConfig, TestingConfig
 
 def create_app(config_class=ProductionConfig):
     app = Flask(__name__)
     app.config.from_object(config_class)
-    app.register_blueprint(get_bp)
-    app.register_blueprint(post_put_bp)
+    app.register_blueprint(feed_bp)
+    app.register_blueprint(user_bp)
+    app.register_blueprint(comment_bp)
+    app.register_blueprint(vendor_bp)
+    app.register_blueprint(post_bp)
     return app
     
 
