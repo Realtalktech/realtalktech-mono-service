@@ -37,7 +37,7 @@ def get_vendor():
     if not vendor_id:
         return jsonify({"error": "Vendor ID is required"}), 400
 
-    conn = get_db_connection()
+    conn = db_manager.get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
     query = """
