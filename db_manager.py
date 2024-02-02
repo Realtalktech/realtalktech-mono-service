@@ -1,7 +1,6 @@
 from flask import current_app
 import pymysql
 import pymysql.cursors
-from sqlalchemy.engine.url import make_url
 
 class DBManager:
     def get_db_connection(self):
