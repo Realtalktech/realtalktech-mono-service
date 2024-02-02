@@ -14,7 +14,7 @@ RealTalkTech is a dynamic social media platform designed for SaaS procurement. I
 1. Clone the repository and Install Required Packages:
    ```bash
    git clone <repository-url>
-   cd RealTalkTech
+   cd realtalktech-mono-service
    pip install -r requirements.txt
 
 ### Setting Up a Local Testing Environment with Docker
@@ -25,6 +25,16 @@ To set up a local MySQL instance for testing:
    docker-compose up -d
    ```
 3. This sets up a MySQL database accessible at `localhost:3306`.
+4. ssh into your local MySQL instance and populate tables. From the project directory:
+    ```bash
+    chmod +x dbScripts/testConnect.sh
+    ./dbScripts/testConnect.sh
+    ```
+5. From the MySQL connection:
+    ```bash
+    source dbScripts/initDb.sql
+    source dbScripts/verify_tables_exist.sql
+    ```
 
 ### Configuration Modes
 RealTalkTech operates in three modes:
