@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-import pymysql
+from flask_sqlalchemy import SQLAlchemy
 from routes.feed import feed_bp
 from routes.comment import comment_bp
 from routes.vendor import vendor_bp
@@ -10,6 +10,7 @@ from config import DevelopmentConfig, ProductionConfig, TestingConfig
 
 def create_app(config_class=ProductionConfig):
     app = Flask(__name__)
+
     app.config.from_object(config_class)
     app.register_blueprint(feed_bp)
     app.register_blueprint(user_bp)
