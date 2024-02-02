@@ -18,5 +18,7 @@ def create_app(config_class=ProductionConfig):
     app.register_blueprint(post_bp)
     return app
 
+app = create_app(config_class=ProductionConfig)
+
 if __name__ == '__main__':
-    app = create_app(config_class=ProductionConfig)
+    app.run()
