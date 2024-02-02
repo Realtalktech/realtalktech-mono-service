@@ -2,7 +2,6 @@ from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
 import re
-from config import DevelopmentConfig
 from werkzeug.security import generate_password_hash
 from db_manager import DBManager
 

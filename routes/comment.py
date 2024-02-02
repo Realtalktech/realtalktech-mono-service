@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
-from config import DevelopmentConfig, ProductionConfig, TestingConfig
 from db_manager import DBManager
 
 comment_bp = Blueprint('comment_bp', __name__)
