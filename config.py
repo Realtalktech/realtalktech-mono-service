@@ -17,8 +17,7 @@ class DevelopmentConfig(Config):
     DB_NAME = 'dev_db'
 
 class TestingConfig(Config):
-    TESTING = True
     DB_HOST = 'localhost'
-    DB_USER = 'test_user'
-    DB_PASSWORD = 'test_password'
+    DB_USER = 'user'
+    DB_PASSWORD = 'password'
     DB_NAME = 'test_db'

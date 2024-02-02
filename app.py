@@ -1,24 +1,22 @@
-from flask import Flask, jsonify, request
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
 from routes.feed import feed_bp
 from routes.comment import comment_bp
 from routes.vendor import vendor_bp
 from routes.user import user_bp
 from routes.post import post_bp
-import pymysql.cursors
-from config import DevelopmentConfig, ProductionConfig, TestingConfig
+from config import ProductionConfig
+
 
 def create_app(config_class=ProductionConfig):
     app = Flask(__name__)
-
     app.config.from_object(config_class)
+
     app.register_blueprint(feed_bp)
     app.register_blueprint(user_bp)
     app.register_blueprint(comment_bp)
     app.register_blueprint(vendor_bp)
     app.register_blueprint(post_bp)
     return app
-    
 
 if __name__ == '__main__':
     app = create_app(config_class=ProductionConfig)
