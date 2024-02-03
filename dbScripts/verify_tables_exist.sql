@@ -1,14 +1,17 @@
 SHOW TABLES;
 
+DESCRIBE User;
+DESCRIBE Post;
 DESCRIBE Category;
+DESCRIBE DiscoverCategory;
+DESCRIBE UserCategory;
+DESCRIBE PostCategory;
+DESCRIBE PublicVendor;
+DESCRIBE DiscoverVendor;
+DESCRIBE VendorCategory;
+DESCRIBE UserVendor;
+DESCRIBE PostVendor;
 DESCRIBE Comment;
 DESCRIBE CommentTag;
-DESCRIBE CommentUpvote;
-DESCRIBE Post;
-DESCRIBE PostCategory;
 DESCRIBE PostUpvote;
-DESCRIBE PostVendor;
-DESCRIBE User;
-DESCRIBE UserCategory;
-DESCRIBE UserVendor;
-DESCRIBE Vendor;
+DESCRIBE CommentUpvote;

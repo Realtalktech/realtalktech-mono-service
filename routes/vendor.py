@@ -24,8 +24,9 @@ def autocomplete():
     suggestions = trie.get_suggestions(prefix)
     return jsonify(suggestions)
 
-@vendor_bp.route('/discover', methods=['GET'])
-def get_vendors():
+@vendor_bp.route('/discover/categories', methods=['GET'])
+def get_discover():
+    """TODO: Change this to return the list of Discover Categories"""
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
 
@@ -47,6 +48,11 @@ def get_vendors():
 
     return jsonify(vendors)
 
+@vendor_bp.route('/discover/items', methods=['GET'])
+def get_vendor_category():
+    """TODO: Vendor bodies within a particular category"""
+    return False
+
 @vendor_bp.route('/getVendor', methods=['GET'])
 def get_vendor():
     vendor_id = request.args.get('vendor_id', type=int)
@@ -59,7 +65,7 @@ def get_vendor():
 
     query = """
     SELECT id, vendor_name, description, vendor_url, creation_time, update_time
-    FROM Vendor
+    FROM DiscoverVendor
     WHERE id = %s
     """
     cursor.execute(query, (vendor_id,))
@@ -90,7 +96,7 @@ def add_vendor():
 
         # Insert new vendor into the Vendor table
         cursor.execute("""
-            INSERT INTO Vendor (vendor_name, description, vendor_url)
+            INSERT INTO PublicVendor (vendor_name, description, vendor_url)
             VALUES (%s, %s, %s)
         """, (vendor_name, description, vendor_url))
         vendor_id = cursor.lastrowid

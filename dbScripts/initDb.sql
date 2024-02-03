@@ -27,6 +27,14 @@ CREATE TABLE Category (
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
 
+CREATE TABLE DiscoverCategory (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    category_name VARCHAR(255) UNIQUE NOT NULL,
+    decription TINYTEXT,
+    creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
+);
+
 CREATE TABLE UserCategory (
     user_id INT,
     category_id INT,
@@ -47,14 +55,31 @@ CREATE TABLE PostCategory (
     PRIMARY KEY (post_id, category_id)
 );
 
-CREATE TABLE Vendor (
+CREATE TABLE PublicVendor (
     id INT AUTO_INCREMENT PRIMARY KEY,
     vendor_name VARCHAR(255) UNIQUE NOT NULL,
-    decription TEXT NOT NULL,
-    vendor_url TINYTEXT,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
+
+CREATE TABLE DiscoverVendor (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    vendor_name VARCHAR(255) UNIQUE NOT NULL,
+    decription TEXT NOT NULL,
+    vendor_url VARCHAR(255),
+    creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
+);
+
+CREATE TABLE VendorCategory (
+    vendor_id INT,
+    category_id INT,
+    creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    FOREIGN KEY (vendor_id) REFERENCES DiscoverVendor(id),
+    FOREIGN KEY (category_id) REFERENCES DiscoverCategory(id),
+    PRIMARY KEY (user_id, category_id)
+)
 
 CREATE TABLE UserVendor (
     user_id INT,
@@ -62,7 +87,7 @@ CREATE TABLE UserVendor (
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     FOREIGN KEY (user_id) REFERENCES User(id),
-    FOREIGN KEY (vendor_id) REFERENCES Vendor(id),
+    FOREIGN KEY (vendor_id) REFERENCES PublicVendor(id),
     PRIMARY KEY (user_id, vendor_id)
 );
 
@@ -72,7 +97,7 @@ CREATE TABLE PostVendor (
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     FOREIGN KEY (post_id) REFERENCES Post(id),
-    FOREIGN KEY (vendor_id) REFERENCES Vendor(id),
+    FOREIGN KEY (vendor_id) REFERENCES DiscoverVendor(id),
     PRIMARY KEY (post_id, vendor_id)
 );
 
