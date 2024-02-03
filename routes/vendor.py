@@ -1,28 +1,10 @@
 from flask import Blueprint, jsonify, request
-from apscheduler.schedulers.background import BackgroundScheduler
 import pymysql
 import pymysql.cursors
 from db_manager import DBManager
-from trie import TrieNode, Trie
 
 vendor_bp = Blueprint('vendor_bp', __name__)
 db_manager = DBManager()
-
-trie = Trie()
-
-def update_trie():
-    """TODO: Pending DB Changes"""
-    return False
-
-scheduler = BackgroundScheduler()
-scheduler.add_job(func=update_trie, trigger="interval", hours=1) # Update every hour
-scheduler.start()
-
-@vendor_bp.route('/autocomplete', methods=['GET'])
-def autocomplete():
-    prefix = request.args.get('prefix', '')
-    suggestions = trie.get_suggestions(prefix)
-    return jsonify(suggestions)
 
 @vendor_bp.route('/discover/categories', methods=['GET'])
 def get_discover():
