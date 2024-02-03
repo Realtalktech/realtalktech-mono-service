@@ -30,7 +30,7 @@ def get_feed():
            GROUP_CONCAT(DISTINCT c.category_name ORDER BY c.category_name SEPARATOR ', ') AS categories
     FROM Post AS p
     LEFT JOIN PostVendor AS pv ON p.id = pv.post_id
-    LEFT JOIN Vendor AS v ON pv.vendor_id = v.id
+    LEFT JOIN DiscoverVendor AS v ON pv.vendor_id = v.id
     INNER JOIN PostCategory AS pc ON p.id = pc.post_id
     INNER JOIN Category AS c ON pc.category_id = c.id
     WHERE {category_condition}
