@@ -8,7 +8,7 @@ DESCRIBE UserCategory;
 DESCRIBE PostCategory;
 DESCRIBE PublicVendor;
 DESCRIBE DiscoverVendor;
-DESCRIBE VendorCategory;
+DESCRIBE DiscoverVendorCategory;
 DESCRIBE UserVendor;
 DESCRIBE PostVendor;
 DESCRIBE Comment;

@@ -71,7 +71,7 @@ CREATE TABLE DiscoverVendor (
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
 
-CREATE TABLE VendorCategory (
+CREATE TABLE DiscoverVendorCategory (
     vendor_id INT,
     category_id INT,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
