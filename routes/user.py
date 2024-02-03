@@ -64,7 +64,7 @@ def signup():
 
         # Link tech stack to user
         for tech in tech_stack:
-            cursor.execute("SELECT id FROM Vendor WHERE vendor_name = %s", (tech,))
+            cursor.execute("SELECT id FROM PublicVendor WHERE vendor_name = %s", (tech,))
             vendor = cursor.fetchone()
             if vendor:
                 cursor.execute("""
@@ -122,7 +122,7 @@ def edit_profile():
 
             # Tech stack to add
             for tech in new_tech_stack - current_tech_stack:
-                cursor.execute("SELECT id FROM Vendor WHERE vendor_name = %s", (tech,))
+                cursor.execute("SELECT id FROM PublicVendor WHERE vendor_name = %s", (tech,))
                 vendor = cursor.fetchone()
                 if vendor:
                     cursor.execute("""
@@ -132,7 +132,7 @@ def edit_profile():
 
             # Tech stack to remove
             for tech in current_tech_stack - new_tech_stack:
-                cursor.execute("SELECT id FROM Vendor WHERE vendor_name = %s", (tech,))
+                cursor.execute("SELECT id FROM PublicVendor WHERE vendor_name = %s", (tech,))
                 vendor = cursor.fetchone()
                 if vendor:
                     cursor.execute("""
