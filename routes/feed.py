@@ -54,13 +54,13 @@ def get_feed():
             SELECT IF(COUNT(*) > 0, TRUE, NULL) as user_vote
             FROM PostUpvote
             WHERE post_id = %s AND user_id = %s
-        """, (post['id'], user_id))
+        """, (post['post_id'], user_id))
         vote_result = cursor.fetchone()
-        post['userVote'] = vote_result['user_vote'] if vote_result else None
+        post['user_vote'] = vote_result['user_vote'] if vote_result else None
 
         # Convert timestamps to ISO
-        post['createdTimestamp'] = post.pop('creation_time').isoformat()
-        post['updatedTimestamp'] = post.pop('update_time').isoformat()
+        post['created_timestamp'] = post.pop('creation_time').isoformat()
+        post['updated_timestamp'] = post.pop('update_time').isoformat()
 
 
     cursor.close()
@@ -68,8 +68,8 @@ def get_feed():
 
     # Prepare metadata
     metadata = {
-        'categoryId': category_id,
-        'userId': user_id,
+        'category_id': category_id,
+        'searcher_user_id': user_id,
         'page': page,
         'count': count
     }

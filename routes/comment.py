@@ -6,7 +6,7 @@ from db_manager import DBManager
 comment_bp = Blueprint('comment_bp', __name__)
 db_manager = DBManager()
 
-@comment_bp.route('/getComments', methods=['GET'])
+@comment_bp.route('/getCommentsForPost', methods=['GET'])
 def get_comments():
     post_id = request.args.get('postId', type=int)
     user_id = request.args.get('userId', type=int)  # Assuming you can get the user_id from the request
@@ -19,8 +19,8 @@ def get_comments():
     # Query to fetch comments and their upvote count
     query = """
     SELECT c.id, c.user_id, u.username, c.comment_text, c.creation_time, c.update_time,
-           (SELECT COUNT(*) FROM CommentUpvote WHERE comment_id = c.id) as upvotes,
-           IF((SELECT COUNT(*) FROM CommentUpvote WHERE comment_id = c.id AND user_id = %s) > 0, TRUE, NULL) as user_upvotes
+           (SELECT COUNT(*) FROM CommentUpvote WHERE comment_id = c.id) as total_upvotes,
+           IF((SELECT COUNT(*) FROM CommentUpvote WHERE comment_id = c.id AND user_id = %s) > 0, TRUE, NULL) as user_vote
     FROM Comment AS c
     JOIN User AS u ON c.user_id = u.id
     WHERE c.post_id = %s
@@ -35,22 +35,22 @@ def get_comments():
 
     # Prepare metadata
     metadata = {
-        'postId': post_id,
-        'userId': user_id,
+        'post_id': post_id,
+        'searcher_user_id': user_id,
         'page': page,
         'count': count
     }
 
     # Format response
     formatted_comments = [{
-        'id': comment['id'],
+        'comment_id': comment['id'],
         'user': {
-            'id': comment['user_id'],
+            'author_user_id': comment['user_id'],
             'username': comment['username']
         },
         'text': comment['comment_text'],
-        'upvotes': comment['upvotes'],
-        'userUpvotes': comment['user_upvotes'],
+        'total_upvotes': comment['total_upvotes'],
+        'user_vote': comment['user_vote'],
         'createdTimestamp': comment['creation_time'].isoformat(),
         'updatedTimestamp': comment['update_time'].isoformat()
     } for comment in comments]

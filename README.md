@@ -72,22 +72,22 @@ GET /feed?categoryId=1&userId=123&page=1&count=10
 ### Response
 - **metadata**: Object containing request parameters for reference.
 - **posts**: An array of post objects. Each post contains:
-  - `id`: Post ID.
+  - `post_id`: Post ID.
   - `title`: Title of the post.
   - `body`: Body content of the post.
-  - `createdTimestamp`: ISO formatted creation timestamp.
-  - `updatedTimestamp`: ISO formatted update timestamp.
+  - `created_timestamp`: ISO formatted creation timestamp.
+  - `updated_timestamp`: ISO formatted update timestamp.
   - `user_id`: ID of the user who created the post.
   - `vendors`: Comma-separated list of vendors associated with the post.
   - `categories`: Array of categories the post belongs to.
-  - `userVote`: Indicates the current user's vote on the post (true for upvote, null for no vote or not applicable).
+  - `user_vote`: Indicates the current user's vote on the post (true for upvote, null for no vote or not applicable).
 
 ### Example Response
 ```json
 {
   "metadata": {
     "categoryId": 1,
-    "userId": 123,
+    "author_user_id": 123,
     "page": 1,
     "count": 10
   },
@@ -96,12 +96,12 @@ GET /feed?categoryId=1&userId=123&page=1&count=10
       "id": 101,
       "title": "Latest Tech Trends",
       "body": "Discussion on the latest in tech...",
-      "createdTimestamp": "2023-01-01T12:00:00",
-      "updatedTimestamp": "2023-01-02T15:00:00",
+      "created_timestamp": "2023-01-01T12:00:00",
+      "updated_timestamp": "2023-01-02T15:00:00",
       "user_id": 45,
       "vendors": "TechCorp, InnovateInc",
       "categories": ["Technology", "Innovation"],
-      "userVote": true
+      "user_vote": true
     },
     // ... more posts ...
   ]
@@ -113,7 +113,7 @@ GET /feed?categoryId=1&userId=123&page=1&count=10
 The Get Comments API fetches a paginated list of comments for a specific post. Each comment includes the commenter's ID and username, the comment text, total upvotes, and the current user's vote on the comment.
 
 ### Request
-- **Endpoint**: `GET /getComments`
+- **Endpoint**: `GET /getCommentsForPost`
 - **Parameters**:
   - `postId` (int, required): The ID of the post for which comments are being fetched.
   - `userId` (int, required): The ID of the user making the request.
@@ -128,11 +128,11 @@ GET /getComments?postId=123&userId=456&page=1&count=10
 ### Response
 - **metadata**: Object containing request parameters for reference.
 - **comments**: An array of comment objects. Each comment contains:
-  - `id`: Comment ID.
+  - `comment_id`: Comment ID.
   - `user`: Object with `id` and `username` of the commenter.
   - `text`: Comment text.
-  - `upvotes`: Total number of upvotes for the comment.
-  - `userUpvotes`: Current user's vote on the comment (true for upvote, null for no vote).
+  - `total_upvotes`: Total number of upvotes for the comment.
+  - `user_vote`: Current user's vote on the comment (true for upvote, null for no vote).
   - `createdTimestamp`: ISO formatted creation timestamp.
   - `updatedTimestamp`: ISO formatted update timestamp.
 
