@@ -71,7 +71,7 @@ CREATE TABLE DiscoverVendor (
     total_offices INT,
     local_employees INT,
     total_employees INT,
-    vendor_url VARCHAR(255),
+    vendor_homepage_url VARCHAR(255),
     vendor_logo_url VARCHAR(255),
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)

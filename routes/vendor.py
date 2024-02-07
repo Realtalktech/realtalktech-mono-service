@@ -36,8 +36,7 @@ def get_vendors_in_category():
     cursor = conn.cursor(dictionary = True)
 
     query = f"""
-    SELECT dv.id, dv.vendor_name, dv.vendor_type, dv.description, dv.vendor_hq, dv.total_offices,
-           dv.local_employees, dv.total_employees, dv.vendor_url, dv.vendor_logo_url
+    SELECT dv.id, dv.vendor_name, dv.vendor_type, dv.description, dv.vendor_homepage_url, dv.vendor_logo_url
     FROM DiscoverVendor AS dv
     INNER JOIN DiscoverVendorCategory AS dvc ON dv.id = dvc.vendor_id
     WHERE dvc.category_id = %s

@@ -2,8 +2,8 @@ from flask import Flask
 from flask_cors import CORS
 from routes.feed import feed_bp
 from routes.comment import comment_bp
-from routes.vendor import vendor_bp, update_trie
-from routes.user import user_bp
+from routes.vendor import vendor_bp
+from routes.user import user_bp, update_trie
 from routes.post import post_bp
 from config import ProductionConfig
 
