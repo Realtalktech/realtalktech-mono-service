@@ -1,0 +1,30 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "CloudFormation template for S3 bucket creation for RTT object store",
+    "Resources": {
+      "VendorLogosBucket": {
+        "Type": "AWS::S3::Bucket",
+        "Properties": {
+          "BucketName": "vendor-logos-bucket",
+          "VersioningConfiguration": {
+            "Status": "Enabled"
+          }
+        }
+      }
+    },
+    "Outputs": {
+      "BucketName": {
+        "Description": "Name of the S3 bucket",
+        "Value": {
+          "Ref": "VendorLogosBucket"
+        }
+      },
+      "BucketARN": {
+        "Description": "ARN of the S3 bucket",
+        "Value": {
+          "Fn::GetAtt": ["VendorLogosBucket", "Arn"]
+        }
+      }
+    }
+  }
+  

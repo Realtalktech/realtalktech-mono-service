@@ -8,27 +8,22 @@ db_manager = DBManager()
 
 @vendor_bp.route('/discover/categories', methods=['GET'])
 def get_discover():
-    """TODO: Change this to return the list of Discover Categories"""
-    page = request.args.get('page', 1, type=int)
-    count = request.args.get('count', 10, type=int)
 
     conn = db_manager.get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
     query = """
-    SELECT id, vendor_name, description, vendor_url, creation_time, update_time
-    FROM Vendor
-    ORDER BY id
-    LIMIT %s OFFSET %s
+    SELECT id, category_name, description
+    FROM DiscoverCategory
     """
-    cursor.execute(query, (count, (page - 1) * count))
+    cursor.execute(query)
 
-    vendors = cursor.fetchall()
+    discover_categories = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
-    return jsonify(vendors)
+    return jsonify(discover_categories)
 
 @vendor_bp.route('/discover/items', methods=['GET'])
 def get_vendor_category():

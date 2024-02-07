@@ -22,7 +22,7 @@ CREATE TABLE Post (
 CREATE TABLE Category (
     id INT AUTO_INCREMENT PRIMARY KEY,
     category_name VARCHAR(255) UNIQUE NOT NULL,
-    decription TINYTEXT,
+    description TINYTEXT,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
@@ -30,7 +30,7 @@ CREATE TABLE Category (
 CREATE TABLE DiscoverCategory (
     id INT AUTO_INCREMENT PRIMARY KEY,
     category_name VARCHAR(255) UNIQUE NOT NULL,
-    decription TINYTEXT,
+    description TINYTEXT,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
@@ -65,8 +65,9 @@ CREATE TABLE PublicVendor (
 CREATE TABLE DiscoverVendor (
     id INT AUTO_INCREMENT PRIMARY KEY,
     vendor_name VARCHAR(255) UNIQUE NOT NULL,
-    decription TEXT NOT NULL,
+    description TEXT NOT NULL,
     vendor_url VARCHAR(255),
+    vendor_logo_url VARCHAR(255),
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
@@ -78,8 +79,8 @@ CREATE TABLE DiscoverVendorCategory (
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     FOREIGN KEY (vendor_id) REFERENCES DiscoverVendor(id),
     FOREIGN KEY (category_id) REFERENCES DiscoverCategory(id),
-    PRIMARY KEY (user_id, category_id)
-)
+    PRIMARY KEY (vendor_id, category_id)
+);
 
 CREATE TABLE UserVendor (
     user_id INT,
