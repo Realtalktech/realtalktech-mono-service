@@ -11,8 +11,7 @@
                 {
                     "AllowedHeaders": ["*"],
                     "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
-                    "AllowedOrigins": ["https://ec2-3-95-180-146.compute-1.amazonaws.com"],
-                    "ExposeHeaders": [],
+                    "AllowedOrigins": ["*"],
                     "MaxAge": 3000
                 }
             ]
