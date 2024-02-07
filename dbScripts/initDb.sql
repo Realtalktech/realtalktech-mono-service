@@ -65,7 +65,12 @@ CREATE TABLE PublicVendor (
 CREATE TABLE DiscoverVendor (
     id INT AUTO_INCREMENT PRIMARY KEY,
     vendor_name VARCHAR(255) UNIQUE NOT NULL,
+    vendor_type VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
+    vendor_hq VARCHAR(255),
+    total_offices INT,
+    local_employees INT,
+    total_employees INT,
     vendor_url VARCHAR(255),
     vendor_logo_url VARCHAR(255),
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),

@@ -26,9 +26,37 @@ def get_discover():
     return jsonify(discover_categories)
 
 @vendor_bp.route('/discover/items', methods=['GET'])
-def get_vendor_category():
+def get_vendors_in_category():
     """TODO: Vendor bodies within a particular category"""
-    return False
+    discover_category_id = request.args.get("categoryId", type=int)
+    page = request.args.get('page', 1, type=int)
+    count = request.args.get('count', 10, type=int)
+
+    conn = db_manager.get_db_connection()
+    cursor = conn.cursor(dictionary = True)
+
+    query = f"""
+    SELECT dv.id, dv.vendor_name, dv.vendor_type, dv.description, dv.vendor_hq, dv.total_offices,
+           dv.local_employees, dv.total_employees, dv.vendor_url, dv.vendor_logo_url
+    FROM DiscoverVendor AS dv
+    INNER JOIN DiscoverVendorCategory AS dvc ON dv.id = dvc.vendor_id
+    WHERE dvc.category_id = %s
+    ORDER BY dv.id DESC, dv.creation_time DESC
+    LIMIT %s OFFSET %s
+    """
+    cursor.execute(query, (discover_category_id, count, (page - 1) * count))
+    vendors = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    metadata = {
+        'discover_category_id': discover_category_id,
+        'page': page,
+        'count': count
+    }
+
+    return jsonify({"metadata": metadata, "vendors": vendors})
+
 
 @vendor_bp.route('/getVendor', methods=['GET'])
 def get_vendor():
