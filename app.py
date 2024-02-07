@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from routes.feed import feed_bp
 from routes.comment import comment_bp
 from routes.vendor import vendor_bp, update_trie
@@ -9,6 +10,7 @@ from config import ProductionConfig
 
 def create_app(config_class=ProductionConfig):
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(config_class)
 
     app.register_blueprint(feed_bp)

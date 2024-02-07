@@ -6,6 +6,17 @@
         "Type": "AWS::S3::Bucket",
         "Properties": {
           "BucketName": "vendor-logos-bucket",
+          "CorsConfiguration": {
+            "CorsRules": [
+                {
+                    "AllowedHeaders": ["*"],
+                    "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
+                    "AllowedOrigins": ["https://ec2-3-95-180-146.compute-1.amazonaws.com"],
+                    "ExposeHeaders": [],
+                    "MaxAge": 3000
+                }
+            ]
+        },
           "VersioningConfiguration": {
             "Status": "Enabled"
           }
