@@ -54,7 +54,7 @@ def get_feed():
             SELECT IF(COUNT(*) > 0, TRUE, NULL) as user_vote
             FROM PostUpvote
             WHERE post_id = %s AND user_id = %s
-        """, (post['post_id'], user_id))
+        """, (post['id'], user_id))
         vote_result = cursor.fetchone()
         post['user_vote'] = vote_result['user_vote'] if vote_result else None
 
