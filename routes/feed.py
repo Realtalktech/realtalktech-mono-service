@@ -48,6 +48,12 @@ def get_feed():
             post['categories'] = post['categories'].split(', ')
         else:
             post['categories'] = []
+        
+        # Process vendors
+        if post['vendors']:
+            post['vendors'] = post['vendors'].split(', ')
+        else:
+            post['vendors'] = []
 
         # Calculate userVote for each post
         cursor.execute("""
