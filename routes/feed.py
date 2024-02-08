@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
+from responseFormatter import convert_keys_to_camel_case
 from db_manager import DBManager
 
 feed_bp = Blueprint('feed_bp', __name__)
@@ -58,7 +59,7 @@ def get_feed():
         is_anonymous = post.pop('is_anonymous')
 
         if is_anonymous:
-            username = "User Hidden"
+            username = "user"
             post_author_id = -1
 
         else:
@@ -98,10 +99,12 @@ def get_feed():
     cursor.close()
     conn.close()
 
+    postBodies = [convert_keys_to_camel_case(post) for post in postBodies]
+
     # Prepare metadata
     metadata = {
-        'category_id': category_id,
-        'searcher_user_id': user_id,
+        'categoryId': category_id,
+        'searcherUserId': user_id,
         'page': page,
         'count': count
     }
