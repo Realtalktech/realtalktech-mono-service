@@ -138,7 +138,6 @@ if __name__ == '__main__':
     # Establish database conn
     conn = pymysql.connect(host=DB_HOST, user=DB_USER, password=DB_PASSWORD, db=DB_NAME, charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
     cursor = conn.cursor()
-    insert_notional_data(cursor)
     conn.commit()
     cursor.close()
     conn.close()
