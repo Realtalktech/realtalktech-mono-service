@@ -1,9 +1,11 @@
 CREATE TABLE User (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255),
+    full_name VARCHAR(255) NOT NULL,
     username VARCHAR(255) UNIQUE NOT NULL,
+    current_company VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
+    linkedin_url VARCHAR(255),
+    bio VARCHAR(255),
     password VARCHAR(255) NOT NULL,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
