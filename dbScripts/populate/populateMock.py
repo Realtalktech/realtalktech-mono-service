@@ -54,7 +54,8 @@ def insert_notional_data(cursor):
     for vendor_id in vendor_ids:
         for category_id in category_ids:
             for i in range(5):  # 5 posts per vendor per category (5 * 3 * 4 = 60 Total Posts)
-                cursor.execute("INSERT INTO Post (user_id, title, body) VALUES (%s, 'Mock title %s', 'Mock body %s')", (user_id, postNum, postNum))
+                is_anonymous = i % 2
+                cursor.execute("INSERT INTO Post (user_id, title, body, is_anonymous) VALUES (%s, 'Mock title %s', 'Mock body %s', %s)", (user_id, postNum, postNum, is_anonymous))
                 cursor.execute("SELECT LAST_INSERT_ID()")
                 post_id = cursor.fetchone()['LAST_INSERT_ID()']
                 post_ids.append(post_id)

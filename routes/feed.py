@@ -54,12 +54,22 @@ def get_feed():
             post['vendors'] = post['vendors'].split(', ')
         else:
             post['vendors'] = []
+
+        is_anonymous = post.pop('is_anonymous')
+
+        if is_anonymous:
+            username = "User Hidden"
+            post_author_id = -1
+
+        else:
+            cursor.execute("""SELECT username FROM User WHERE id = %s""", (user_id))
+            username = cursor.fetchone()['username']
+            post_author_id = post.pop('user_id')
+    
         
         # Process user information
-        cursor.execute("""SELECT username FROM User WHERE id = %s""", (user_id))
-        username = cursor.fetchone()
-        post['user'] = {"id": post['user_id'], "username": username['username']}
-        post.pop('user_id')
+
+        post['user'] = {"id": post_author_id, "username": username}
 
         # Calculate userVote for each post
         cursor.execute("""
