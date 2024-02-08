@@ -73,7 +73,7 @@ def get_feed():
         # Calculate number of upvotes on each post
         cursor.execute("""SELECT COUNT(*) FROM PostUpvote WHERE post_id = %s""", (post["id"]))
         num_likes = cursor.fetchall()
-        post['num_likes'] = num_likes
+        post['num_likes'] = num_likes['COUNT(*)']
 
         # Convert timestamps to ISO
         post['created_timestamp'] = post.pop('creation_time').isoformat()
