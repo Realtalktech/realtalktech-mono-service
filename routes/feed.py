@@ -54,6 +54,12 @@ def get_feed():
             post['vendors'] = post['vendors'].split(', ')
         else:
             post['vendors'] = []
+        
+        # Process user information
+        cursor.execute("""SELECT username FROM User WHERE id = %s""", (user_id))
+        username = cursor.fetchone()
+        post['user'] = {"id": post['user_id'], "username": username}
+        post.pop('user_id')
 
         # Calculate userVote for each post
         cursor.execute("""
