@@ -19,18 +19,19 @@ RealTalkTech is a dynamic social media platform designed for SaaS procurement. I
 
 ### Setting Up a Local Testing Environment with Docker
 To set up a local MySQL instance for testing:
-1. Ensure Docker is installed and running on your machine.
-2. Run the following command inside the stackTemplates/docker folder:
+1. Ensure Docker is installed and running on your machine. You must install both the CLI and desktop client.
+2. You must also install the MySQL CLI here: https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-install-macos-quick.html
+3. Run the following command inside the stackTemplates/docker folder:
    ```bash
    docker-compose up -d
    ```
-3. This sets up a MySQL database accessible at `localhost:3306`.
-4. ssh into your local MySQL instance and populate tables. From the project directory:
+4. This sets up a MySQL database accessible at `localhost:3306`.
+5. ssh into your local MySQL instance and populate tables. From the project directory:
     ```bash
-    chmod +x dbScripts/testConnect.sh
-    ./dbScripts/testConnect.sh
+    chmod +x dbScripts/connect/testConnect.sh
+    ./dbScripts/connect/testConnect.sh
     ```
-5. From the MySQL connection:
+6. From the MySQL connection:
     ```bash
     source dbScripts/initDb.sql
     source dbScripts/verify_tables_exist.sql

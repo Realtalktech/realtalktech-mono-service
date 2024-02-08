@@ -134,11 +134,91 @@ class DataBuilder:
             (comment_id, self.test_user_ids[0])
         )
 
+    def insert_post_2(self, cursor):
+        """Inserts a post from Elon Gates about HubSpot, with comments and likes"""
+        # Insert post about HubSpot
+        cursor.execute(
+            """INSERT INTO Post (user_id, is_anonymous, title, body) VALUES (%s, %s, %s, %s)""",
+            (self.test_user_ids[0], False, "HubSpot Revolution", "HubSpot has changed the way we market!")
+        )
+        cursor.execute("SELECT LAST_INSERT_ID()")
+        post_id = cursor.fetchone()['LAST_INSERT_ID()']
+
+        # Tag HubSpot in post
+        cursor.execute(
+            """INSERT INTO PostVendor (post_id, vendor_id) VALUES (%s, %s)""",
+            (post_id, self.vendor_ids[1])
+        )
+
+        # Comments and likes
+        self.insert_comment_and_like(cursor, post_id, self.test_user_ids[2], "HubSpot is indeed a game-changer!", self.test_user_ids[1])
+
+    def insert_post_3(self, cursor):
+        """Inserts an anonymous post by Elon Gates, no tags, with comments"""
+        # Insert anonymous post
+        cursor.execute(
+            """INSERT INTO Post (user_id, is_anonymous, title, body) VALUES (%s, %s, %s, %s)""",
+            (self.test_user_ids[0], True, "Anonymous Insights", "What are your thoughts on the future of AI in sales?")
+        )
+        cursor.execute("SELECT LAST_INSERT_ID()")
+        post_id = cursor.fetchone()['LAST_INSERT_ID()']
+
+        # Comments
+        self.insert_comment(cursor, post_id, self.test_user_ids[1], "AI is going to be crucial in understanding customer needs.")
+
+    def insert_post_4(self, cursor):
+        """Inserts a post from Elon Gates about Zendesk Sell, with comments and likes"""
+        # Insert post about Zendesk Sell
+        cursor.execute(
+            """INSERT INTO Post (user_id, is_anonymous, title, body) VALUES (%s, %s, %s, %s)""",
+            (self.test_user_ids[0], False, "Zendesk Sell's Impact", "Our sales team loves Zendesk Sell!")
+        )
+        cursor.execute("SELECT LAST_INSERT_ID()")
+        post_id = cursor.fetchone()['LAST_INSERT_ID()']
+
+        # Tag Zendesk Sell in post
+        cursor.execute(
+            """INSERT INTO PostVendor (post_id, vendor_id) VALUES (%s, %s)""",
+            (post_id, self.vendor_ids[2])
+        )
+
+        # Comments and likes
+        self.insert_comment_and_like(cursor, post_id, self.test_user_ids[3], "It's a superb tool!", self.test_user_ids[0])
+
+    def insert_comment(self, cursor, post_id, user_id, text):
+        """Helper function to insert a comment"""
+        cursor.execute(
+            """INSERT INTO Comment (post_id, user_id, comment_text) VALUES (%s, %s, %s)""",
+            (post_id, user_id, text)
+        )
+
+    def insert_comment_and_like(self, cursor, post_id, commenter_id, comment_text, liker_id):
+        """Helper function to insert a comment and a like"""
+        self.insert_comment(cursor, post_id, commenter_id, comment_text)
+        cursor.execute("SELECT LAST_INSERT_ID()")
+        comment_id = cursor.fetchone()['LAST_INSERT_ID()']
+
+        # Insert like
+        cursor.execute(
+            """INSERT INTO CommentUpvote (comment_id, user_id) VALUES (%s, %s)""",
+            (comment_id, liker_id)
+        )
+
 if __name__ == '__main__':
-    # Establish database conn
+    # Establish database connection and call methods to insert data
     conn = pymysql.connect(host=DB_HOST, user=DB_USER, password=DB_PASSWORD, db=DB_NAME, charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
     cursor = conn.cursor()
+
+    data_builder = DataBuilder()
+    data_builder.insert_test_users(cursor)
+    data_builder.insert_categories(cursor)
+    data_builder.insert_discover_categories(cursor)
+    data_builder.insert_test_vendors(cursor)
+    data_builder.insert_post_1(cursor)
+    data_builder.insert_post_2(cursor)
+    data_builder.insert_post_3(cursor)
+    data_builder.insert_post_4(cursor)
+
     conn.commit()
     cursor.close()
     conn.close()
-    cursor.close()
