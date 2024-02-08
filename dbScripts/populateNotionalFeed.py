@@ -22,7 +22,7 @@ DB_NAME = 'RealTalkTechDB'
 def insert_notional_data(cursor):
     """This will eventually be removed in lieu of calls to upcoming @POST methods."""
     # Insert a test user
-    cursor.execute("INSERT INTO User (first_name, last_name, username, email, password) VALUES ('Test', 'User', 'test_user', 'test@example.com', 'password')")
+    cursor.execute("INSERT INTO User (full_name, username, current_company, email, password) VALUES ('Test User', 'test_user', 'test llc', 'test@example.com', 'password')")
     cursor.execute("SELECT LAST_INSERT_ID()")
     user_id = cursor.fetchone()['LAST_INSERT_ID()']
 
