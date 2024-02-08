@@ -71,8 +71,6 @@ CREATE TABLE DiscoverVendor (
     vendor_type VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     vendor_hq VARCHAR(255),
-    total_offices INT,
-    local_employees INT,
     total_employees INT,
     vendor_homepage_url VARCHAR(255),
     vendor_logo_url VARCHAR(255),
