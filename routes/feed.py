@@ -25,7 +25,7 @@ def get_feed():
         query_params = (user_id, count, (page - 1) * count)
 
     query = f"""
-    SELECT p.id, p.title, p.body, p.creation_time, p.update_time, p.user_id, p.is_anonymous
+    SELECT p.id, p.title, p.body, p.creation_time, p.update_time, p.user_id, p.is_anonymous,
            GROUP_CONCAT(DISTINCT v.vendor_name ORDER BY v.vendor_name SEPARATOR ', ') AS vendors,
            GROUP_CONCAT(DISTINCT c.category_name ORDER BY c.category_name SEPARATOR ', ') AS categories
     FROM Post AS p
