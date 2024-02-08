@@ -3,7 +3,8 @@ from flask_cors import CORS
 from routes.feed import feed_bp
 from routes.comment import comment_bp
 from routes.vendor import vendor_bp
-from routes.user import user_bp, update_trie
+# from routes.user import user_bp, update_trie
+from routes.user import user_bp
 from routes.post import post_bp
 from config import ProductionConfig
 
@@ -23,5 +24,5 @@ def create_app(config_class=ProductionConfig):
 app = create_app(config_class=ProductionConfig)
 
 if __name__ == '__main__':
-    update_trie() # Initial Trie population
+    # update_trie() # Initial Trie population
     app.run()

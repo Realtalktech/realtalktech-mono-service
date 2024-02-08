@@ -10,27 +10,27 @@ from db_manager import DBManager
 user_bp = Blueprint('user_bp', __name__)
 db_manager = DBManager()
 
-trie = Trie()
+# trie = Trie()
 
-def update_trie():
-    conn = db_manager.get_db_connection()
-    try:
-        cursor = conn.cursor()
-        cursor.execute("SELECT vendor_name FROM PublicVendor")
-        for row in cursor.fetchall():
-            trie.insert(row['vendor_name'].lower())
-    finally:
-        conn.close()
+# def update_trie():
+#     conn = db_manager.get_db_connection()
+#     try:
+#         cursor = conn.cursor()
+#         cursor.execute("SELECT vendor_name FROM PublicVendor")
+#         for row in cursor.fetchall():
+#             trie.insert(row['vendor_name'].lower())
+#     finally:
+#         conn.close()
 
-scheduler = BackgroundScheduler()
-scheduler.add_job(func=update_trie, trigger="interval", hours=1) # Update every hour
-scheduler.start()
+# scheduler = BackgroundScheduler()
+# scheduler.add_job(func=update_trie, trigger="interval", hours=1) # Update every hour
+# scheduler.start()
 
-@user_bp.route('/autocomplete', methods=['GET'])
-def autocomplete():
-    prefix = request.args.get('prefix', '')
-    suggestions = trie.autocomplete(prefix)
-    return jsonify(suggestions)
+# @user_bp.route('/autocomplete', methods=['GET'])
+# def autocomplete():
+#     prefix = request.args.get('prefix', '')
+#     suggestions = trie.autocomplete(prefix)
+#     return jsonify(suggestions)
 
 @user_bp.route('/signup', methods=['PUT'])
 def signup():
