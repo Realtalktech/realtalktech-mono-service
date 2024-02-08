@@ -14,6 +14,7 @@ CREATE TABLE User (
 CREATE TABLE Post (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
+    is_anonymous BOOLEAN NOT NULL,
     title VARCHAR(255) NOT NULL,
     body TEXT NOT NULL,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
