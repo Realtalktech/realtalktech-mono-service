@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
 from db_manager import DBManager
+from responseFormatter import convert_keys_to_camel_case
 
 comment_bp = Blueprint('comment_bp', __name__)
 db_manager = DBManager()
@@ -28,34 +29,35 @@ def get_comments():
     LIMIT %s OFFSET %s
     """
     cursor.execute(query, (user_id, post_id, count, (page - 1) * count))
-    comments = cursor.fetchall()
+    comment_bodies = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
     # Prepare metadata
     metadata = {
-        'post_id': post_id,
-        'searcher_user_id': user_id,
+        'postId': post_id,
+        'searcherUserId': user_id,
         'page': page,
         'count': count
     }
 
     # Format response
-    formatted_comments = [{
-        'comment_id': comment['id'],
-        'user': {
-            'author_user_id': comment['user_id'],
-            'username': comment['username']
-        },
-        'text': comment['comment_text'],
-        'total_upvotes': comment['total_upvotes'],
-        'user_vote': comment['user_vote'],
-        'createdTimestamp': comment['creation_time'].isoformat(),
-        'updatedTimestamp': comment['update_time'].isoformat()
-    } for comment in comments]
+    comment_bodies = [convert_keys_to_camel_case(comment) for comment in comment_bodies]
+    # formatted_comments = [{
+    #     'commentId': comment['id'],
+    #     'user': {
+    #         'id': comment['user_id'],
+    #         'username': comment['username']
+    #     },
+    #     'text': comment['comment_text'],
+    #     'totalUpvotes': comment['total_upvotes'],
+    #     'userVote': comment['user_vote'],
+    #     'createdTimestamp': comment['creation_time'].isoformat(),
+    #     'updatedTimestamp': comment['update_time'].isoformat()
+    # } for comment in comments]
 
-    return jsonify({"metadata": metadata, "comments": formatted_comments})
+    return jsonify({"metadata": metadata, "comments": comment_bodies})
 
 
 @comment_bp.route('/makeComment', methods=['POST'])

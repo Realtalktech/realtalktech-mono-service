@@ -41,9 +41,9 @@ def get_feed():
     """
     cursor.execute(query, query_params)
 
-    postBodies = cursor.fetchall()
+    post_bodies = cursor.fetchall()
 
-    for post in postBodies:
+    for post in post_bodies:
         # Process categories
         if post['categories']:
             post['categories'] = post['categories'].split(', ')
@@ -69,7 +69,6 @@ def get_feed():
     
         
         # Process user information
-
         post['user'] = {"id": post_author_id, "username": username}
 
         # Calculate userVote for each post
@@ -99,7 +98,7 @@ def get_feed():
     cursor.close()
     conn.close()
 
-    postBodies = [convert_keys_to_camel_case(post) for post in postBodies]
+    post_bodies = [convert_keys_to_camel_case(post) for post in post_bodies]
 
     # Prepare metadata
     metadata = {
@@ -109,4 +108,4 @@ def get_feed():
         'count': count
     }
 
-    return jsonify({"metadata": metadata, "posts": postBodies})
+    return jsonify({"metadata": metadata, "posts": post_bodies})
