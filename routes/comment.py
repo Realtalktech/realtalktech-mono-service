@@ -46,6 +46,7 @@ def get_comments():
             (comment['id'])
         )
         tagged_ids = cursor.fetchall()
+        comment['taggedUserIds'] = tagged_ids
 
     cursor.close()
     conn.close()
