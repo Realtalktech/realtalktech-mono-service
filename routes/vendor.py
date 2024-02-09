@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
 from db_manager import DBManager
+from responseFormatter import convert_keys_to_camel_case
 
 vendor_bp = Blueprint('vendor_bp', __name__)
 db_manager = DBManager()
@@ -22,6 +23,9 @@ def get_discover():
 
     cursor.close()
     conn.close()
+
+    discover_categories = [convert_keys_to_camel_case(category) for category in discover_categories]
+
 
     return jsonify(discover_categories)
 
@@ -48,8 +52,11 @@ def get_vendors_in_category():
     cursor.close()
     conn.close()
 
+    vendors = [convert_keys_to_camel_case(vendor) for vendor in vendors]
+
+
     metadata = {
-        'discover_category_id': discover_category_id,
+        'discoverCategoryId': discover_category_id,
         'page': page,
         'count': count
     }
@@ -68,7 +75,7 @@ def get_vendor():
     cursor = conn.cursor(dictionary=True)
 
     query = """
-    SELECT id, vendor_name, description, vendor_url, creation_time, update_time
+    SELECT id, vendor_name, vendor_type, description, vendor_hq, total_employees, vendor_homepage_url, vendor_logo_url
     FROM DiscoverVendor
     WHERE id = %s
     """
@@ -78,6 +85,9 @@ def get_vendor():
 
     cursor.close()
     conn.close()
+
+    vendor = convert_keys_to_camel_case(vendor)
+
 
     if vendor:
         return jsonify(vendor)

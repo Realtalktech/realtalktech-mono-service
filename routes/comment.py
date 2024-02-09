@@ -44,18 +44,6 @@ def get_comments():
 
     # Format response
     comment_bodies = [convert_keys_to_camel_case(comment) for comment in comment_bodies]
-    # formatted_comments = [{
-    #     'commentId': comment['id'],
-    #     'user': {
-    #         'id': comment['user_id'],
-    #         'username': comment['username']
-    #     },
-    #     'text': comment['comment_text'],
-    #     'totalUpvotes': comment['total_upvotes'],
-    #     'userVote': comment['user_vote'],
-    #     'createdTimestamp': comment['creation_time'].isoformat(),
-    #     'updatedTimestamp': comment['update_time'].isoformat()
-    # } for comment in comments]
 
     return jsonify({"metadata": metadata, "comments": comment_bodies})
 
@@ -64,9 +52,9 @@ def get_comments():
 def make_comment():
     try:
         data = request.json
-        post_id = data.get('post_id')
-        user_id = data.get('user_id')
-        comment_text = data.get('comment_text')
+        post_id = data.get('postId')
+        user_id = data.get('userId')
+        comment_text = data.get('commentText')
 
         # Validate input
         if not (post_id and user_id and comment_text):
@@ -97,8 +85,8 @@ def make_comment():
 def upvote_comment():
     try:
         data = request.json
-        user_id = data.get('user_id')
-        comment_id = data.get('comment_id')
+        user_id = data.get('userId')
+        comment_id = data.get('commentId')
 
         if not (user_id and comment_id):
             return jsonify({"error": "User ID and Comment ID are required"}), 400
@@ -135,8 +123,8 @@ def upvote_comment():
 def remove_upvote_comment():
     try:
         data = request.json
-        user_id = data.get('user_id')
-        comment_id = data.get('comment_id')
+        user_id = data.get('userId')
+        comment_id = data.get('commentId')
 
         if not (user_id and comment_id):
             return jsonify({"error": "User ID and Comment ID are required"}), 400

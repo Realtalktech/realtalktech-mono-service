@@ -10,12 +10,14 @@ db_manager = DBManager()
 def make_post():
     try:
         data = request.json
-        user_id = data.get('user_id')
+        user_id = data.get('userId')
         title = data.get('title')
         body = data.get('body')
         categories = data.get('categories', [])  # List of category names
+        is_anonymous = data.get('isAnonymous')
+        vendors = data.get('vendors', []) # List of vendor names
 
-        if not (user_id and title and body):
+        if not (user_id and title and body and is_anonymous):
             return jsonify({"error": "Missing required post information"}), 400
 
         conn = db_manager.get_db_connection()
@@ -23,9 +25,9 @@ def make_post():
 
         # Insert post into database
         cursor.execute("""
-            INSERT INTO Post (user_id, title, body) 
-            VALUES (%s, %s, %s)
-        """, (user_id, title, body))
+            INSERT INTO Post (user_id, title, body, is_anonymous) 
+            VALUES (%s, %s, %s, %s)
+        """, (user_id, title, body, is_anonymous))
         post_id = cursor.lastrowid
 
         # Link post to categories
@@ -37,6 +39,16 @@ def make_post():
                     INSERT INTO PostCategory (post_id, category_id) 
                     VALUES (%s, %s)
                 """, (post_id, category['id']))
+        
+        # Link post to vendors
+        for vendor_name in vendors:
+            cursor.execute("SELECT id FROM DiscoverVendor WHERE vendor_name = %s", (vendor_name,))
+            vendor = cursor.fetchone()
+            if vendor:
+                cursor.execute("""
+                    INSERT INTO PostVendor(post_id, vendor_id) 
+                    VALUES (%s, %s)
+                """, (post_id, vendor['id']))                
 
         conn.commit()
 
@@ -53,8 +65,8 @@ def make_post():
 def edit_post():
     try:
         data = request.json
-        post_id = data.get('post_id')
-        user_id = data.get('user_id')  # Assuming you're tracking which user is making the request
+        post_id = data.get('postId')
+        user_id = data.get('userId')  # Assuming you're tracking which user is making the request
         new_title = data.get('title')
         new_body = data.get('body')
         new_categories = set(data.get('categories', []))  # List of new category names
@@ -119,8 +131,8 @@ def edit_post():
 def upvote_post():
     try:
         data = request.json
-        user_id = data.get('user_id')
-        post_id = data.get('post_id')
+        user_id = data.get('userId')
+        post_id = data.get('postId')
 
         if not (user_id and post_id):
             return jsonify({"error": "User ID and Post ID are required"}), 400
@@ -157,8 +169,8 @@ def upvote_post():
 def remove_upvote_post():
     try:
         data = request.json
-        user_id = data.get('user_id')
-        post_id = data.get('post_id')
+        user_id = data.get('userId')
+        post_id = data.get('postId')
 
         if not (user_id and post_id):
             return jsonify({"error": "User ID and Post ID are required"}), 400

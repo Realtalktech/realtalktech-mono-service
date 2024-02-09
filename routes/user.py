@@ -7,6 +7,7 @@ from trie import TrieNode, Trie
 from werkzeug.security import generate_password_hash
 from db_manager import DBManager
 
+
 user_bp = Blueprint('user_bp', __name__)
 db_manager = DBManager()
 
@@ -87,9 +88,9 @@ def signup():
 def edit_profile():
     try:
         data = request.json
-        user_id = data.get('user_id')
-        new_first_name = data.get('first_name')
-        new_last_name = data.get('last_name')
+        user_id = data.get('userId')
+        new_first_name = data.get('firstName')
+        new_last_name = data.get('lastName')
         new_email = data.get('email')
         new_password = data.get('password')  # Assuming password change is allowed
         new_tech_stack = set(data.get('techstack', []))  # List of new vendor names
@@ -114,7 +115,7 @@ def edit_profile():
         if new_tech_stack:
             # Fetch current tech stack of the user
             cursor.execute("""
-                SELECT v.vendor_name FROM Vendor AS v
+                SELECT v.vendor_name FROM PublicVendor AS v
                 JOIN UserVendor AS uv ON v.id = uv.vendor_id
                 WHERE uv.user_id = %s
             """, (user_id,))
