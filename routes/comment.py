@@ -46,9 +46,12 @@ def get_comments():
             (comment['id'])
         )
         tagged_ids = cursor.fetchall()
-        comment['tagged_user_ids'] = []
+        comment['tagged_usernames'] = []
         for item in tagged_ids:
-            comment['tagged_user_ids'].append(item['tagged_user_id'])
+            tagged_user_id = item['tagged_user_id']
+            cursor.execute("""SELECT username FROM User WHERE id = %s""", (tagged_user_id))
+            tagged_username = cursor.fetchone()['username']
+            comment['tagged_usernames'].append(tagged_username)
 
     cursor.close()
     conn.close()
