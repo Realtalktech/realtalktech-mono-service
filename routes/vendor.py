@@ -87,8 +87,7 @@ def get_vendor():
     conn.close()
 
     vendor = convert_keys_to_camel_case(vendor)
-
-
+    
     if vendor:
         return jsonify(vendor)
     else:

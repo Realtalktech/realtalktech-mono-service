@@ -31,6 +31,14 @@ def get_comments():
     cursor.execute(query, (user_id, post_id, count, (page - 1) * count))
     comment_bodies = cursor.fetchall()
 
+    for comment in comment_bodies:
+        cursor.execute("""SELECT username FROM User WHERE id = %s""", (user_id))
+        username = cursor.fetchone()['username']
+        comment_user_id = comment.pop('user_id')
+        
+        # Process user information
+        comment['user'] = {"id": comment_user_id, "username": username}
+
     cursor.close()
     conn.close()
 
