@@ -46,7 +46,9 @@ def get_comments():
             (comment['id'])
         )
         tagged_ids = cursor.fetchall()
-        comment['taggedUserIds'] = tagged_ids
+        comment['tagged_user_ids'] = []
+        for item in tagged_ids:
+            comment['tagged_user_ids'].append(item['tagged_user_id'])
 
     cursor.close()
     conn.close()
