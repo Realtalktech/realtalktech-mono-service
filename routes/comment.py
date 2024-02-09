@@ -32,12 +32,20 @@ def get_comments():
     comment_bodies = cursor.fetchall()
 
     for comment in comment_bodies:
+        # Get username for response body
         cursor.execute("""SELECT username FROM User WHERE id = %s""", (user_id))
         username = cursor.fetchone()['username']
         comment_user_id = comment.pop('user_id')
-        
+
         # Process user information
         comment['user'] = {"id": comment_user_id, "username": username}
+
+        # Get tags associated with comment
+        cursor.execute(
+            """SELECT tagged_user_id FROM CommentTag WHERE comment_id = %s""",
+            (comment['id'])
+        )
+        tagged_ids = cursor.fetchall()
 
     cursor.close()
     conn.close()

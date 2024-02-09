@@ -21,10 +21,11 @@ DB_NAME = 'RealTalkTechDB'
 
 def insert_notional_data(cursor):
     """This will eventually be removed in lieu of calls to upcoming @POST methods."""
-    # Insert a test user
+    # Insert 2 test users
     cursor.execute("INSERT INTO User (full_name, username, current_company, email, password) VALUES ('Test User', 'test_user', 'test llc', 'test@example.com', 'password')")
     cursor.execute("SELECT LAST_INSERT_ID()")
     user_id = cursor.fetchone()['LAST_INSERT_ID()']
+    cursor.execute("INSERT INTO User (full_name, username, current_company, email, password) VALUES ('Test User2', 'test_user2', 'test llc', 'test2@example.com', 'password')")
 
     # Insert test categories
     category_names = ['test1', 'test2', 'test3', 'test4']
@@ -72,6 +73,10 @@ def insert_notional_data(cursor):
     commentPost = post_ids[0]
     for i in range(20):
         cursor.execute("INSERT INTO Comment (post_id, user_id, comment_text) VALUES (%s, %s, 'Mock Comment %s')", (commentPost, user_id, i + 1))
+        cursor.execute("SELECT LAST_INSERT_ID()")
+        comment_id = cursor.fetchone()['LAST_INSERT_ID()']
+        # Tag user 2 in all comments
+        cursor.execute("INSERT INTO CommentTag (comment_id, tagged_user_id) VALUES (%s , %s)", (comment_id, 2))
 
 if __name__ == '__main__':
     # Establish database conn

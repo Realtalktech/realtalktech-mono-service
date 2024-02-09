@@ -120,13 +120,13 @@ CREATE TABLE Comment (
 );
 
 CREATE TABLE CommentTag (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     comment_id INT,
     tagged_user_id INT,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     FOREIGN KEY (comment_id) REFERENCES Comment(id),
-    FOREIGN KEY (tagged_user_id) REFERENCES User(id),
-    PRIMARY KEY (comment_id, tagged_user_id)
+    FOREIGN KEY (tagged_user_id) REFERENCES User(id)
 );
 
 CREATE TABLE PostUpvote (
