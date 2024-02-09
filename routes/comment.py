@@ -76,6 +76,7 @@ def make_comment():
         data = request.json
         post_id = data.get('postId')
         user_id = data.get('userId')
+        tagged_user_names = data.get('taggedUsernames')
         comment_text = data.get('commentText')
 
         # Validate input
@@ -91,6 +92,13 @@ def make_comment():
             VALUES (%s, %s, %s)
         """, (post_id, user_id, comment_text))
         comment_id = cursor.lastrowid
+
+        # Insert comment tags into database
+        for username in tagged_user_names:
+            # Get tagged_user_id
+            cursor.execute("""SELECT id FROM User WHERE username = %s""", (username))
+            tagged_user_id = cursor.fetchone()['id']
+            cursor.execute("INSERT INTO CommentTag (comment_id, tagged_user_id) VALUES (%s , %s)", (comment_id, tagged_user_id))
 
         conn.commit()
 
