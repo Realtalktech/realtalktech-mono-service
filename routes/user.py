@@ -97,6 +97,8 @@ def get_user_public_profile_by_username():
 
 @user_bp.route('/signup', methods=['PUT'])
 def signup():
+    conn = db_manager.get_db_connection()
+    cursor = conn.cursor()
     try:
         # Extract data from request
         data = request.json
@@ -116,11 +118,9 @@ def signup():
         hashed_password = generate_password_hash(password)
 
         # Insert user into database
-        conn = db_manager.get_db_connection()
-        cursor = conn.cursor()
         cursor.execute("""
             INSERT INTO User (full_name, username, email, password) 
-            VALUES (%s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s)
         """, (full_name, username, email, hashed_password))
         user_id = cursor.lastrowid
 
