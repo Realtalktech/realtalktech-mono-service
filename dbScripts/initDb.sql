@@ -38,6 +38,23 @@ CREATE TABLE DiscoverCategory (
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
 
+CREATE TABLE InterestArea (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    interest_area_name VARCHAR(255) UNIQUE NOT NULL,
+    creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)    
+);
+
+CREATE TABLE UserInterestArea (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    interest_area_id INT,
+    creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (interest_area_id) REFERENCES InterestArea(id)
+);
+
 CREATE TABLE UserDiscussCategory (
     user_id INT,
     category_id INT,

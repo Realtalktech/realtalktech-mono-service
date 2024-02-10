@@ -108,8 +108,8 @@ def signup():
         password = data.get('password')
         tech_stack = data.get('techStack', [])  # List of vendor names
         current_company = data.get('currentCompany')
-        categories_of_work = data.get('workCategories', []) # List of "what do you do?"
-        interest_areas = data.get('interestAreas', []) # List of interest areas
+        categories_of_work = data.get('workCategories', []) # List of "what do you do?" names
+        interest_areas = data.get('interestAreas', []) # List of interest area names
 
         # Initialize an empty list to collect the names of missing fields
         missing_fields = []
@@ -131,7 +131,7 @@ def signup():
             missing_fields_str = ', '.join(missing_fields)  # Convert the list to a comma-separated string
             error_message = f"Missing required fields: {missing_fields_str}"
             return jsonify({"error": error_message}), 400
-
+        
 
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             return jsonify({"error": "Invalid email format"}), 400
@@ -145,6 +145,22 @@ def signup():
             VALUES (%s, %s, %s, %s, %s)
         """, (full_name, username, current_company, email, hashed_password))
         user_id = cursor.lastrowid
+
+        # Link categories of work to User in UserDiscussCategory for feed population
+        for work_category in categories_of_work:
+            cursor.execute("SELECT id FROM DiscussCategory WHERE category_name = %s", (work_category,))
+            category = cursor.fetchone()
+            if category:
+                cursor.execute("""INSERT INTO UserDiscussCategory (user_id, category_id) VALUES (%s, %s)""",
+                            (user_id, category['id']))
+        
+        # Link interest areas to user
+        for area in interest_areas:
+            cursor.execute("SELECT id FROM InterestArea WHERE interest_area_name = %s", (area,))
+            interest_area_id = cursor.fetchone()
+            if interest_area_id:
+                cursor.execute("""INSERT INTO UserInterestArea (user_id, interest_area_id) VALUES (%s, %s)""",
+                            (user_id, interest_area_id['id']))                
 
         # Link tech stack to user
         for tech in tech_stack:
