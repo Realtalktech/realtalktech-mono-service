@@ -45,14 +45,14 @@ class TestAPI(TestCase):
         category_names = ['test1', 'test2', 'test3', 'test4']
         category_ids = []
         for name in category_names:
-            cursor.execute("INSERT INTO Category (category_name) VALUES (%s)", (name,))
+            cursor.execute("INSERT INTO DiscussCategory (category_name) VALUES (%s)", (name,))
             cursor.execute("SELECT LAST_INSERT_ID()")
             category_id = cursor.fetchone()['LAST_INSERT_ID()']
             category_ids.append(category_id)
             
             if(name == 'test1' or name == 'test2'):
                 # Associate user with the category
-                cursor.execute("INSERT INTO UserCategory (user_id, category_id) VALUES (%s, %s)", (user_id, category_id))
+                cursor.execute("INSERT INTO UserDiscussCategory (user_id, category_id) VALUES (%s, %s)", (user_id, category_id))
 
         # Insert mock posts in each category
         post_ids = []
@@ -65,7 +65,7 @@ class TestAPI(TestCase):
                 post_ids.append(post_id)
 
                 # Link post to category
-                cursor.execute("INSERT INTO PostCategory (post_id, category_id) VALUES (%s, %s)", (post_id, category_id))
+                cursor.execute("INSERT INTO PostDiscussCategory (post_id, category_id) VALUES (%s, %s)", (post_id, category_id))
                 postNum = postNum + 1
 
         # Insert 20 mock comments into the first post
@@ -80,12 +80,12 @@ class TestAPI(TestCase):
         cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
         cursor.execute("TRUNCATE TABLE User")
         cursor.execute("TRUNCATE TABLE Post")
-        cursor.execute("TRUNCATE TABLE Category")
-        cursor.execute("TRUNCATE TABLE UserCategory")
-        cursor.execute("TRUNCATE TABLE PostCategory")
+        cursor.execute("TRUNCATE TABLE DiscussCategory")
+        cursor.execute("TRUNCATE TABLE UserDiscussCategory")
+        cursor.execute("TRUNCATE TABLE PostDiscussCategory")
         cursor.execute("TRUNCATE TABLE Vendor")
-        cursor.execute("TRUNCATE TABLE UserVendor")
-        cursor.execute("TRUNCATE TABLE PostVendor")
+        cursor.execute("TRUNCATE TABLE UserPublicVendor")
+        cursor.execute("TRUNCATE TABLE PostDiscoverVendor")
         cursor.execute("TRUNCATE TABLE Comment")
         cursor.execute("TRUNCATE TABLE CommentTag")
         cursor.execute("TRUNCATE TABLE PostUpvote")

@@ -35,9 +35,9 @@ for category in df.columns:
         cursor.execute("SELECT id FROM DiscoverVendor WHERE vendor_name = %s", (vendor,))
         vendor_id = cursor.fetchone()[0]
 
-        # Link vendor to category in DiscoverVendorCategory
+        # Link vendor to category in VendorDiscoverCategory
         cursor.execute("""
-            INSERT IGNORE INTO DiscoverVendorCategory (vendor_id, category_id)
+            INSERT IGNORE INTO VendorDiscoverCategory (vendor_id, category_id)
             VALUES (%s, %s)
         """, (vendor_id, category_id))
         connection.commit()

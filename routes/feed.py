@@ -22,7 +22,7 @@ def get_feed():
         category_condition = "pc.category_id = %s"
         query_params = (category_id, count, (page - 1) * count)
     else:  # For "All" categories
-        category_condition = "EXISTS (SELECT 1 FROM UserCategory AS uc WHERE uc.user_id = %s AND uc.category_id = pc.category_id)"
+        category_condition = "EXISTS (SELECT 1 FROM UserDiscussCategory AS uc WHERE uc.user_id = %s AND uc.category_id = pc.category_id)"
         query_params = (user_id, count, (page - 1) * count)
 
     query = f"""
@@ -30,10 +30,10 @@ def get_feed():
            GROUP_CONCAT(DISTINCT v.vendor_name ORDER BY v.vendor_name SEPARATOR ', ') AS vendors,
            GROUP_CONCAT(DISTINCT c.category_name ORDER BY c.category_name SEPARATOR ', ') AS categories
     FROM Post AS p
-    LEFT JOIN PostVendor AS pv ON p.id = pv.post_id
+    LEFT JOIN PostDiscoverVendor AS pv ON p.id = pv.post_id
     LEFT JOIN DiscoverVendor AS v ON pv.vendor_id = v.id
-    INNER JOIN PostCategory AS pc ON p.id = pc.post_id
-    INNER JOIN Category AS c ON pc.category_id = c.id
+    INNER JOIN PostDiscussCategory AS pc ON p.id = pc.post_id
+    INNER JOIN DiscussCategory AS c ON pc.category_id = c.id
     WHERE {category_condition}
     GROUP BY p.id
     ORDER BY p.id DESC, p.creation_time DESC

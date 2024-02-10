@@ -42,7 +42,7 @@ def get_vendors_in_category():
     query = f"""
     SELECT dv.id, dv.vendor_name, dv.vendor_type, dv.description, dv.vendor_homepage_url, dv.vendor_logo_url
     FROM DiscoverVendor AS dv
-    INNER JOIN DiscoverVendorCategory AS dvc ON dv.id = dvc.vendor_id
+    INNER JOIN VendorDiscoverCategory AS dvc ON dv.id = dvc.vendor_id
     WHERE dvc.category_id = %s
     ORDER BY dv.id DESC, dv.creation_time DESC
     LIMIT %s OFFSET %s

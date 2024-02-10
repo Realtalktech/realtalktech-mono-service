@@ -22,7 +22,7 @@ CREATE TABLE Post (
     FOREIGN KEY (user_id) REFERENCES User(id)
 );
 
-CREATE TABLE Category (
+CREATE TABLE DiscussCategory (
     id INT AUTO_INCREMENT PRIMARY KEY,
     category_name VARCHAR(255) UNIQUE NOT NULL,
     description TINYTEXT,
@@ -38,7 +38,7 @@ CREATE TABLE DiscoverCategory (
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
 
-CREATE TABLE UserCategory (
+CREATE TABLE UserDiscussCategory (
     user_id INT,
     category_id INT,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
@@ -48,7 +48,7 @@ CREATE TABLE UserCategory (
     PRIMARY KEY (user_id, category_id)
 );
 
-CREATE TABLE PostCategory (
+CREATE TABLE PostDiscussCategory (
     post_id INT,
     category_id INT,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
@@ -65,18 +65,6 @@ CREATE TABLE PublicVendor (
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
 
-CREATE TABLE UserEndorsement (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    endorser_user_id INT,
-    endorsee_user_id INT,
-    vendor_id INT,
-    creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
-    update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
-    FOREIGN KEY (vendor_id) REFERENCES PublicVendor(id),
-    FOREIGN KEY (endorser_user_id) REFERENCES User(id),
-    FOREIGN KEY (endorsee_user_id) REFERENCES User(id)
-);
-
 CREATE TABLE DiscoverVendor (
     id INT AUTO_INCREMENT PRIMARY KEY,
     vendor_name VARCHAR(255) UNIQUE NOT NULL,
@@ -90,7 +78,19 @@ CREATE TABLE DiscoverVendor (
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
 
-CREATE TABLE DiscoverVendorCategory (
+CREATE TABLE UserPublicVendorEndorsement (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    endorser_user_id INT,
+    endorsee_user_id INT,
+    vendor_id INT,
+    creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    FOREIGN KEY (vendor_id) REFERENCES PublicVendor(id),
+    FOREIGN KEY (endorser_user_id) REFERENCES User(id),
+    FOREIGN KEY (endorsee_user_id) REFERENCES User(id)
+);
+
+CREATE TABLE VendorDiscoverCategory (
     vendor_id INT,
     category_id INT,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
@@ -100,7 +100,7 @@ CREATE TABLE DiscoverVendorCategory (
     PRIMARY KEY (vendor_id, category_id)
 );
 
-CREATE TABLE UserVendor (
+CREATE TABLE UserPublicVendor (
     user_id INT,
     vendor_id INT,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
@@ -110,7 +110,7 @@ CREATE TABLE UserVendor (
     PRIMARY KEY (user_id, vendor_id)
 );
 
-CREATE TABLE PostVendor (
+CREATE TABLE PostDiscoverVendor (
     post_id INT,
     vendor_id INT,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),

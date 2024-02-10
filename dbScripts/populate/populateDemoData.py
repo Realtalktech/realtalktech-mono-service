@@ -36,7 +36,7 @@ class DataBuilder:
         # Insert categories
         self.category_ids = []
         for name in category_names:
-            cursor.execute("INSERT INTO Category (category_name) VALUES (%s)", (name,))
+            cursor.execute("INSERT INTO DiscussCategory (category_name) VALUES (%s)", (name,))
             cursor.execute("SELECT LAST_INSERT_ID()")
             category_id = cursor.fetchone()['LAST_INSERT_ID()']
             self.category_ids.append(category_id)
@@ -95,7 +95,7 @@ class DataBuilder:
             vendor_id = cursor.fetchone()['LAST_INSERT_ID()']
             self.vendor_ids.append(vendor_id)
             cursor.execute(
-                """INSERT INTO DiscoverVendorCategory (vendor_id, category_id) VALUES (%s, %s)""", 
+                """INSERT INTO VendorDiscoverCategory (vendor_id, category_id) VALUES (%s, %s)""", 
                 (vendor_id, self.vendor_categories[0])
             )
             
@@ -111,7 +111,7 @@ class DataBuilder:
 
         # Tag Salesforce in post
         cursor.execute(
-            """INSERT INTO PostVendor (post_id, vendor_id) VALUES (%s,%s)""",
+            """INSERT INTO PostDiscoverVendor (post_id, vendor_id) VALUES (%s,%s)""",
             (post_id, self.vendor_ids[0])
         )
         # Insert comment from Bill
@@ -146,7 +146,7 @@ class DataBuilder:
 
         # Tag HubSpot in post
         cursor.execute(
-            """INSERT INTO PostVendor (post_id, vendor_id) VALUES (%s, %s)""",
+            """INSERT INTO PostDiscoverVendor (post_id, vendor_id) VALUES (%s, %s)""",
             (post_id, self.vendor_ids[1])
         )
 
@@ -178,7 +178,7 @@ class DataBuilder:
 
         # Tag Zendesk Sell in post
         cursor.execute(
-            """INSERT INTO PostVendor (post_id, vendor_id) VALUES (%s, %s)""",
+            """INSERT INTO PostDiscoverVendor (post_id, vendor_id) VALUES (%s, %s)""",
             (post_id, self.vendor_ids[2])
         )
 

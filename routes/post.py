@@ -32,11 +32,11 @@ def make_post():
 
         # Link post to categories
         for category_name in categories:
-            cursor.execute("SELECT id FROM Category WHERE category_name = %s", (category_name,))
+            cursor.execute("SELECT id FROM DiscussCategory WHERE category_name = %s", (category_name,))
             category = cursor.fetchone()
             if category:
                 cursor.execute("""
-                    INSERT INTO PostCategory (post_id, category_id) 
+                    INSERT INTO PostDiscussCategory (post_id, category_id) 
                     VALUES (%s, %s)
                 """, (post_id, category['id']))
         
@@ -46,7 +46,7 @@ def make_post():
             vendor = cursor.fetchone()
             if vendor:
                 cursor.execute("""
-                    INSERT INTO PostVendor(post_id, vendor_id) 
+                    INSERT INTO PostDiscoverVendor(post_id, vendor_id) 
                     VALUES (%s, %s)
                 """, (post_id, vendor['id']))                
 
@@ -90,29 +90,29 @@ def edit_post():
         if new_categories:
             # Fetch current categories of the post
             cursor.execute("""
-                SELECT c.category_name FROM Category AS c
-                JOIN PostCategory AS pc ON c.id = pc.category_id
+                SELECT c.category_name FROM DiscussCategory AS c
+                JOIN PostDiscussCategory AS pc ON c.id = pc.category_id
                 WHERE pc.post_id = %s
             """, (post_id,))
             current_categories = {row['category_name'] for row in cursor.fetchall()}
 
             # Categories to add
             for category_name in new_categories - current_categories:
-                cursor.execute("SELECT id FROM Category WHERE category_name = %s", (category_name,))
+                cursor.execute("SELECT id FROM DiscussCategory WHERE category_name = %s", (category_name,))
                 category = cursor.fetchone()
                 if category:
                     cursor.execute("""
-                        INSERT INTO PostCategory (post_id, category_id) 
+                        INSERT INTO PostDiscussCategory (post_id, category_id) 
                         VALUES (%s, %s)
                     """, (post_id, category['id']))
 
             # Categories to remove
             for category_name in current_categories - new_categories:
-                cursor.execute("SELECT id FROM Category WHERE category_name = %s", (category_name,))
+                cursor.execute("SELECT id FROM DiscussCategory WHERE category_name = %s", (category_name,))
                 category = cursor.fetchone()
                 if category:
                     cursor.execute("""
-                        DELETE FROM PostCategory 
+                        DELETE FROM PostDiscussCategory 
                         WHERE post_id = %s AND category_id = %s
                     """, (post_id, category['id']))
 

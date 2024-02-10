@@ -32,14 +32,14 @@ def insert_notional_data(cursor):
     category_names = ['test1', 'test2', 'test3', 'test4']
     category_ids = []
     for name in category_names:
-        cursor.execute("INSERT INTO Category (category_name) VALUES (%s)", (name,))
+        cursor.execute("INSERT INTO DiscussCategory (category_name) VALUES (%s)", (name,))
         cursor.execute("SELECT LAST_INSERT_ID()")
         category_id = cursor.fetchone()['LAST_INSERT_ID()']
         category_ids.append(category_id)
         
         if(name == 'test1' or name == 'test2'):
             # Associate user with the category
-            cursor.execute("INSERT INTO UserCategory (user_id, category_id) VALUES (%s, %s)", (user_id, category_id))
+            cursor.execute("INSERT INTO UserDiscussCategory (user_id, category_id) VALUES (%s, %s)", (user_id, category_id))
     
     # Insert test vendors
     vendor_names = ['vendor1', 'vendor2', 'vendor3']
@@ -54,12 +54,12 @@ def insert_notional_data(cursor):
     cursor.execute("INSERT INTO PublicVendor (vendor_name) VALUES (%s)", (vendor_names[0]))
 
     # Insert vendor 1 into user 1 profile
-    cursor.execute("INSERT INTO UserVendor (user_id, vendor_id) VALUES (%s, %s)", (1,1))
+    cursor.execute("INSERT INTO UserPublicVendor (user_id, vendor_id) VALUES (%s, %s)", (1,1))
 
 
     # Endorse user 1 from user 2 in vendor 1
     cursor.execute(
-    """INSERT INTO UserEndorsement (endorser_user_id, endorsee_user_id, vendor_id) VALUES (%s, %s, %s)""",
+    """INSERT INTO UserPublicVendorEndorsement (endorser_user_id, endorsee_user_id, vendor_id) VALUES (%s, %s, %s)""",
     (2, 1, 1)
     )
 
@@ -77,10 +77,10 @@ def insert_notional_data(cursor):
                 post_ids.append(post_id)
 
                 # Link post to category
-                cursor.execute("INSERT INTO PostCategory (post_id, category_id) VALUES (%s, %s)", (post_id, category_id))
+                cursor.execute("INSERT INTO PostDiscussCategory (post_id, category_id) VALUES (%s, %s)", (post_id, category_id))
 
                 # Link post to vendor
-                cursor.execute("INSERT INTO PostVendor (post_id, vendor_id) VALUES (%s, %s)", (post_id, vendor_id))
+                cursor.execute("INSERT INTO PostDiscoverVendor (post_id, vendor_id) VALUES (%s, %s)", (post_id, vendor_id))
 
                 postNum = postNum + 1
 

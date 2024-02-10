@@ -56,7 +56,7 @@ def get_user_public_profile_by_username():
     # Fetch associated vendor IDs
     cursor.execute("""
         SELECT vendor_id
-        FROM UserVendor
+        FROM UserPublicVendor
         WHERE user_id = %s
     """, (requested_user_id,))
     vendor_ids = cursor.fetchall()
@@ -74,7 +74,7 @@ def get_user_public_profile_by_username():
         # Check for endorsement
         cursor.execute("""
             SELECT COUNT(*) AS endorsement_count
-            FROM UserEndorsement
+            FROM UserPublicVendorEndorsement
             WHERE endorser_user_id = %s AND vendor_id = %s
         """, (requester_user_id, vendor['vendor_id']))
         endorsement = cursor.fetchone()['endorsement_count'] > 0
@@ -108,13 +108,15 @@ def signup():
         password = data.get('password')
         tech_stack = data.get('techStack', [])  # List of vendor names
         current_company = data.get('currentCompany')
+        categories_of_work = data.get('workCategories', []) # List of "what do you do?"
+        interest_areas = data.get('interestAreas', []) # List of interest areas
 
         # Initialize an empty list to collect the names of missing fields
         missing_fields = []
 
         # Check each field and add its name to the list if it is missing
         if not full_name:
-            missing_fields.append('full_name')
+            missing_fields.append('fullname')
         if not username:
             missing_fields.append('username')
         if not email:
@@ -122,7 +124,7 @@ def signup():
         if not password:
             missing_fields.append('password')
         if not current_company:
-            missing_fields.append('current_company')
+            missing_fields.append('currentCompany')
 
         # If there are any missing fields, return an error message specifying them
         if missing_fields:
@@ -150,7 +152,7 @@ def signup():
             vendor = cursor.fetchone()
             if vendor:
                 cursor.execute("""
-                    INSERT INTO UserVendor (user_id, vendor_id) 
+                    INSERT INTO UserPublicVendor (user_id, vendor_id) 
                     VALUES (%s, %s)
                 """, (user_id, vendor['id']))
 
@@ -197,7 +199,7 @@ def edit_profile():
             # Fetch current tech stack of the user
             cursor.execute("""
                 SELECT v.vendor_name FROM PublicVendor AS v
-                JOIN UserVendor AS uv ON v.id = uv.vendor_id
+                JOIN UserPublicVendor AS uv ON v.id = uv.vendor_id
                 WHERE uv.user_id = %s
             """, (user_id,))
             current_tech_stack = {row['vendor_name'] for row in cursor.fetchall()}
@@ -208,7 +210,7 @@ def edit_profile():
                 vendor = cursor.fetchone()
                 if vendor:
                     cursor.execute("""
-                        INSERT INTO UserVendor (user_id, vendor_id) 
+                        INSERT INTO UserPublicVendor (user_id, vendor_id) 
                         VALUES (%s, %s)
                     """, (user_id, vendor['id']))
 
@@ -218,7 +220,7 @@ def edit_profile():
                 vendor = cursor.fetchone()
                 if vendor:
                     cursor.execute("""
-                        DELETE FROM UserVendor 
+                        DELETE FROM UserPublicVendor 
                         WHERE user_id = %s AND vendor_id = %s
                     """, (user_id, vendor['id']))
 
@@ -252,7 +254,7 @@ def endorse_user():
         cursor = conn.cursor()
 
         cursor.execute(
-            """INSERT INTO UserEndorsement (endorser_user_id, endorsee_user_id, vendor_id) VALUES (%s, %s, %s)""",
+            """INSERT INTO UserPublicVendorEndorsement (endorser_user_id, endorsee_user_id, vendor_id) VALUES (%s, %s, %s)""",
             (endorser_user_id, endorsee_user_id, vendor_id)
         )
 
