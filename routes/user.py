@@ -140,7 +140,7 @@ def signup():
         # Insert user into database
         cursor.execute("""
             INSERT INTO User (full_name, username, current_company, email, password) 
-            VALUES (%s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s)
         """, (full_name, username, current_company, email, hashed_password))
         user_id = cursor.lastrowid
 
