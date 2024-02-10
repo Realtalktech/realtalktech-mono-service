@@ -6,7 +6,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from trie import TrieNode, Trie
 from werkzeug.security import generate_password_hash
 from db_manager import DBManager
-
+from responseFormatter import convert_keys_to_camel_case
 
 user_bp = Blueprint('user_bp', __name__)
 db_manager = DBManager()
@@ -32,6 +32,68 @@ db_manager = DBManager()
 #     prefix = request.args.get('prefix', '')
 #     suggestions = trie.autocomplete(prefix)
 #     return jsonify(suggestions)
+
+@user_bp.route('/getUser', methods=['GET'])
+def get_user_public_profile_by_username():
+    """Get a user's public profile"""
+    requested_username = request.args.get('publicUsername', type = str)
+    requester_user_id = request.args.get('userId', type = str)
+    conn = db_manager.get_db_connection()
+    cursor = conn.cursor()
+
+    # Get user_id
+    cursor.execute("""SELECT id FROM User WHERE username = %s""", (requested_username))
+    requested_user_id = cursor.fetchone()['id']
+
+    # Fetch user details
+    cursor.execute("""
+        SELECT full_name, username, current_company, linkedin_url, bio
+        FROM User
+        WHERE id = %s
+    """, (requested_user_id,))
+    user_details = cursor.fetchone()
+
+    # Fetch associated vendor IDs
+    cursor.execute("""
+        SELECT vendor_id
+        FROM UserVendor
+        WHERE user_id = %s
+    """, (requested_user_id,))
+    vendor_ids = cursor.fetchall()
+    
+    # Convert vendor IDs to vendor names and check endorsements
+    vendors_with_endorsements = []
+    for vendor in vendor_ids:
+        cursor.execute("""
+            SELECT vendor_name
+            FROM PublicVendor
+            WHERE id = %s
+        """, (vendor['vendor_id'],))
+        vendor_name = cursor.fetchone()
+
+        # Check for endorsement
+        cursor.execute("""
+            SELECT COUNT(*) AS endorsement_count
+            FROM UserEndorsement
+            WHERE endorser_user_id = %s AND vendor_id = %s
+        """, (requester_user_id, vendor['vendor_id']))
+        endorsement = cursor.fetchone()['endorsement_count'] > 0
+
+        if vendor_name:
+            vendors_with_endorsements.append({
+                'vendor_name': vendor_name['vendor_name'],
+                'endorsed_by_requester': endorsement
+            })
+    
+    cursor.close()
+    conn.close()
+
+    user_details = convert_keys_to_camel_case(user_details)
+    vendors_with_endorsements = [convert_keys_to_camel_case(item) for item in vendors_with_endorsements]
+
+    return jsonify({'userDetails': user_details, 'vendors': vendors_with_endorsements})
+
+    
 
 @user_bp.route('/signup', methods=['PUT'])
 def signup():
@@ -158,11 +220,14 @@ def endorse_user():
     try:
         data = request.json
         endorser_user_id = data.get('endorserUserId')
-        endorsee_user_id = data.get('endorseeUserId')
+        endorsee_username = data.get('endorseeUsername')
         vendor_id = data.get('vendorId')
 
-        if not endorser_user_id and endorsee_user_id and vendor_id:
+        if not endorser_user_id and endorsee_username and vendor_id:
             return jsonify({"error": "Endorser User Id, Endorsee User Id, Vendor Id is required"}), 400
+
+        cursor.execute("""SELECT id FROM User WHERE username = %s""", (endorsee_username))
+        endorsee_user_id = cursor.fetchone()['id']
 
         conn = db_manager.get_db_connection()
         cursor = conn.cursor()
