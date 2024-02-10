@@ -107,6 +107,7 @@ def signup():
         email = data.get('email')
         password = data.get('password')
         tech_stack = data.get('techstack', [])  # List of vendor names
+        current_company = data.get('currentCompany')
 
         # Validate input
         if not (full_name and username and email and password):
@@ -119,9 +120,9 @@ def signup():
 
         # Insert user into database
         cursor.execute("""
-            INSERT INTO User (full_name, username, email, password) 
+            INSERT INTO User (full_name, username, current_company, email, password) 
             VALUES (%s, %s, %s, %s)
-        """, (full_name, username, email, hashed_password))
+        """, (full_name, username, current_company, email, hashed_password))
         user_id = cursor.lastrowid
 
         # Link tech stack to user
