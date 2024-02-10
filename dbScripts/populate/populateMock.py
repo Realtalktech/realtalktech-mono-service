@@ -27,6 +27,7 @@ def insert_notional_data(cursor):
     user_id = cursor.fetchone()['LAST_INSERT_ID()']
     cursor.execute("INSERT INTO User (full_name, username, current_company, email, password) VALUES ('Test User2', 'test_user2', 'test llc', 'test2@example.com', 'password')")
 
+
     # Insert test categories
     category_names = ['test1', 'test2', 'test3', 'test4']
     category_ids = []
@@ -48,6 +49,16 @@ def insert_notional_data(cursor):
         cursor.execute("SELECT LAST_INSERT_ID()")
         vendor_id = cursor.fetchone()['LAST_INSERT_ID()']
         vendor_ids.append(vendor_id)
+    
+    # Insert vendor 1 into publicVendor list
+    cursor.execute("INSERT INTO PublicVendor (vendor_name) VALUES (%s)", (vendor_names[0]))
+
+    # Endorse user 1 from user 2 in vendor 1
+    cursor.execute(
+    """INSERT INTO UserEndorsement (endorser_user_id, endorsee_user_id, vendor_id) VALUES (%s, %s, %s)""",
+    (2, 1, 1)
+    )
+
 
     # Insert mock posts in each vendor and category
     post_ids = []
