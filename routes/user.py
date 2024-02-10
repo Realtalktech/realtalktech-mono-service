@@ -110,7 +110,7 @@ def signup():
         current_company = data.get('currentCompany')
 
         # Validate input
-        if not (full_name and username and email and password):
+        if not (full_name and username and email and password and current_company):
             return jsonify({"error": "Missing required fields"}), 400
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             return jsonify({"error": "Invalid email format"}), 400
