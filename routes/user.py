@@ -168,7 +168,7 @@ def endorse_user():
         cursor = conn.cursor()
 
         cursor.execute(
-            """INSERT INTO UserEndorsement (endorser_user_id, endorsee_user_id, vendor_id) VALUES (%s, %s, %s)"""
+            """INSERT INTO UserEndorsement (endorser_user_id, endorsee_user_id, vendor_id) VALUES (%s, %s, %s)""",
             (endorser_user_id, endorsee_user_id, vendor_id)
         )
 
