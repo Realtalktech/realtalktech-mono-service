@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS DiscoverCategory;
 DROP TABLE IF EXISTS UserCategory;
 DROP TABLE IF EXISTS PostCategory;
 DROP TABLE IF EXISTS PublicVendor;
+DROP TABLE IF EXISTS UserEndorsement;
 DROP TABLE IF EXISTS DiscoverVendor;
 DROP TABLE IF EXISTS DiscoverVendorCategory;
 DROP TABLE IF EXISTS UserVendor;

@@ -151,3 +151,36 @@ def edit_profile():
         conn.close()
 
     return jsonify({"message": "Profile updated successfully"}), 200
+
+
+@user_bp.route('/endorseUser', methods = ['PUT'])
+def endorse_user():
+    try:
+        data = request.json
+        endorser_user_id = data.get('endorserUserId')
+        endorsee_user_id = data.get('endorseeUserId')
+        vendor_id = data.get('vendorId')
+
+        if not endorser_user_id and endorsee_user_id and vendor_id:
+            return jsonify({"error": "Endorser User Id, Endorsee User Id, Vendor Id is required"}), 400
+
+        conn = db_manager.get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """INSERT INTO UserEndorsement (endorser_user_id, endorsee_user_id, vendor_id) VALUES (%s, %s, %s)"""
+            (endorser_user_id, endorsee_user_id, vendor_id)
+        )
+
+        conn.commit()
+
+    except pymysql.MySQLError as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+    return jsonify({"message": "Profile endorsed successfully"}), 200
+

@@ -7,6 +7,7 @@ DESCRIBE DiscoverCategory;
 DESCRIBE UserCategory;
 DESCRIBE PostCategory;
 DESCRIBE PublicVendor;
+DESCRIBE UserEndorsement;
 DESCRIBE DiscoverVendor;
 DESCRIBE DiscoverVendorCategory;
 DESCRIBE UserVendor;

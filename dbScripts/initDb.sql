@@ -65,6 +65,18 @@ CREATE TABLE PublicVendor (
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
 
+CREATE TABLE UserEndorsement (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    endorser_user_id INT,
+    endorsee_user_id INT,
+    vendor_id INT,
+    creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    FOREIGN KEY (vendor_id) REFERENCES PublicVendor(id),
+    FOREIGN KEY (endorser_user_id) REFERENCES User(id),
+    FOREIGN KEY (endorsee_user_id) REFERENCES User(id)
+);
+
 CREATE TABLE DiscoverVendor (
     id INT AUTO_INCREMENT PRIMARY KEY,
     vendor_name VARCHAR(255) UNIQUE NOT NULL,
