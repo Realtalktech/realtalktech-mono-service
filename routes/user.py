@@ -131,7 +131,6 @@ def signup():
             return jsonify({"error": error_message}), 400
 
 
-
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             return jsonify({"error": "Invalid email format"}), 400
 
