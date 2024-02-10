@@ -53,6 +53,10 @@ def insert_notional_data(cursor):
     # Insert vendor 1 into publicVendor list
     cursor.execute("INSERT INTO PublicVendor (vendor_name) VALUES (%s)", (vendor_names[0]))
 
+    # Insert vendor 1 into user 1 profile
+    cursor.execute("INSERT INTO UserVendor (user_id, vendor_id) VALUES (%s, %s)", (1,1))
+
+
     # Endorse user 1 from user 2 in vendor 1
     cursor.execute(
     """INSERT INTO UserEndorsement (endorser_user_id, endorsee_user_id, vendor_id) VALUES (%s, %s, %s)""",
