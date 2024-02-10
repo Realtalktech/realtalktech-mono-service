@@ -100,15 +100,14 @@ def signup():
     try:
         # Extract data from request
         data = request.json
-        first_name = data.get('first_name')
-        last_name = data.get('last_name')
+        full_name = data.get('fullName')
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
         tech_stack = data.get('techstack', [])  # List of vendor names
 
         # Validate input
-        if not (first_name and username and email and password):
+        if not (full_name and username and email and password):
             return jsonify({"error": "Missing required fields"}), 400
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             return jsonify({"error": "Invalid email format"}), 400
@@ -120,9 +119,9 @@ def signup():
         conn = db_manager.get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO User (first_name, last_name, username, email, password) 
+            INSERT INTO User (full_name, username, email, password) 
             VALUES (%s, %s, %s, %s, %s)
-        """, (first_name, last_name, username, email, hashed_password))
+        """, (full_name, username, email, hashed_password))
         user_id = cursor.lastrowid
 
         # Link tech stack to user
