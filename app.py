@@ -3,6 +3,7 @@ from flask_cors import CORS
 from routes.feed import feed_bp
 from routes.comment import comment_bp
 from routes.vendor import vendor_bp
+from routes.login import login_bp
 # from routes.user import user_bp, update_trie
 from routes.user import user_bp
 from routes.post import post_bp
@@ -19,6 +20,7 @@ def create_app(config_class=ProductionConfig):
     app.register_blueprint(comment_bp)
     app.register_blueprint(vendor_bp)
     app.register_blueprint(post_bp)
+    app.register_blueprint(login_bp)
     return app
 
 app = create_app(config_class=ProductionConfig)

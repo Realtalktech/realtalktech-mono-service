@@ -9,8 +9,11 @@ db_manager = DBManager()
 @post_bp.route('/makePost', methods=['POST'])
 def make_post():
     try:
+        user_id = request.cookies.get('userId')
+        if not user_id:
+        # No userId cookie present, user not authenticated
+            return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
         data = request.json
-        user_id = data.get('userId')
         title = data.get('title')
         body = data.get('body')
         categories = data.get('categories', [])  # List of category names
@@ -63,10 +66,13 @@ def make_post():
 
 @post_bp.route('/editPost', methods=['PUT'])
 def edit_post():
+    user_id = request.cookies.get('userId')
+    if not user_id:
+    # No userId cookie present, user not authenticated
+        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     try:
         data = request.json
         post_id = data.get('postId')
-        user_id = data.get('userId')  # Assuming you're tracking which user is making the request
         new_title = data.get('title')
         new_body = data.get('body')
         new_categories = set(data.get('categories', []))  # List of new category names
@@ -129,9 +135,12 @@ def edit_post():
 
 @post_bp.route('/upvotePost', methods=['PUT'])
 def upvote_post():
+    user_id = request.cookies.get('userId')
+    if not user_id:
+    # No userId cookie present, user not authenticated
+        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     try:
         data = request.json
-        user_id = data.get('userId')
         post_id = data.get('postId')
 
         if not (user_id and post_id):
@@ -167,9 +176,12 @@ def upvote_post():
 
 @post_bp.route('/removeUpvotePost', methods=['PUT'])
 def remove_upvote_post():
+    user_id = request.cookies.get('userId')
+    if not user_id:
+    # No userId cookie present, user not authenticated
+        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     try:
         data = request.json
-        user_id = data.get('userId')
         post_id = data.get('postId')
 
         if not (user_id and post_id):

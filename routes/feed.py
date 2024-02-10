@@ -9,8 +9,11 @@ db_manager = DBManager()
 
 @feed_bp.route('/feed', methods=['GET'])
 def get_feed():
+    user_id = request.cookies.get('userId')
+    if not user_id:
+    # No userId cookie present, user not authenticated
+        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     category_id = request.args.get('categoryId', type=int) # None if "All" screen
-    user_id = request.args.get('userId', type=int)  # Assuming you can get the user_id from the request
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
 
