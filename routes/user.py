@@ -102,7 +102,7 @@ def signup():
     try:
         # Extract data from request
         data = request.json
-        full_name = data.get('fullName')
+        full_name = data.get('fullname')
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
