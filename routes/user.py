@@ -106,7 +106,7 @@ def signup():
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
-        tech_stack = data.get('techstack', [])  # List of vendor names
+        tech_stack = data.get('techStack', [])  # List of vendor names
         current_company = data.get('currentCompany')
 
         # Validate input
