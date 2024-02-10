@@ -109,9 +109,29 @@ def signup():
         tech_stack = data.get('techStack', [])  # List of vendor names
         current_company = data.get('currentCompany')
 
-        # Validate input
-        if not (full_name and username and email and password and current_company):
-            return jsonify({"error": "Missing required fields"}), 400
+        # Initialize an empty list to collect the names of missing fields
+        missing_fields = []
+
+        # Check each field and add its name to the list if it is missing
+        if not full_name:
+            missing_fields.append('full_name')
+        if not username:
+            missing_fields.append('username')
+        if not email:
+            missing_fields.append('email')
+        if not password:
+            missing_fields.append('password')
+        if not current_company:
+            missing_fields.append('current_company')
+
+        # If there are any missing fields, return an error message specifying them
+        if missing_fields:
+            missing_fields_str = ', '.join(missing_fields)  # Convert the list to a comma-separated string
+            error_message = f"Missing required fields: {missing_fields_str}"
+            return jsonify({"error": error_message}), 400
+
+
+
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             return jsonify({"error": "Invalid email format"}), 400
 
