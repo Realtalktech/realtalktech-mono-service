@@ -21,6 +21,7 @@ def signup():
         password = data.get('password')
         tech_stack = data.get('techStack', [])  # List of vendor names
         current_company = data.get('currentCompany')
+        industry_involvement = data.get('industryInvolvement', []) # List of "what industry are you in?" names
         categories_of_work = data.get('workCategories', []) # List of "what do you do?" names
         interest_areas = data.get('interestAreas', []) # List of interest area names
 
@@ -62,18 +63,26 @@ def signup():
         # Link categories of work to User in UserDiscussCategory for feed population
         for work_category in categories_of_work:
             cursor.execute("SELECT id FROM DiscussCategory WHERE category_name = %s", (work_category,))
-            category = cursor.fetchone()
-            if category:
+            category_obj = cursor.fetchone()
+            if category_obj:
                 cursor.execute("""INSERT INTO UserDiscussCategory (user_id, category_id) VALUES (%s, %s)""",
-                            (user_id, category['id']))
+                            (user_id, category_obj['id']))
         
         # Link interest areas to user
         for area in interest_areas:
             cursor.execute("SELECT id FROM InterestArea WHERE interest_area_name = %s", (area,))
-            interest_area_id = cursor.fetchone()
-            if interest_area_id:
+            interest_area_obj = cursor.fetchone()
+            if interest_area_obj :
                 cursor.execute("""INSERT INTO UserInterestArea (user_id, interest_area_id) VALUES (%s, %s)""",
-                            (user_id, interest_area_id['id']))                
+                            (user_id, interest_area_obj['id']))     
+
+        # Link industry involvement to user
+        for industry in industry_involvement:
+            cursor.execute("SELECT id FROM Industry WHERE industry_name = %s", (industry,))
+            industry_obj = cursor.fetchone()
+            if industry_obj:
+                cursor.execute("""INSERT INTO UserIndustry (user_id, interest_area_id) VALUES (%s, %s)""",
+                            (user_id, interest_area_obj['id']))                  
 
         # Link tech stack to user
         for tech in tech_stack:
@@ -128,4 +137,10 @@ def login():
             return jsonify({"error": "Invalid username or password"}), 401
     finally:
         cursor.close()
-        conn.close()    
+        conn.close()
+
+@login_bp.route('/logout', methods=['POST'])
+def logout():
+    response = make_response(jsonify({"message": "You have been logged out."}), 200)
+    response.set_cookie('userId', '', expires=0)  # Clear the userId cookie by setting its value to empty and expires to 0
+    return response

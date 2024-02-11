@@ -33,7 +33,6 @@ CREATE TABLE DiscussCategory (
 CREATE TABLE DiscoverCategory (
     id INT AUTO_INCREMENT PRIMARY KEY,
     category_name VARCHAR(255) UNIQUE NOT NULL,
-    description TINYTEXT,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
@@ -42,7 +41,24 @@ CREATE TABLE InterestArea (
     id INT AUTO_INCREMENT PRIMARY KEY,
     interest_area_name VARCHAR(255) UNIQUE NOT NULL,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
+);
+
+CREATE TABLE Industry (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    industry_name VARCHAR(255) UNIQUE NOT NULL,
+    creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)    
+);
+
+CREATE TABLE UserIndustry(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    industry_id INT,
+    creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (industry_id) REFERENCES Industry(id)    
 );
 
 CREATE TABLE UserInterestArea (

@@ -14,6 +14,8 @@ DESCRIBE UserPublicVendor;
 DESCRIBE PostDiscoverVendor;
 DESCRIBE InterestArea;
 DESCRIBE UserInterestArea;
+DESCRIBE Industry;
+DESCRIBE UserIndustry;
 DESCRIBE Comment;
 DESCRIBE CommentTag;
 DESCRIBE PostUpvote;

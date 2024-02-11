@@ -8,15 +8,27 @@ The script inserts four test users with the following details (User IDs start at
 
 1. **Elon Gates**: 
    - User ID: 1
+   - Username: elongates
+   - Email: elongates@example.com
+   - Password: password
    - Company: SuperchargedSoftware
 2. **Bill Musk**: 
    - User ID: 2
+   - Username: billmusk
+   - Email: billmusk@example.com
+   - Password: password
    - Company: MacroAdvanced
 3. **Mary Barra**: 
    - User ID: 3
+   - Username: marybarra
+   - Email: marybarra@example.com
+   - Password: password
    - Company: General Autos
 4. **Kamala Clinton**: 
    - User ID: 4
+   - Username: kamalaclinton
+   - Email: kamalaclinton@example.com
+   - Password: password
    - Company: Capitol Tech
 
 ## Posts
@@ -54,9 +66,12 @@ The script inserts three vendors and associates them with the "Sales Tools" cate
 2. **HubSpot**: Inbound Marketing and Sales Software
 3. **Zendesk Sell**: Sales CRM
 
+When a vendor object is returned, it will contain a link to an S3 object store to access its logo. 
+
 ## Categories
 
-Multiple categories are inserted, including "AI", "Engineering", "Operations", etc. These categories are used to tag posts and associate user interests.
+Multiple discuss categories are inserted, including "AI", "Engineering", "Operations", etc. These discuss categories are used to link posts to a category and associate user interests.
+
 
 ## API Responses
 
