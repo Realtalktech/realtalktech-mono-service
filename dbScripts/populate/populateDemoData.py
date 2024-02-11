@@ -9,8 +9,8 @@ DB_NAME = 'RealTalkTechDB'
 class DataBuilder:
     def __init__(self):
         # Establish database connection and call methods to insert data
-        conn = pymysql.connect(host=DB_HOST, user=DB_USER, password=DB_PASSWORD, db=DB_NAME, charset='utf8mb4', cursorclass=pymysql.DictCursor)
-        self.cursor = conn.self.cursor()
+        conn = pymysql.connect(host=DB_HOST, user=DB_USER, password=DB_PASSWORD, db=DB_NAME, charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
+        self.cursor = conn.cursor()
         self.test_user_ids = []
         self.discuss_categories = [
             "AI", "Engineering", "Operations", "Marketing", "Sales", "Customer Success",
@@ -86,9 +86,6 @@ class DataBuilder:
             self.insert_industries()
             self.insert_interest_areas()
 
-        except pymysql.MySQLError as e:
-            conn.rollback()
-            return {"error": str(e)}, 500
         finally:
             self.cursor.close()
             conn.close()
@@ -169,7 +166,7 @@ class DataBuilder:
             self.vendor_ids.append(vendor_id)
             self.cursor.execute(
                 """INSERT INTO VendorDiscoverCategory (vendor_id, category_id) VALUES (%s, %s)""", 
-                (vendor_id, self.vendor_categories[0])
+                (vendor_id, self.discover_category_ids[0])
             )
     
     def insert_post_1(self):
@@ -224,7 +221,7 @@ class DataBuilder:
         )
 
         # Comments and likes
-        self.insert_comment_and_like(self.cursor, post_id, self.test_user_ids[2], "HubSpot is indeed a game-changer!", self.test_user_ids[1])
+        self.insert_comment_and_like(post_id, self.test_user_ids[2], "HubSpot is indeed a game-changer!", self.test_user_ids[1])
 
     def insert_post_3(self):
         """Inserts an anonymous post by Elon Gates, no tags, with comments"""
@@ -237,7 +234,7 @@ class DataBuilder:
         post_id = self.cursor.fetchone()['LAST_INSERT_ID()']
 
         # Comments
-        self.insert_comment(self.cursor, post_id, self.test_user_ids[1], "AI is going to be crucial in understanding customer needs.")
+        self.insert_comment(post_id, self.test_user_ids[1], "AI is going to be crucial in understanding customer needs.")
 
     def insert_post_4(self):
         """Inserts a post from Elon Gates about Zendesk Sell, with comments and likes"""
@@ -256,7 +253,7 @@ class DataBuilder:
         )
 
         # Comments and likes
-        self.insert_comment_and_like(self.cursor, post_id, self.test_user_ids[3], "It's a superb tool!", self.test_user_ids[0])
+        self.insert_comment_and_like(post_id, self.test_user_ids[3], "It's a superb tool!", self.test_user_ids[0])
 
     def insert_comment(self, post_id, user_id, text):
         """Helper function to insert a comment"""
@@ -267,7 +264,7 @@ class DataBuilder:
 
     def insert_comment_and_like(self, post_id, commenter_id, comment_text, liker_id):
         """Helper function to insert a comment and a like"""
-        self.insert_comment(self.cursor, post_id, commenter_id, comment_text)
+        self.insert_comment(post_id, commenter_id, comment_text)
         self.cursor.execute("SELECT LAST_INSERT_ID()")
         comment_id = self.cursor.fetchone()['LAST_INSERT_ID()']
 
