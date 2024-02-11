@@ -60,7 +60,7 @@ The script creates four posts with different characteristics:
 
 ## Vendors
 
-The script inserts three vendors and associates them with the "Sales Tools" category:
+The script inserts three vendors, with full profiles, and associates them with the "Sales Tools" category:
 
 1. **Salesforce**: CRM Software
 2. **HubSpot**: Inbound Marketing and Sales Software
@@ -70,8 +70,9 @@ When a vendor object is returned, it will contain a link to an S3 object store t
 
 ## Categories
 
-Multiple discuss categories are inserted, including "AI", "Engineering", "Operations", etc. These discuss categories are used to link posts to a category and associate user interests.
-
+All categories from the updated Figma designs (2/10) are inserted into the DBs.
+All discover and discuss categories are inserted into the DBs
+All industries and interest areas from profile creation are inserted into DBs.
 
 ## API Responses
 

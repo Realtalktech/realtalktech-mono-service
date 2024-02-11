@@ -89,6 +89,10 @@ def fetch_onboarding_information(cursor, requested_user_id):
             'id': occupational_area_id['id'],
             'name': occupational_area_name
         })
+    
+    industries_with_names = [convert_keys_to_camel_case(thing) for thing in industries_with_names]
+    interest_areas_with_names = [convert_keys_to_camel_case(thing) for thing in interest_areas_with_names]
+    occupational_areas_with_names = [convert_keys_to_camel_case(thing) for thing in occupational_areas_with_names]
 
     return {
         "industryInvolvement": industries_with_names,
@@ -251,8 +255,6 @@ def edit_profile():
     finally:
         cursor.close()
         conn.close()
-
-
 
     return jsonify({"message": "Profile updated successfully"}), 200
 
