@@ -8,11 +8,11 @@ db_manager = DBManager()
 
 @post_bp.route('/makePost', methods=['POST'])
 def make_post():
+    user_id = request.cookies.get('userId')
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+
     try:
-        user_id = request.cookies.get('userId')
-        if not user_id:
-        # No userId cookie present, user not authenticated
-            return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
         data = request.json
         title = data.get('title')
         body = data.get('body')
@@ -68,7 +68,6 @@ def make_post():
 def edit_post():
     user_id = request.cookies.get('userId')
     if not user_id:
-    # No userId cookie present, user not authenticated
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     try:
         data = request.json
@@ -137,7 +136,6 @@ def edit_post():
 def upvote_post():
     user_id = request.cookies.get('userId')
     if not user_id:
-    # No userId cookie present, user not authenticated
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     try:
         data = request.json
@@ -178,7 +176,6 @@ def upvote_post():
 def remove_upvote_post():
     user_id = request.cookies.get('userId')
     if not user_id:
-    # No userId cookie present, user not authenticated
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     try:
         data = request.json

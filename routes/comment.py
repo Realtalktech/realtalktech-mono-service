@@ -11,7 +11,6 @@ db_manager = DBManager()
 def get_comments():
     user_id = request.cookies.get('userId')
     if not user_id:
-    # No userId cookie present, user not authenticated
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     post_id = request.args.get('postId', type=int)
     page = request.args.get('page', 1, type=int)
@@ -75,10 +74,12 @@ def get_comments():
 
 @comment_bp.route('/makeComment', methods=['POST'])
 def make_comment():
+    user_id = request.cookies.get('userId')
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     try:
         data = request.json
         post_id = data.get('postId')
-        user_id = data.get('userId')
         tagged_user_names = data.get('taggedUsernames')
         comment_text = data.get('commentText')
 
@@ -116,9 +117,11 @@ def make_comment():
 
 @comment_bp.route('/upvoteComment', methods=['PUT'])
 def upvote_comment():
+    user_id = request.cookies.get('userId')
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     try:
         data = request.json
-        user_id = data.get('userId')
         comment_id = data.get('commentId')
 
         if not (user_id and comment_id):
@@ -154,6 +157,9 @@ def upvote_comment():
 
 @comment_bp.route('/removeUpvoteComment', methods=['PUT'])
 def remove_upvote_comment():
+    user_id = request.cookies.get('userId')
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     try:
         data = request.json
         user_id = data.get('userId')

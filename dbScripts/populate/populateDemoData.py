@@ -93,7 +93,6 @@ class DataBuilder:
             self.cursor.close()
             conn.close()
 
-
     def insert_test_users(self):
         """Inserts four test users"""
         names = ["Elon Gates", "Bill Musk", "Mary Barra", "Kamala Clinton"]

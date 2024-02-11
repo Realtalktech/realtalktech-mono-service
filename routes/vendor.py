@@ -9,6 +9,9 @@ db_manager = DBManager()
 
 @vendor_bp.route('/discover/categories', methods=['GET'])
 def get_discover():
+    user_id = request.cookies.get('userId')
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
 
     conn = db_manager.get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -29,10 +32,17 @@ def get_discover():
 
     return jsonify(discover_categories)
 
-@vendor_bp.route('/discover/items', methods=['GET'])
-def get_vendors_in_category():
+@vendor_bp.route('/discover/categories/<disover_category_id>', methods=['GET'])
+def get_vendors_in_category(discover_category_id):
     """TODO: Vendor bodies within a particular category"""
-    discover_category_id = request.args.get("categoryId", type=int)
+    user_id = request.cookies.get('userId')
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+    
+    if not isinstance(discover_category_id, int):
+        return jsonify({"error": "Invalid discover_category_id"}), 400
+
+
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
 
@@ -54,7 +64,6 @@ def get_vendors_in_category():
 
     vendors = [convert_keys_to_camel_case(vendor) for vendor in vendors]
 
-
     metadata = {
         'discoverCategoryId': discover_category_id,
         'page': page,
@@ -64,11 +73,14 @@ def get_vendors_in_category():
     return jsonify({"metadata": metadata, "vendors": vendors})
 
 
-@vendor_bp.route('/getVendor', methods=['GET'])
-def get_vendor():
-    vendor_id = request.args.get('vendor_id', type=int)
-
-    if not vendor_id:
+@vendor_bp.route('/discover/items/<vendor_id>', methods=['GET'])
+def get_vendor(vendor_id):
+    """Get details for a particular vendor"""
+    user_id = request.cookies.get('userId')
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+    
+    if not vendor_id or not isinstance(vendor_id, int):
         return jsonify({"error": "Vendor ID is required"}), 400
 
     conn = db_manager.get_db_connection()
@@ -93,73 +105,73 @@ def get_vendor():
     else:
         return jsonify({"error": "Vendor not found"}), 404
     
-@vendor_bp.route('/addVendor', methods=['POST'])
-def add_vendor():
-    try:
-        data = request.json
-        vendor_name = data.get('vendor_name')
-        description = data.get('description')
-        vendor_url = data.get('vendor_url')
+# @vendor_bp.route('/addVendor', methods=['POST'])
+# def add_vendor():
+#     try:
+#         data = request.json
+#         vendor_name = data.get('vendor_name')
+#         description = data.get('description')
+#         vendor_url = data.get('vendor_url')
 
-        if not vendor_name:
-            return jsonify({"error": "Vendor name is required"}), 400
+#         if not vendor_name:
+#             return jsonify({"error": "Vendor name is required"}), 400
 
-        conn = db_manager.get_db_connection()
-        cursor = conn.cursor()
+#         conn = db_manager.get_db_connection()
+#         cursor = conn.cursor()
 
-        # Insert new vendor into the Vendor table
-        cursor.execute("""
-            INSERT INTO PublicVendor (vendor_name, description, vendor_url)
-            VALUES (%s, %s, %s)
-        """, (vendor_name, description, vendor_url))
-        vendor_id = cursor.lastrowid
+#         # Insert new vendor into the Vendor table
+#         cursor.execute("""
+#             INSERT INTO PublicVendor (vendor_name, description, vendor_url)
+#             VALUES (%s, %s, %s)
+#         """, (vendor_name, description, vendor_url))
+#         vendor_id = cursor.lastrowid
 
-        conn.commit()
+#         conn.commit()
 
-    except pymysql.MySQLError as e:
-        conn.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally:
-        cursor.close()
-        conn.close()
+#     except pymysql.MySQLError as e:
+#         conn.rollback()
+#         return jsonify({"error": str(e)}), 500
+#     finally:
+#         cursor.close()
+#         conn.close()
 
-    return jsonify({"message": "Vendor added successfully", "vendor_id": vendor_id}), 201
+#     return jsonify({"message": "Vendor added successfully", "vendor_id": vendor_id}), 201
 
-@vendor_bp.route('/updateVendor', methods=['PUT'])
-def update_vendor():
-    try:
-        data = request.json
-        vendor_id = data.get('vendor_id')
-        new_vendor_name = data.get('vendor_name')
-        new_description = data.get('description')
-        new_vendor_url = data.get('vendor_url')
+# @vendor_bp.route('/updateVendor', methods=['PUT'])
+# def update_vendor():
+#     try:
+#         data = request.json
+#         vendor_id = data.get('vendor_id')
+#         new_vendor_name = data.get('vendor_name')
+#         new_description = data.get('description')
+#         new_vendor_url = data.get('vendor_url')
 
-        if not vendor_id:
-            return jsonify({"error": "Vendor ID is required"}), 400
+#         if not vendor_id:
+#             return jsonify({"error": "Vendor ID is required"}), 400
 
-        conn = db_manager.get_db_connection()
-        cursor = conn.cursor()
+#         conn = db_manager.get_db_connection()
+#         cursor = conn.cursor()
 
-        # Update vendor details in the Vendor table
-        cursor.execute("""
-            UPDATE Vendor 
-            SET vendor_name = COALESCE(%s, vendor_name), 
-                description = COALESCE(%s, description),
-                vendor_url = COALESCE(%s, vendor_url)
-            WHERE id = %s
-        """, (new_vendor_name, new_description, new_vendor_url, vendor_id))
+#         # Update vendor details in the Vendor table
+#         cursor.execute("""
+#             UPDATE Vendor 
+#             SET vendor_name = COALESCE(%s, vendor_name), 
+#                 description = COALESCE(%s, description),
+#                 vendor_url = COALESCE(%s, vendor_url)
+#             WHERE id = %s
+#         """, (new_vendor_name, new_description, new_vendor_url, vendor_id))
 
-        # Check if the update operation was successful
-        if cursor.rowcount == 0:
-            return jsonify({"error": "Vendor not found or no new data provided"}), 404
+#         # Check if the update operation was successful
+#         if cursor.rowcount == 0:
+#             return jsonify({"error": "Vendor not found or no new data provided"}), 404
 
-        conn.commit()
+#         conn.commit()
 
-    except pymysql.MySQLError as e:
-        conn.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally:
-        cursor.close()
-        conn.close()
+#     except pymysql.MySQLError as e:
+#         conn.rollback()
+#         return jsonify({"error": str(e)}), 500
+#     finally:
+#         cursor.close()
+#         conn.close()
 
-    return jsonify({"message": "Vendor updated successfully"}), 200
+#     return jsonify({"message": "Vendor updated successfully"}), 200

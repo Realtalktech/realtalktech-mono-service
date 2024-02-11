@@ -33,24 +33,102 @@ db_manager = DBManager()
 #     suggestions = trie.autocomplete(prefix)
 #     return jsonify(suggestions)
 
+def fetch_onboarding_information(cursor, requested_user_id):
+    """Fetch onboarding information for profile private view."""
+    profile_owner_response = {}
+    # Fetch "What Industry are you In?"
+    cursor.execute(
+        """SELECT industry_id FROM UserIndustry WHERE user_id = %s""",
+        (requested_user_id)
+    )
+    industry_ids = cursor.fetchall()
+    industries_with_names = []
+    for industry_id in industry_ids:
+        cursor.execute(
+            """SELECT industry_name FROM Industry WHERE id = %s""",
+            (industry_id['industry_id'])
+        )
+        industry_name = cursor.fetchone()['industry_name']
+        industries_with_names.append({
+            'id': industry_id['industry_id'],
+            'name': industry_name
+        })
+
+    # Fetch "What Technologies Are you Interested In?"
+    cursor.execute(
+        """SELECT interest_area_id FROM UserInterestArea WHERE user_id = %s""",
+        (requested_user_id)
+    )
+    interest_area_ids = cursor.fetchall()
+    interest_areas_with_names = []
+    for interest_area_id in interest_area_ids:
+        cursor.execute(
+            """SELECT interest_area_name FROM InterestArea WHERE id = %s""",
+            (interest_area_id['interest_area_id'])
+        )
+        interest_area_name = cursor.fetchone()['interest_area_name']
+        interest_areas_with_names.append({
+            'id': interest_area_id['interest_area_id'],
+            'name': interest_area_name
+        })
+
+    # Fetch "What do you do?"
+    cursor.execute(
+        """SELECT category_id FROM UserDiscussCategory WHERE user_id = %s""",
+        (requested_user_id)
+    )
+    occupational_area_ids = cursor.fetchall()
+    occupational_areas_with_names = []
+    for occupational_area_id in occupational_area_ids:
+        cursor.execute(
+            """SELECT category_name FROM DiscussCategory WHERE id = %s""",
+            (occupational_area_id['id'])
+        )
+        occupational_area_name = cursor.fetchone()['category_name']
+        occupational_areas_with_names.append({
+            'id': occupational_area_id['id'],
+            'name': occupational_area_name
+        })
+
+    return {
+        "industryInvolvement": industries_with_names,
+        "interestAreas": interest_areas_with_names,
+        "subscribedCategories": occupational_areas_with_names
+    }
+
 @user_bp.route('/user/<requested_username>', methods=['GET'])
-def get_user_public_profile_by_username(requested_username):
+def get_user_profile_by_username(requested_username):
     """Get a user's public profile"""
     requester_user_id = request.cookies.get('userId')
     conn = db_manager.get_db_connection()
     cursor = conn.cursor()
 
+    user_id = request.cookies.get('userId')
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+
     # Get user_id
     cursor.execute("""SELECT id FROM User WHERE username = %s""", (requested_username))
     requested_user_id = cursor.fetchone()['id']
 
+    is_profile_owner = (requested_user_id == user_id)
+
+    if is_profile_owner:
+        field_list = "full_name, username, current_company, email, linkedin_url, bio, creation_time, update_time"
+    else:
+        field_list = "full_name, username, current_company, linkedin_url, bio"
+
     # Fetch user details
-    cursor.execute("""
-        SELECT full_name, username, current_company, linkedin_url, bio
+    cursor.execute(f"""
+        SELECT {field_list}
         FROM User
         WHERE id = %s
     """, (requested_user_id,))
     user_details = cursor.fetchone()
+
+    profile_owner_response = {}
+    # Fetch onboarding responses if is profile owner
+    if is_profile_owner: profile_owner_response = fetch_onboarding_information(requested_user_id)
 
     # Fetch associated vendor IDs
     cursor.execute("""
@@ -80,6 +158,7 @@ def get_user_public_profile_by_username(requested_username):
 
         if vendor_name:
             vendors_with_endorsements.append({
+                'vendor_id': vendor['vendor_id'],
                 'vendor_name': vendor_name['vendor_name'],
                 'endorsed_by_requester': endorsement
             })
@@ -89,14 +168,29 @@ def get_user_public_profile_by_username(requested_username):
 
     user_details = convert_keys_to_camel_case(user_details)
     vendors_with_endorsements = [convert_keys_to_camel_case(item) for item in vendors_with_endorsements]
+    if is_profile_owner:
+        response = {
+            'userDetails': user_details,
+            'vendors': vendors_with_endorsements,
+            'privateProfile': profile_owner_response
+        }
+    else:
+        response = {
+            'userDetails': user_details,
+            'vendors': vendors_with_endorsements
+        }
 
-    return jsonify({'userDetails': user_details, 'vendors': vendors_with_endorsements})
+    return jsonify(response)
 
 @user_bp.route('/editProfile', methods=['PUT'])
 def edit_profile():
+
+    user_id = request.cookies.get('userId')
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+    
     try:
         data = request.json
-        user_id = request.cookies.get('userId')
         new_first_name = data.get('firstName')
         new_last_name = data.get('lastName')
         new_email = data.get('email')
@@ -158,11 +252,17 @@ def edit_profile():
         cursor.close()
         conn.close()
 
+
+
     return jsonify({"message": "Profile updated successfully"}), 200
 
 
 @user_bp.route('/endorse', methods = ['PUT'])
 def endorse_user():
+    user_id = request.cookies.get('userId')
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+    
     try:
         data = request.json
         endorser_user_id = request.cookies.get('userId')

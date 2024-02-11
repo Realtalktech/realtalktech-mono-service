@@ -1,3 +1,5 @@
+SELECT 'Spinning up RTT Tables....' as '';
+
 CREATE TABLE User (
     id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
@@ -77,7 +79,7 @@ CREATE TABLE UserDiscussCategory (
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     FOREIGN KEY (user_id) REFERENCES User(id),
-    FOREIGN KEY (category_id) REFERENCES Category(id),
+    FOREIGN KEY (category_id) REFERENCES DiscussCategory(id),
     PRIMARY KEY (user_id, category_id)
 );
 
@@ -87,7 +89,7 @@ CREATE TABLE PostDiscussCategory (
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     FOREIGN KEY (post_id) REFERENCES Post(id),
-    FOREIGN KEY (category_id) REFERENCES Category(id),
+    FOREIGN KEY (category_id) REFERENCES DiscussCategory(id),
     PRIMARY KEY (post_id, category_id)
 );
 
@@ -193,3 +195,6 @@ CREATE TABLE CommentUpvote (
     FOREIGN KEY (comment_id) REFERENCES Comment(id),
     FOREIGN KEY (user_id) REFERENCES User(id)
 );
+
+SELECT 'Warnings' as 'Initial DB Table Setup Complete.';
+SHOW WARNINGS;

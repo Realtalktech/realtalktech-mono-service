@@ -1,5 +1,5 @@
 SET FOREIGN_KEY_CHECKS = 0;  -- Disable foreign key checking to avoid issues with dropping tables
-
+SELECT 'Beginning Teardown....' as '';
 DROP TABLE IF EXISTS User;
 DROP TABLE IF EXISTS Post;
 DROP TABLE IF EXISTS DiscussCategory;
@@ -20,5 +20,6 @@ DROP TABLE IF EXISTS Comment;
 DROP TABLE IF EXISTS CommentTag;
 DROP TABLE IF EXISTS PostUpvote;
 DROP TABLE IF EXISTS CommentUpvote;
-
+SELECT 'Warnings' as 'Teardown Complete.';
+SHOW WARNINGS;
 SET FOREIGN_KEY_CHECKS = 1;  -- Re-enable foreign key checking
