@@ -1,18 +1,15 @@
 from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
-from responseFormatter import convert_keys_to_camel_case
-from db_manager import DBManager
+from utils import DBManager, convert_keys_to_camel_case, token_required
+from models import User
 
 feed_bp = Blueprint('feed_bp', __name__)
 db_manager = DBManager()
 
 @feed_bp.route('/feed', methods=['GET'])
-def get_feed():
-    user_id = request.cookies.get('userId')
-    if not user_id:
-        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
-    
+@token_required
+def get_feed(user_id):
     category_id = request.args.get('categoryId', type=int) # None if "All" screen
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)

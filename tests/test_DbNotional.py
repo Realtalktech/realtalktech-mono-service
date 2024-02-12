@@ -10,7 +10,7 @@ from config import TestingConfig
 import pymysql
 import pymysql.cursors
 import json
-from db_manager import DBManager
+from utils.db_manager import DBManager
 
 class TestAPI(TestCase):
 

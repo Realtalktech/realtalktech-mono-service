@@ -1,13 +1,13 @@
 from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
-from db_manager import DBManager
-from responseFormatter import convert_keys_to_camel_case
+from utils import DBManager, convert_keys_to_camel_case, token_required
 
 comment_bp = Blueprint('comment_bp', __name__)
 db_manager = DBManager()
 
 @comment_bp.route('/getCommentsForPost', methods=['GET'])
+@token_required
 def get_comments():
     user_id = request.cookies.get('userId')
     if not user_id:
@@ -116,6 +116,7 @@ def make_comment():
     return jsonify({"message": "Comment added successfully", "comment_id": comment_id}), 201
 
 @comment_bp.route('/upvoteComment', methods=['PUT'])
+@token_required
 def upvote_comment():
     user_id = request.cookies.get('userId')
     if not user_id:
@@ -156,6 +157,7 @@ def upvote_comment():
     return jsonify({"message": "Comment upvoted successfully"}), 200
 
 @comment_bp.route('/removeUpvoteComment', methods=['PUT'])
+@token_required
 def remove_upvote_comment():
     user_id = request.cookies.get('userId')
     if not user_id:

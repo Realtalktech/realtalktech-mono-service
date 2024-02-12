@@ -1,8 +1,7 @@
 from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
-from db_manager import DBManager
-from responseFormatter import convert_keys_to_camel_case
+from utils import DBManager, convert_keys_to_camel_case
 
 vendor_bp = Blueprint('vendor_bp', __name__)
 db_manager = DBManager()

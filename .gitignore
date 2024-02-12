@@ -3,3 +3,4 @@ env/
 *.pyc
 dbScripts/unsafeConnect.sh
 .DS_Store
+.pytest_cache

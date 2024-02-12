@@ -3,26 +3,24 @@ import pymysql
 import pymysql.cursors
 import re
 from werkzeug.security import generate_password_hash, check_password_hash
-from db_manager import DBManager
+from auth import Authorizer
+from models import User
+from utils import DBManager
 
 login_bp = Blueprint('login_bp', __name__)
 db_manager = DBManager()
 
-@login_bp.route('/signup', methods=['PUT'])
-def signup():
-    conn = db_manager.get_db_connection()
-    cursor = conn.cursor()
-    try:
-        # Extract data from request
-        data = request.json
+def extract_signup_fields(data):
         full_name = data.get('fullname')
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
-        tech_stack = data.get('techStack', [])  # List of vendor names
+        tech_stack = data.get('techStack', [])  # List of vendor names from "setup your profile"
         current_company = data.get('currentCompany')
         industry_involvement = data.get('industryInvolvement', []) # List of "what industry are you in?" names
         categories_of_work = data.get('workCategories', []) # List of "what do you do?" names
+        linkedin_url = data.get('linkedinUrl')
+        bio = data.get('bio')
         interest_areas = data.get('interestAreas', []) # List of interest area names
 
         # Initialize an empty list to collect the names of missing fields
@@ -39,66 +37,64 @@ def signup():
             missing_fields.append('password')
         if not current_company:
             missing_fields.append('currentCompany')
+        
+        return (missing_fields, full_name, username, email, 
+                password, tech_stack, current_company, industry_involvement, 
+                categories_of_work, interest_areas, linkedin_url, bio)
+
+@login_bp.route('/signup', methods=['PUT'])
+def signup():
+    conn = db_manager.get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Extract data from request
+        data = request.json
+        (missing_fields, full_name, username, 
+         email, password, tech_stack, current_company, industry_involvement, 
+         categories_of_work, interest_areas, linkedin_url, bio) = extract_signup_fields(data)
 
         # If there are any missing fields, return an error message specifying them
-        if missing_fields:
+        if len(missing_fields) > 0:
             missing_fields_str = ', '.join(missing_fields)  # Convert the list to a comma-separated string
             error_message = f"Missing required fields: {missing_fields_str}"
             return jsonify({"error": error_message}), 400
         
-
+        # Check standard email format
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             return jsonify({"error": "Invalid email format"}), 400
 
-        # Hash the password
-        hashed_password = generate_password_hash(password)
+        new_user = User(
+            id = None,
+            full_name=full_name,
+            username=username,
+            email=email,
+            password=password,
+            linkedin_url=linkedin_url,
+            tech_stack_vendor_names=tech_stack,
+            current_company=current_company,
+            industry_involvement_names=industry_involvement,
+            subscribed_discuss_category_names=categories_of_work,
+            interest_area_names=interest_areas,
+            bio = bio
+        )
 
-        # Insert user into database
-        cursor.execute("""
-            INSERT INTO User (full_name, username, current_company, email, password) 
-            VALUES (%s, %s, %s, %s, %s)
-        """, (full_name, username, current_company, email, hashed_password))
-        user_id = cursor.lastrowid # Get ID of newly inserted user
-
-        # Link categories of work to User in UserDiscussCategory for feed population
-        for work_category in categories_of_work:
-            cursor.execute("SELECT id FROM DiscussCategory WHERE category_name = %s", (work_category,))
-            category_obj = cursor.fetchone()
-            if category_obj:
-                cursor.execute("""INSERT INTO UserDiscussCategory (user_id, category_id) VALUES (%s, %s)""",
-                            (user_id, category_obj['id']))
-        
-        # Link interest areas to user
-        for area in interest_areas:
-            cursor.execute("SELECT id FROM InterestArea WHERE interest_area_name = %s", (area,))
-            interest_area_obj = cursor.fetchone()
-            if interest_area_obj :
-                cursor.execute("""INSERT INTO UserInterestArea (user_id, interest_area_id) VALUES (%s, %s)""",
-                            (user_id, interest_area_obj['id']))     
-
-        # Link industry involvement to user
-        for industry in industry_involvement:
-            cursor.execute("SELECT id FROM Industry WHERE industry_name = %s", (industry,))
-            industry_obj = cursor.fetchone()
-            if industry_obj:
-                cursor.execute("""INSERT INTO UserIndustry (user_id, interest_area_id) VALUES (%s, %s)""",
-                            (user_id, interest_area_obj['id']))                  
-
-        # Link tech stack to user
-        for tech in tech_stack:
-            cursor.execute("SELECT id FROM PublicVendor WHERE vendor_name = %s", (tech,))
-            vendor = cursor.fetchone()
-            if vendor:
-                cursor.execute("""
-                    INSERT INTO UserPublicVendor (user_id, vendor_id) 
-                    VALUES (%s, %s)
-                """, (user_id, vendor['id']))
-
+        # Create new user and get id
+        new_user.create_user(cursor)
         conn.commit()
 
-        # Prepare response and set cookie
-        response = make_response(jsonify({"message": "Signup successful"}), 201)
-        response.set_cookie('userId', str(user_id), httponly=True)  # Setting the user ID as a cookie
+        # Issue token upon successful sign up
+        authorizer = Authorizer()
+        token = authorizer.generate_token(new_user.id)
+
+        # Prepare response and generate token
+        response = make_response(
+            jsonify(
+                {
+                    "message": "Signup successful",
+                    "token": token
+                }
+            ), 201
+        )
         return response
 
     except pymysql.MySQLError as e:
@@ -123,25 +119,31 @@ def login():
     cursor = conn.cursor(pymysql.cursors.DictCursor)
 
     try:
-        # Fetch the user by username
-        cursor.execute("SELECT id, password FROM User WHERE username = %s", (username,))
-        user = cursor.fetchone()
-        
-        if user and check_password_hash(user['password'], password):
-            # Authentication successful
-            response = make_response(jsonify({"message": "Login successful"}), 200)
-            # Issue a secure, HttpOnly cookie with the user ID
-            response.set_cookie('userId', str(user['id']), httponly=True, secure=True)  # secure=True ensures the cookie is sent over HTTPS
-            return response
-        else:
-            # Authentication failed
+        # Create user object
+        user = User.authenticate_and_create_returning_user(cursor, username, password)
+        if not user:
             return jsonify({"error": "Invalid username or password"}), 401
+        else:
+            # Authentication successful
+            # Issue a secure token
+            authorizer = Authorizer()
+            token = authorizer.generate_token(user.id)
+            response = make_response(
+                jsonify(
+                    {
+                        "message": "Login successful",
+                        "token": token
+                    }
+                ), 200
+            )
+            return response
+        
     finally:
         cursor.close()
         conn.close()
 
 @login_bp.route('/logout', methods=['POST'])
 def logout():
+    # Token must be deleted client-side
     response = make_response(jsonify({"message": "You have been logged out."}), 200)
-    response.set_cookie('userId', '', expires=0)  # Clear the userId cookie by setting its value to empty and expires to 0
     return response
