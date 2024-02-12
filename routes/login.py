@@ -83,8 +83,7 @@ def signup():
         conn.commit()
 
         # Issue token upon successful sign up
-        authorizer = Authorizer()
-        token = authorizer.generate_token(new_user.id)
+        token = Authorizer.generate_token(new_user.id)
 
         # Prepare response and generate token
         response = make_response(
@@ -126,8 +125,7 @@ def login():
         else:
             # Authentication successful
             # Issue a secure token
-            authorizer = Authorizer()
-            token = authorizer.generate_token(user.id)
+            token = Authorizer.generate_token(user.id)
             response = make_response(
                 jsonify(
                     {

@@ -2,6 +2,7 @@ import jwt
 import datetime
 
 class Authorizer():
+    @classmethod
     def generate_token(user_id):
         try:
             payload = {
