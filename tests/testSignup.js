@@ -1,21 +1,22 @@
 const signup = (body) => {
-  const url = `http://ec2-3-95-180-146.compute-1.amazonaws.com/signup`
+  const url = `http://ec2-3-95-180-146.compute-1.amazonaws.com/signup`;
   const params = {
     method: "PUT",
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body)
-  }
-  fetch(url, params).then(res => {
-    return res.json()
-  }).then(json => {
-    console.log("GOOD-signup", json)
-    // dispatch({type: "POSTS_SUCCESS", payload: json})
-  }).catch((err) => {
-    console.log("ERR-signup", err)
-  })
-}
+  };
+  return fetch(url, params) // Return the fetch promise
+    .then(res => res.json())
+    .then(json => {
+      console.log("GOOD-signup", json);
+      // dispatch({type: "POSTS_SUCCESS", payload: json});
+    }).catch((err) => {
+      console.log("ERR-signup", err);
+    });
+};
+
 const bodySignup = {
   fullname: 'robert',
   username: 'smith',
@@ -28,16 +29,12 @@ const bodySignup = {
   linkedinUrl: "www.linedin.com/rob1",
   bio: "alksdjflsd",
   interestAreas: [],
-}
-signup(bodySignup)
-
-
-
+};
 
 const DEFAULT_TOKEN = "123423ff";
 
 const login = (username, password, token = DEFAULT_TOKEN) => {
-  const url = `http://ec2-3-95-180-146.compute-1.amazonaws.com/login`
+  const url = `http://ec2-3-95-180-146.compute-1.amazonaws.com/login`;
   const params = {
     method: "POST",
     headers: {
@@ -48,14 +45,26 @@ const login = (username, password, token = DEFAULT_TOKEN) => {
       username,
       password,
     })
-  }
-  fetch(url, params).then(res => {
-    return res.json()
-  }).then(json => {
-    console.log("GOOD-login", json)
-    // dispatch({type: "POSTS_SUCCESS", payload: json})
-  }).catch((err) => {
-    console.log("ERR-login", err)
-  })
+  };
+  return fetch(url, params) // Return the fetch promise
+    .then(res => res.json())
+    .then(json => {
+      console.log("GOOD-login", json);
+      // dispatch({type: "POSTS_SUCCESS", payload: json});
+    }).catch((err) => {
+      console.log("ERR-login", err);
+    });
+};
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
-login('smith', 'pass123')
+
+// Function to control the flow
+const executeSignupAndLogin = async (bodySignup) => {
+  await signup(bodySignup); // Wait for signup to finish
+  await sleep(5000); // Wait for 5 seconds
+  login('smith', 'pass123'); // Then login
+};
+
+executeSignupAndLogin(bodySignup); // Call the function
