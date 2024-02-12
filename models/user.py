@@ -144,7 +144,7 @@ class User:
         fields_str = ','.join(needed_info)
 
         # Database lookup to find a user by username
-        cursor.execute(F"SELECT {fields_str} FROM User WHERE username = %s", (username,))
+        cursor.execute(F"SELECT {fields_str} FROM User WHERE username = {username}")
         user_data = cursor.fetchone()
         
         if user_data:
