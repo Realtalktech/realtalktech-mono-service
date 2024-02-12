@@ -44,7 +44,6 @@ class User:
     def create_user(self,cursor):
         # Hash the password
         hashed_password = generate_password_hash(self.password)
-        print("Hashed Password = %s", hashed_password)
 
         values_to_insert = (
             self.full_name or '',  # Replaces None with empty string
@@ -79,9 +78,6 @@ class User:
             # Authentication successful
             return user
         else:
-            if not check_password_hash(entered_password, user.password): print("wrong password")
-            print(entered_password)
-            print(user.password)
             return None
     
     def set_subscribed_discuss_categories(self, cursor):
@@ -153,10 +149,7 @@ class User:
 
         # Database lookup to find a user by username
         cursor.execute(f"SELECT {fields_str} FROM User WHERE username = %s", (username))
-        print(f"SELECT {fields_str} FROM User WHERE username = %s", (username))
         user_data = cursor.fetchone()
-        if user_data: print(user_data)
-        else: print('User not found')
         
         if user_data:
             # Create User instance with only the available info
