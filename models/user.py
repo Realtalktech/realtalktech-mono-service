@@ -153,6 +153,8 @@ class User:
         cursor.execute(f"SELECT {fields_str} FROM User WHERE username = %s", (username))
         print(f"SELECT {fields_str} FROM User WHERE username = %s", (username))
         user_data = cursor.fetchone()
+        if user_data: print(user_data)
+        else: print('User not found')
         
         if user_data:
             # Create User instance with only the available info
