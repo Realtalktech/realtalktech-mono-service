@@ -70,7 +70,10 @@ class User:
     @classmethod
     def authenticate_and_create_returning_user(cls, cursor, entered_username, entered_password):
         # Fetch the user by username
-        user = cls.find_by_username(cursor, entered_username)
+        user = cls.find_by_username(cursor, 
+                                    username = entered_username,
+                                    needed_info=['id']
+                                    )
         if user and check_password_hash(entered_password, user.password):
             # Authentication successful
             return user
