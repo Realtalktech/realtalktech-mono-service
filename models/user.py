@@ -78,6 +78,8 @@ class User:
             # Authentication successful
             return user
         else:
+            print(entered_password)
+            print(user.password)
             return None
     
     def set_subscribed_discuss_categories(self, cursor):
