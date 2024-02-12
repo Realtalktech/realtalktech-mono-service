@@ -123,7 +123,8 @@ class User:
                    subscribed_categories = False,
                    tech_stack = False,
                    interest_areas = False,
-                   industry_involvement = False
+                   industry_involvement = False,
+                   needed_info = []
                    ):
         # Database lookup to find username
         cursor.execute("SELECT username FROM User WHERE id = %s", (user_id))
@@ -132,7 +133,7 @@ class User:
             return None
         else:
             username = username['username']
-            return cls.find_by_username(cursor, username, subscribed_categories,
+            return cls.find_by_username(cursor, username, needed_info, subscribed_categories,
                                         tech_stack, interest_areas, industry_involvement)
 
     @classmethod
