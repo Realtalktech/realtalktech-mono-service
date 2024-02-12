@@ -53,8 +53,6 @@ def signup():
          email, password, tech_stack, current_company, industry_involvement, 
          categories_of_work, interest_areas, linkedin_url, bio) = extract_signup_fields(data)
         
-        print("Password = %s", password)
-
         # If there are any missing fields, return an error message specifying them
         if len(missing_fields) > 0:
             missing_fields_str = ', '.join(missing_fields)  # Convert the list to a comma-separated string

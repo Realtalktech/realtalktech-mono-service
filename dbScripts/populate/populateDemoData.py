@@ -87,6 +87,7 @@ class DataBuilder:
             self.insert_interest_areas()
 
         finally:
+            conn.commit()
             self.cursor.close()
             conn.close()
 
