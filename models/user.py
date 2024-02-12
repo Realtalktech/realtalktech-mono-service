@@ -149,7 +149,7 @@ class User:
 
         # Database lookup to find a user by username
         cursor.execute(F"SELECT {fields_str} FROM User WHERE username = {username}")
-        print(F"SELECT {fields_str} FROM User WHERE username = {username}")
+        print(F"SELECT {fields_str} FROM User WHERE username = %s", (username))
         user_data = cursor.fetchone()
         
         if user_data:
