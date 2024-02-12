@@ -148,7 +148,7 @@ class User:
         fields_str = ','.join(needed_info)
 
         # Database lookup to find a user by username
-        cursor.execute(F"SELECT {fields_str} FROM User WHERE username = {username}")
+        cursor.execute(F"SELECT {fields_str} FROM User WHERE username = %s", (username))
         print(F"SELECT {fields_str} FROM User WHERE username = %s", (username))
         user_data = cursor.fetchone()
         
@@ -161,7 +161,8 @@ class User:
                 email = user_data.get('email'),
                 linkedin_url = user_data.get('linkedin_url'),
                 bio = user_data.get('bio'),
-                username = username
+                username = username,
+                password=user_data.get('password')
             )
             if subscribed_categories:
                 user.subscribed_discuss_category_names, user.subscribed_discuss_category_ids = cls.get_subscribed_discuss_categories(cursor, user.id)
