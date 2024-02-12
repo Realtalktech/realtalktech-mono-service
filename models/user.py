@@ -72,7 +72,7 @@ class User:
         # Fetch the user by username
         user = cls.find_by_username(cursor, 
                                     username = entered_username,
-                                    needed_info=['id']
+                                    needed_info=['id', 'password']
                                     )
         if user and check_password_hash(entered_password, user.password):
             # Authentication successful
@@ -149,6 +149,7 @@ class User:
 
         # Database lookup to find a user by username
         cursor.execute(F"SELECT {fields_str} FROM User WHERE username = {username}")
+        print(F"SELECT {fields_str} FROM User WHERE username = {username}")
         user_data = cursor.fetchone()
         
         if user_data:
