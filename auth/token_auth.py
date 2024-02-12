@@ -3,7 +3,7 @@ import datetime
 
 class Authorizer():
     @classmethod
-    def generate_token(user_id):
+    def generate_token(cls,user_id):
         try:
             payload = {
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=3), # expiration time
