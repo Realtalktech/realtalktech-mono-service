@@ -82,7 +82,7 @@ class User:
     
     def set_subscribed_discuss_categories(self, cursor):
         # Link categories of work to User in UserDiscussCategory for feed population
-        for work_category in self.categories_of_work:
+        for work_category in self.subscribed_discuss_category_names:
             cursor.execute("SELECT id FROM DiscussCategory WHERE category_name = %s", (work_category,))
             category_obj = cursor.fetchone()
             if category_obj:
@@ -91,7 +91,7 @@ class User:
     
     def set_interest_areas(self, cursor):
         # Link interest areas to user
-        for area in self.interest_areas:
+        for area in self.interest_area_names:
             cursor.execute("SELECT id FROM InterestArea WHERE interest_area_name = %s", (area,))
             interest_area_obj = cursor.fetchone()
             if interest_area_obj :
@@ -100,7 +100,7 @@ class User:
     
     def set_industry_involvement(self, cursor):
         # Link industry involvement to user
-        for industry in self.industry_involvement:
+        for industry in self.industry_involvement_names:
             cursor.execute("SELECT id FROM Industry WHERE industry_name = %s", (industry,))
             industry_obj = cursor.fetchone()
             if industry_obj:
@@ -109,7 +109,7 @@ class User:
     
     def set_tech_stack(self, cursor):
         # Link tech stack to user
-        for tech in self.tech_stack:
+        for tech in self.tech_stack_vendor_names:
             cursor.execute("SELECT id FROM PublicVendor WHERE vendor_name = %s", (tech,))
             vendor = cursor.fetchone()
             if vendor:
