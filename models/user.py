@@ -44,6 +44,7 @@ class User:
     def create_user(self,cursor):
         # Hash the password
         hashed_password = generate_password_hash(self.password)
+        print("Hashed Password = %s", hashed_password)
 
         values_to_insert = (
             self.full_name or '',  # Replaces None with empty string
@@ -74,7 +75,7 @@ class User:
                                     username = entered_username,
                                     needed_info=['id', 'password']
                                     )
-        if user and check_password_hash(entered_password, user.password):
+        if user and check_password_hash(user.password, entered_password):
             # Authentication successful
             return user
         else:
