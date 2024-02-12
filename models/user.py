@@ -78,7 +78,7 @@ class User:
             # Authentication successful
             return user
         else:
-            if not check_password_hash(entered_password, user.password): "wrong password"
+            if not check_password_hash(entered_password, user.password): print("wrong password")
             print(entered_password)
             print(user.password)
             return None
