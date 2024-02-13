@@ -9,7 +9,6 @@ db_manager = DBManager()
 @comment_bp.route('/getCommentsForPost', methods=['GET'])
 @token_required
 def get_comments(user_id):
-    user_id = request.cookies.get('userId')
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     post_id = request.args.get('postId', type=int)
@@ -75,7 +74,6 @@ def get_comments(user_id):
 @comment_bp.route('/makeComment', methods=['POST'])
 @token_required
 def make_comment(user_id):
-    user_id = request.cookies.get('userId')
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     try:
