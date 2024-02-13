@@ -14,7 +14,7 @@ def fetch_onboarding_information(user: User):
     industries = []
     for idx,industry_name in enumerate(user.industry_involvement_names):
         industries.append({
-            'id': user.industry_invovement_ids[idx],
+            'id': user.industry_involvement_ids[idx],
             'name': industry_name
         })
     
@@ -44,7 +44,7 @@ def fetch_onboarding_information(user: User):
 
 @user_bp.route('/user/<requested_username>', methods=['GET'])
 @token_required
-def get_user_profile_by_username(requested_username, user_id):
+def get_user_profile_by_username(user_id, requested_username):
     """Get a user's public profile"""
     conn = db_manager.get_db_connection()
     cursor = conn.cursor()
