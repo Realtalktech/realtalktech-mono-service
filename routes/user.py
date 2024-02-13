@@ -156,8 +156,8 @@ def edit_profile(user_id):
 
 
 @user_bp.route('/endorse', methods = ['PUT'])
-def endorse_user():
-    user_id = request.cookies.get('userId')
+@token_required
+def endorse_user(user_id):
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     
