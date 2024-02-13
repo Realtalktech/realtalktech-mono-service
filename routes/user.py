@@ -160,7 +160,8 @@ def edit_profile(user_id):
 def endorse_user(user_id):
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
-    
+    conn = db_manager.get_db_connection()
+    cursor = conn.cursor()
     try:
         data = request.json
         endorsee_username = data.get('endorseeUsername')
@@ -168,9 +169,6 @@ def endorse_user(user_id):
 
         if endorsee_username and vendor_id:
             return jsonify({"error": "Endorsee User Id, Vendor Id is required"}), 400
-
-        conn = db_manager.get_db_connection()
-        cursor = conn.cursor()
 
         endorsed_user = User.find_by_username(
             cursor, 
