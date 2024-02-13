@@ -1,14 +1,14 @@
 from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
-from utils import DBManager, convert_keys_to_camel_case
+from utils import DBManager, convert_keys_to_camel_case, token_required
 
 vendor_bp = Blueprint('vendor_bp', __name__)
 db_manager = DBManager()
 
 @vendor_bp.route('/discover/categories', methods=['GET'])
-def get_discover():
-    user_id = request.cookies.get('userId')
+@token_required
+def get_discover(user_id):
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
 
@@ -32,9 +32,9 @@ def get_discover():
     return jsonify(discover_categories)
 
 @vendor_bp.route('/discover/categories/<disover_category_id>', methods=['GET'])
-def get_vendors_in_category(discover_category_id):
+@token_required
+def get_vendors_in_category(user_id,discover_category_id):
     """TODO: Vendor bodies within a particular category"""
-    user_id = request.cookies.get('userId')
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     
@@ -73,9 +73,9 @@ def get_vendors_in_category(discover_category_id):
 
 
 @vendor_bp.route('/discover/items/<vendor_id>', methods=['GET'])
-def get_vendor(vendor_id):
+@token_required
+def get_vendor(user_id, vendor_id):
     """Get details for a particular vendor"""
-    user_id = request.cookies.get('userId')
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     
