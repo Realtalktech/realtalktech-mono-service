@@ -12,7 +12,7 @@ def token_required(f):
         try:
             token = token.split(" ")[1]  # Remove "Bearer" prefix to get the actual token
             data = jwt.decode(token, 'mock_secret_key', algorithms=["HS256"])
-            user_id = data['user_id']
+            user_id = data['sub']
         except jwt.ExpiredSignatureError:
             return jsonify({"message": "Token has expired!"}), 401
         except jwt.InvalidTokenError:
