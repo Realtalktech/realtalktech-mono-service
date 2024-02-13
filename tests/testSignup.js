@@ -1,7 +1,3 @@
-
-'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDc4MDM2ODcsImlhdCI6MTcwNzc5Mjg4Nywic3ViIjo1fQ.OuGM28dMenfX3hUUctfVR_-6kAb9FYPIRvyYtCeu-c0'
-
-
 const signup = (body) => {
   const url = `http://ec2-3-95-180-146.compute-1.amazonaws.com/signup`;
   const params = {

@@ -46,6 +46,6 @@ const endorseUser = (body, token = DEFAULT_TOKEN) => {
 const bodyEndorse = {
   endorserUserId: 1,
   endorseeUsername: "msmith21",
-  vendorId: 5,
+  vendorId: 1,
 }
 endorseUser(bodyEndorse)

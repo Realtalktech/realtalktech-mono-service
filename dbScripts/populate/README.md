@@ -74,6 +74,50 @@ All categories from the updated Figma designs (2/10) are inserted into the DBs.
 All discover and discuss categories are inserted into the DBs
 All industries and interest areas from profile creation are inserted into DBs.
 
+### Discuss Category Mappings
+
+{
+   'AI': 1, 
+   'Engineering': 2, 
+   'Operations': 3, 
+   'Marketing': 4, 
+   'Sales': 5, 
+   'Customer Success': 6, 
+   'Data': 7, 
+   'Product': 8, 
+   'HR & Talent': 9, 
+   'Finance': 10, 
+   'Leadership/Exec': 11, 
+   'Founder': 12, 
+   'Community': 13
+}
+
+### Discover Category Mappings
+
+{
+   'Sales Tools': 1, 
+   'Marketing': 2, 
+   'Analytics Tools & Software': 3, 
+   'CAD & PLM': 4, 
+   'Collaboration & Productivity': 5, 
+   'Commerce': 6, 
+   'Content Management': 7, 
+   'Customer Service': 8, 
+   'Data Privacy': 9,
+   'Design': 10,
+   'Development': 11, 
+   'Digital Advertising Tech': 12, 
+   'ERP': 13, 
+   'Governance, Risk & Compliance': 14, 
+   'Hosting': 15, 
+   'HR': 16, 
+   'IT Infrastructure': 17, 
+   'IT Management': 18, 
+   'Security': 19, 
+   'Supply Chains & Logistics': 20, 
+   'Vertical Industry': 21
+}
+
 ## API Responses
 
 Based on the above data, API responses will reflect the following:

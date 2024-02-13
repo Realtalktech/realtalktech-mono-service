@@ -1,18 +1,19 @@
 import pandas as pd
 import pymysql
 
-# Database connection details
-HOST="localhost"
-USERNAME="user"
-PASSWORD="password"
-DATABASE="test_db"
+# Database conn details
+HOST = 'realtalktechrdsstack-realtalktechdbinstance-c7ciisdczocf.cnqm62ueodz0.us-east-1.rds.amazonaws.com'
+USERNAME = 'admin'
+PASSWORD = 'ReallyRealAboutTech123!'
+DATABASE = 'RealTalkTechDB'
 
 # Establish database connection
 connection = pymysql.connect(host=HOST, user=USERNAME, password=PASSWORD, db=DATABASE)
 cursor = connection.cursor()
 
+
 # Load the CSV file
-df = pd.read_csv('data/discoverVendors_v1.csv')
+df = pd.read_csv('dbScripts/data/discoverVendors_v1.csv')
 
 # Iterate over each category
 for category in df.columns:

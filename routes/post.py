@@ -18,7 +18,6 @@ def make_post(user_id):
     cursor = conn.cursor()
     try:
         data = request.json
-        print(data)
         title = data.get('title')
         body = data.get('body')
         categories = data.get('categories', [])  # List of category names

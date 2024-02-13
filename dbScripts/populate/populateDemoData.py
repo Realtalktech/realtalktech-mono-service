@@ -1,4 +1,5 @@
 import pymysql
+import pprint
 
 # Database conn details
 DB_HOST = 'realtalktechrdsstack-realtalktechdbinstance-c7ciisdczocf.cnqm62ueodz0.us-east-1.rds.amazonaws.com'
@@ -18,6 +19,7 @@ class DataBuilder:
             "Community"
         ]
         self.discuss_category_ids = []
+        self.discuss_category_mappings = {}
         self.discover_categories = [
             "Sales Tools", "Marketing", "Analytics Tools & Software", "CAD & PLM", "Collaboration & Productivity",
             "Commerce", "Content Management", "Customer Service", "Data Privacy", "Design", "Development",
@@ -25,6 +27,7 @@ class DataBuilder:
             "IT Management", "Security", "Supply Chains & Logistics", "Vertical Industry"
         ]
         self.discover_category_ids = []
+        self.discover_category_mappings = {}
         self.vendors = {
             'Salesforce': {
                 'vendor_name': "Salesforce",
@@ -74,10 +77,17 @@ class DataBuilder:
         ]
         self.interest_area_ids = []
 
+
+        pp = pprint.PrettyPrinter(indent=4)
+
         try:
             self.insert_test_users()
             self.insert_discuss_categories()
+            self.discuss_category_mappings = {k: v for k, v in sorted(self.discuss_category_mappings.items(), key=lambda item: item[1])}
+            print(self.discuss_category_mappings)
             self.insert_discover_categories()
+            self.discover_category_mappings = {k: v for k, v in sorted(self.discover_category_mappings.items(), key=lambda item: item[1])}
+            print(self.discover_category_mappings)
             self.insert_test_vendors()
             self.insert_post_1()
             self.insert_post_2()
@@ -115,6 +125,7 @@ class DataBuilder:
             self.cursor.execute("SELECT LAST_INSERT_ID()")
             category_id = self.cursor.fetchone()['LAST_INSERT_ID()']
             self.discuss_category_ids.append(category_id)
+            self.discuss_category_mappings[name] = category_id
     
     def insert_discover_categories(self):
         """Inserting just the sales category, for now"""
@@ -125,6 +136,7 @@ class DataBuilder:
             self.cursor.execute("SELECT LAST_INSERT_ID()")
             vendor_category_id = self.cursor.fetchone()['LAST_INSERT_ID()']
             self.discover_category_ids.append(vendor_category_id)
+            self.discover_category_mappings[category] = vendor_category_id
     
     def insert_industries(self):
         for industry in self.industries:
