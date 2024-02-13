@@ -23,7 +23,7 @@ const fetchUser = (username, token = DEFAULT_TOKEN) => {
 fetchUser('msmith21')
 
 const endorseUser = (body, token = DEFAULT_TOKEN) => {
-  const url = `http://ec2-3-95-180-146.compute-1.amazonaws.com/endorseUser`
+  const url = `http://ec2-3-95-180-146.compute-1.amazonaws.com/endorse`
   const params = {
     method: "PUT",
     headers: {
@@ -45,7 +45,7 @@ const endorseUser = (body, token = DEFAULT_TOKEN) => {
 
 const bodyEndorse = {
   endorserUserId: 1,
-  endorseeUsername: 2,
+  endorseeUsername: "msmith21",
   vendorId: 5,
 }
 endorseUser(bodyEndorse)

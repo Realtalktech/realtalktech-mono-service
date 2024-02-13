@@ -167,7 +167,7 @@ def endorse_user(user_id):
         endorsee_username = data.get('endorseeUsername')
         vendor_id = data.get('vendorId')
 
-        if endorsee_username and vendor_id:
+        if not(endorsee_username and vendor_id):
             return jsonify({"error": "Endorsee User Id, Vendor Id is required"}), 400
 
         endorsed_user = User.find_by_username(
