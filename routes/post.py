@@ -13,6 +13,9 @@ db_manager = DBManager()
 def make_post(user_id):
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+
+    conn = db_manager.get_db_connection()
+    cursor = conn.cursor()
     try:
         data = request.json
         title = data.get('title')
@@ -23,9 +26,6 @@ def make_post(user_id):
 
         if not (title and body and is_anonymous):
             return jsonify({"error": "Missing required post information"}), 400
-
-        conn = db_manager.get_db_connection()
-        cursor = conn.cursor()
 
         post = Post(
             author_id=user_id,
