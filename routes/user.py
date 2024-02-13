@@ -67,7 +67,8 @@ def get_user_profile_by_username(user_id, requested_username):
         )
     else:
         requested_user = User.find_by_id(
-            cursor, user_id = owner_check_user.id, tech_stack=True
+            cursor, user_id = owner_check_user.id, tech_stack=True,
+            needed_info=['fullname', 'username', 'current_company', 'linkedin_url', 'bio']
         )
 
     profile_owner_response = {}
