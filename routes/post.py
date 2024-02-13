@@ -25,7 +25,11 @@ def make_post(user_id):
         vendors = data.get('vendors', []) # List of vendor names
 
         if not (title and body and is_anonymous):
-            return jsonify({"error": "Missing required post information"}), 400
+            missing_fields = ''
+            if not title: missing_fields += 'title '
+            if not body: missing_fields += 'body '
+            if not is_anonymous: missing_fields += 'anonymity status '
+            return jsonify({"error": f"Missing required post information: {missing_fields}"}), 400
 
         post = Post(
             author_id=user_id,
