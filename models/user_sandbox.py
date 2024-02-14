@@ -22,9 +22,30 @@ class SandUser:
 
             if not check_password_hash(entered_password, user_data.get('password')):
                 raise Unauthorized("Incorrect Password")
-
+            
+            # Authorized, generate token
             token = Authorizer.generate_token(user_data.get('user_id'))
-            return jsonify({"message": "Login successful", "token": token})
+            user_id = user_data.get('user_id')
+
+            # Grab user details
+            user_details = self.get_user_details(user_id, True)
+            tech_stack = self.get_user_tech_stack(user_id)
+            industry_involvement = self.get_user_industry_involvement(user_id)
+            subscribed_discuss_categories = self.get_user_subscribed_discuss_categories(user_id)
+            interest_areas = self.get_interest_areas(user_id)
+
+            user_details['occupationalAreas'] = subscribed_discuss_categories
+            user_details['industryInvolvement'] = industry_involvement
+            user_details['techstack'] = tech_stack
+            user_details['interest_areas'] = interest_areas
+
+            return jsonify(
+                {
+                    "message": "Login successful",
+                    'userDetails': user_details,
+                    "token": token
+                }
+            )
 
         except pymysql.MySQLError as e:
             self.conn.rollback()
@@ -43,6 +64,23 @@ class SandUser:
         else:
             return {'user_id': user_data.get('id'), 'password': user_data.get('password')}
     
+    def get_user_public_profile(self, user_id, requester_id):
+        try:
+            user_details = self.get_user_details(user_id, False)
+            tech_stack = self.get_user_tech_stack(user_id)
+            vendors_with_endorsements = self.get_user_techstack_endorsements(user_id, requester_id, tech_stack)
+            response = {
+                'userDetails': user_details,
+                'vendors': vendors_with_endorsements
+            }
+            return jsonify(response)
+        except pymysql.MySQLError as e:
+            self.conn.rollback()
+            raise InternalServerError(f"Database error: {str(e)}")
+        finally:
+            self.cursor.close()
+            self.conn.close()
+
     def signup(self, data):
         # Extract data from request
         missing_fields = self.validate_signup_fields(data)
@@ -196,6 +234,175 @@ class SandUser:
                 VALUES (%s, %s)
             """, (user_id, vendor['id']))
 
+    def get_user_tech_stack(self, user_id):
+        # Database lookup to find tech_stack (UserPublicVendor)
+        self.cursor.execute(
+            """SELECT vendor_id FROM UserPublicVendor WHERE user_id = %s""",
+            (user_id)
+        )
+        user_skills = self.cursor.fetchall()
+        tech_stack_vendor_names = []
+        tech_stack_vendor_ids = []
+
+        for skill in user_skills:
+            self.cursor.execute(
+                """SELECT vendor_name FROM PublicVendor WHERE id = %s""",
+                (skill['vendor_id'])
+            )
+            tech_stack_vendor_name = self.cursor.fetchone()['vendor_name']
+            tech_stack_vendor_names.append(tech_stack_vendor_name)
+            tech_stack_vendor_ids.append(skill['vendor_id'])
+        
+        tech_stack = []
+        for idx, name in enumerate(tech_stack_vendor_names):
+            tech_stack.append({
+                'id': tech_stack_vendor_ids[idx],
+                'name': name
+            })
+        
+        return tech_stack
+
+    def get_user_industry_involvement(self, user_id):
+        # Database lookup to find industry involvement
+        self.cursor.execute(
+            """SELECT industry_id FROM UserIndustry WHERE user_id = %s""",
+            (user_id)
+        )
+        user_industries = self.cursor.fetchall()
+        industry_involvement_names = []
+        industry_involvement_ids = []
+
+        for industry in user_industries:
+            self.cursor.execute(
+                """SELECT industry_name FROM Industry WHERE id = %s""",
+                (industry['industry_id'])
+            )
+            industry_name = self.cursor.fetchone()['industry_name']
+            industry_involvement_names.append(industry_name)
+            industry_involvement_ids.append(industry['industry_id'])
+        
+        industry_involvement = []
+        for idx, name in enumerate(industry_involvement_names):
+            industry_involvement.append({
+                'id': industry_involvement_ids[idx],
+                'name': name
+            })
+        
+        return industry_involvement
+
+    def get_user_subscribed_discuss_categories(self, user_id):
+        # Database lookup to find subscribed discuss categories (categories of work)
+        self.cursor.execute(
+            """SELECT category_id FROM UserDiscussCategory WHERE user_id = %s""",
+            (user_id)
+        )
+        discuss_categories = self.cursor.fetchall()
+        subscribed_discuss_category_names = []
+        subscribed_discuss_category_ids = []
+        for category in discuss_categories:
+            self.cursor.execute(
+                """SELECT category_name FROM DiscussCategory WHERE id = %s""",
+                (category['category_id'])
+            )
+            category_name = self.cursor.fetchone()['category_name']
+            subscribed_discuss_category_names.append(category_name)
+            subscribed_discuss_category_ids.append(category['category_id'])
+
+        subscribed_discuss_categories = []
+        for idx, name in enumerate(subscribed_discuss_category_names):
+            subscribed_discuss_categories.append({
+                'id': subscribed_discuss_category_ids[idx],
+                'name': name
+            })
+
+        return subscribed_discuss_categories        
+
+    def get_user_interest_areas(self, user_id):
+        # Database lookup to find interest area names and ids
+        self.cursor.execute(
+            """SELECT interest_area_id FROM UserInterestArea WHERE user_id = %s""",
+            (user_id)
+        )
+        interest_area_objs = self.cursor.fetchall()
+        interest_area_names = []
+        interest_area_ids = []
+
+        for area in interest_area_objs:
+            self.cursor.execute(
+                """SELECT interest_area_name FROM InterestArea WHERE id = %s""",
+                (area['interest_area_id'])
+            )
+            interest_area_name = self.cursor.fetchone()['interest_area_name']
+            interest_area_names.append(interest_area_name)
+            interest_area_ids.append(area['interest_area_id'])
+
+        interest_areas = []
+        for idx, name in enumerate(interest_area_names):
+            interest_areas.append({
+                'id': interest_area_ids[idx],
+                'name': name
+            })
+        
+        return interest_areas
+
+    def get_user_details(self, user_id, is_owner):
+        if is_owner:
+            self.cursor.execute("""SELECT (id, full_name, username, current_company, email, linkedin_url, bio) FROM User WHERE id = %s""", (user_id))
+            userObj = self.cursor.fetchall()
+            user_details = {
+                'id': userObj.get('id'),
+                'fullName': userObj.get('full_name'),
+                'username': userObj.get('username'),
+                'currentCompany': userObj.get('current_company'),
+                'email': userObj.get('email'),
+                'linkedinUrl': userObj.get('linkedin_url'),
+                'bio': userObj.get('bio')
+            }
+        else:
+            self.cursor.execute("""SELECT (full_name, username, current_company, linkedin_url, bio) FROM User WHERE id = %s""", (user_id))
+            userObj = self.cursor.fetchall()
+            user_details = {
+                'fullName': userObj.get('full_name'),
+                'username': userObj.get('username'),
+                'currentCompany': userObj.get('current_company'),
+                'linkedinUrl': userObj.get('linkedin_url'),
+                'bio': userObj.get('bio')
+            }
+
+        return user_details          
+    
+    def convert_user_id_to_username(self, user_id):
+        self.cursor.execute("""SELECT username FROM User WHERE id = %s""", user_id)
+        user_obj = self.cursor.fetchone()
+        return user_obj.get('username')
+        
+    def convert_username_to_id(self,username):
+        self.cursor.execute("""SELECT id FROM User WHERE username = %s""", username)
+        user_obj = self.cursor.fetchone()
+        return user_obj.get('id')
+
+    def get_user_techstack_endorsements(self, user_id, requester_id, tech_stack):
+        # Process associated vendors from tech_stack and check endorsements
+        vendors_with_endorsements = []
+        for item in tech_stack:
+            endorsement = self.check_endorsement_from_id(item['id'], user_id, requester_id)
+            vendors_with_endorsements.append({
+                'vendorId': item['id'],
+                'vendorName': item['name'],
+                'endorsedByRequester': endorsement
+            })
+        return vendors_with_endorsements
+
+    def check_endorsement_from_id(self, vendor_id, user_id, requester_id):
+        # Check for endorsement
+        self.cursor.execute("""
+            SELECT COUNT(*) AS endorsement_count
+            FROM UserPublicVendorEndorsement
+            WHERE endorser_user_id = %s AND endorsee_user_id = %s AND vendor_id = %s
+        """, (requester_id, user_id, vendor_id))
+        endorsement = self.cursor.fetchone().get('endorsement_count') > 0
+        return endorsement
+
     @classmethod 
     def find_by_id(cls, cursor, user_id,
                    subscribed_categories = False,
@@ -341,17 +548,6 @@ class SandUser:
             industry_involvement_ids.append(industry['industry_id'])
         
         return industry_involement_names, industry_involvement_ids
-
-    @classmethod
-    def check_endorsement_from_id(vendor_id, user_id, cursor):
-        # Check for endorsement
-        cursor.execute("""
-            SELECT COUNT(*) AS endorsement_count
-            FROM UserPublicVendorEndorsement
-            WHERE endorser_user_id = %s AND vendor_id = %s
-        """, (user_id, vendor_id))
-        endorsement = cursor.fetchone()['endorsement_count'] > 0
-        return endorsement
 
     def receive_endorsement(self, vendor_id, endorser_id, cursor):
         cursor.execute(

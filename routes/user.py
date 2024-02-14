@@ -2,74 +2,43 @@ from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
 from utils.db_manager import DBManager
+from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
 from utils.responseFormatter import convert_keys_to_camel_case
-from models import User
+from models import User, SandUser
 from utils import token_required
 
 user_bp = Blueprint('user_bp', __name__)
 db_manager = DBManager()
 
-def fetch_onboarding_information(user: User):
-    """Fetch onboarding information for profile private view."""
-    industries = []
-    for idx,industry_name in enumerate(user.industry_involvement_names):
-        industries.append({
-            'id': user.industry_involvement_ids[idx],
-            'name': industry_name
-        })
-    
-    interest_areas = []
-    for idx, interest_area_name in enumerate(user.interest_area_names):
-        interest_areas.append({
-            'id': user.interest_area_ids[idx],
-            'name': interest_area_name
-        })
-    
-    subscribed_discussion_categories = []
-    for idx, subscribed_category_name in enumerate(user.subscribed_discuss_category_names):
-        subscribed_discussion_categories.append({
-            'id': user.subscribed_discuss_category_ids[idx],
-            'name': subscribed_category_name
-        })
-    
-    # industries = [convert_keys_to_camel_case(thing) for thing in industries]
-    # interest_areas = [convert_keys_to_camel_case(thing) for thing in interest_areas]
-    # subscribed_discussion_categories = [convert_keys_to_camel_case(thing) for thing in subscribed_discussion_categories]
-
-    return {
-        "industryInvolvement": industries,
-        "interestAreas": interest_areas,
-        "subscribedCategories": subscribed_discussion_categories
-    }
-
 @user_bp.route('/user/<requested_username>', methods=['GET'])
 @token_required
 def get_user_profile_by_username(user_id, requested_username):
     """Get a user's public profile"""
-    conn = db_manager.get_db_connection()
-    cursor = conn.cursor()
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+    
+    requested_user = SandUser()
+    try:
+        requested_user_id = requested_user.convert_username_to_id(requested_username)
+    except pymysql.MySQLError as e:
+        requested_user.conn.rollback()
+        raise InternalServerError(f"Database error: {str(e)}")
 
-    owner_check_user = User.find_by_username(
-        cursor,
-        username=requested_username,
-        needed_info=['id'])
+    if requested_user_id is None:
+        raise BadRequest(f"Username {requested_username} not found")
 
-    is_profile_owner = (owner_check_user.id == user_id)
+    is_profile_owner = (user_id == requested_user_id)
 
     if is_profile_owner:
-        requested_user = User.find_by_id(
-            cursor, user_id = owner_check_user.id, 
-            needed_info = ['id', 'full_name', 'current_company', 'email', 'linkedin_url', 'bio'],
-            subscribed_categories=True,
-            tech_stack=True, interest_areas=True, industry_involvement=True
-        )
+        # requested_user = User.find_by_id(
+        #     cursor, user_id = owner_check_user.id, 
+        #     needed_info = ['id', 'full_name', 'current_company', 'email', 'linkedin_url', 'bio'],
+        #     subscribed_categories=True,
+        #     tech_stack=True, interest_areas=True, industry_involvement=True
+        # )
     else:
-        requested_user = User.find_by_id(
-            cursor, user_id = owner_check_user.id, tech_stack=True,
-            needed_info=['id', 'full_name', 'username', 'current_company', 'linkedin_url', 'bio']
-        )
+        return requested_user.get_user_public_profile()
+
 
     profile_owner_response = {}
 
