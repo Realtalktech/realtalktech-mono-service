@@ -124,12 +124,57 @@ def login():
             return jsonify({"error": "Invalid username or password"}), 401
         else:
             # Authentication successful
+
+            # Construct user response
+            subsribed_discuss_categories = []
+            for idx, name in enumerate(user.subscribed_discuss_category_names):
+                subsribed_discuss_categories.append({
+                    'id': user.subscribed_discuss_category_ids[idx],
+                    'name': name
+                })
+            
+            industry_involvement = []
+            for idx, name in enumerate(user.industry_involvement_names):
+                industry_involvement.append({
+                    'id': user.industry_involvement_ids[idx],
+                    'name': name
+                })
+            
+            tech_stack = []
+            for idx, name in enumerate(user.tech_stack_vendor_names):
+                tech_stack.append({
+                    'id': user.tech_stack_vendor_ids[idx],
+                    'name': name
+                })
+            
+            interest_areas = []
+            for idx, name in enumerate(user.interest_area_names):
+                interest_areas.append({
+                    'id': user.interest_area_ids[idx],
+                    'name': name
+                })
+
+            user_response = {
+                'id': user.id,
+                'fullName': user.full_name,
+                'username': user.username,
+                'currentCompany': user.current_company,
+                'email': user.email,
+                'linkedin_url': user.linkedin_url,
+                'bio': user.bio,
+                'occupationalAreas': subsribed_discuss_categories,
+                'industryInvolvement': industry_involvement,
+                'techstack': tech_stack,
+                'interestAreas': interest_areas
+            }
+
             # Issue a secure token
             token = Authorizer.generate_token(user.id)
             response = make_response(
                 jsonify(
                     {
                         "message": "Login successful",
+                        'userDetails': user_response,
                         "token": token
                     }
                 ), 200
