@@ -90,6 +90,14 @@ def get_feed(user_id):
         num_comments = cursor.fetchall()
         post['num_comments'] = num_comments[0]['COUNT(*)']
 
+        # Get comment ids for each post
+        cursor.execute("""SELECT id FROM Comment WHERE post_id = %s""", (post["id"]))
+        comments = cursor.fetchall()
+        comment_ids = [comment['id'] for comment in comments]
+
+        post['comment_ids'] = comment_ids
+
+
         # Convert timestamps to ISO
         post['created_timestamp'] = post.pop('creation_time').isoformat()
         post['updated_timestamp'] = post.pop('update_time').isoformat()

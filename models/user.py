@@ -72,7 +72,7 @@ class User:
         # Fetch the user by username
         user = cls.find_by_username(cursor, 
                                     username = entered_username,
-                                    needed_info=['id', 'fullname', 'password', 'current_company', 'email', 'linkedin_url', 'bio'],
+                                    needed_info=['id', 'full_name', 'password', 'current_company', 'email', 'linkedin_url', 'bio'],
                                     tech_stack=True,
                                     interest_areas=True,
                                     industry_involvement=True
