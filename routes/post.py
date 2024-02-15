@@ -104,7 +104,7 @@ def vote_post(user_id):
             return jsonify({"error": "Post ID is required"}), 400
 
         conn = db_manager.get_db_connection()
-        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor = conn.cursor()
 
         vote = Post.get_user_vote_on_post(cursor, user_id, post_id)
 

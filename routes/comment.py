@@ -144,7 +144,7 @@ def vote_comment(user_id):
             return jsonify({"error": "Comment ID is required"}), 400
 
         conn = db_manager.get_db_connection()
-        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor = conn.cursor()
 
         # Check if the user has already voted this comment
         cursor.execute("""
