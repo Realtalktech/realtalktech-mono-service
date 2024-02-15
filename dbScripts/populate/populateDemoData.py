@@ -213,8 +213,8 @@ class DataBuilder:
 
         # Elon likes Bill's comment
         self.cursor.execute(
-            """INSERT INTO CommentUpvote (comment_id, user_id) VALUES (%s, %s)""",
-            (comment_id, self.test_user_ids[0])
+            """INSERT INTO CommentUpvote (comment_id, is_downvote, user_id) VALUES (%s, %s, %s)""",
+            (comment_id, False, self.test_user_ids[0])
         )
 
     def insert_post_2(self):
@@ -283,8 +283,8 @@ class DataBuilder:
 
         # Insert like
         self.cursor.execute(
-            """INSERT INTO CommentUpvote (comment_id, user_id) VALUES (%s, %s)""",
-            (comment_id, liker_id)
+            """INSERT INTO CommentUpvote (comment_id, is_downvote, user_id) VALUES (%s, %s, %s)""",
+            (comment_id, False, liker_id)
         )
 
 if __name__ == '__main__':

@@ -63,7 +63,7 @@ def get_feed(user_id):
             post_author_id = -1
 
         else:
-            cursor.execute("""SELECT username FROM User WHERE id = %s""", (user_id))
+            cursor.execute("""SELECT username FROM User WHERE id = %s""", (post['user_id']))
             username = cursor.fetchone()['username']
             post_author_id = post.pop('user_id')
     
