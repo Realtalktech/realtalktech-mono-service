@@ -76,7 +76,7 @@ def get_vendor(user_id, vendor_id):
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
 
     conn = db_manager.get_db_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor()
 
     query = """
     SELECT id, vendor_name, vendor_type, description, vendor_hq, total_employees, vendor_homepage_url, vendor_logo_url
