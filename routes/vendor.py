@@ -13,7 +13,7 @@ def get_discover(user_id):
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
 
     conn = db_manager.get_db_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor()
 
     query = """
     SELECT id, category_name, description
@@ -33,7 +33,7 @@ def get_discover(user_id):
 
 @vendor_bp.route('/discover/categories/<disover_category_id>', methods=['GET'])
 @token_required
-def get_vendors_in_category(user_id,discover_category_id):
+def get_vendors_in_category(user_id, discover_category_id):
     """TODO: Vendor bodies within a particular category"""
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
@@ -46,7 +46,7 @@ def get_vendors_in_category(user_id,discover_category_id):
     count = request.args.get('count', 10, type=int)
 
     conn = db_manager.get_db_connection()
-    cursor = conn.cursor(dictionary = True)
+    cursor = conn.cursor()
 
     query = f"""
     SELECT dv.id, dv.vendor_name, dv.vendor_type, dv.description, dv.vendor_homepage_url, dv.vendor_logo_url
