@@ -92,68 +92,41 @@ def edit_post(user_id):
 
 @post_bp.route('/upvotePost', methods=['PUT'])
 @token_required
-def upvote_post(user_id):
+def vote_post(user_id):
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     try:
         data = request.json
         post_id = data.get('postId')
+        is_downvote = data.get('isDownvote', False)  # False for upvote, True for downvote
 
-        if not (user_id and post_id):
-            return jsonify({"error": "User ID and Post ID are required"}), 400
+        if not post_id:
+            return jsonify({"error": "Post ID is required"}), 400
 
         conn = db_manager.get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
 
-        # Check if the user has already upvoted this post
-        if Post.is_post_liked_by_user(user_id, post_id):
-            return jsonify({"error": "Post was already liked by user"}), 409
+        vote = Post.get_user_vote_on_post(cursor, user_id, post_id)
 
-        # Insert upvote into the PostUpvote table
-        Post.upvote_post_with_id(user_id, post_id)
+        if vote:
+            if (vote['is_downvote'] and not is_downvote) or (not vote['is_downvote'] and is_downvote):
+                # Opposite action, remove the vote
+                Post.remove_post_vote(cursor, vote['id'])
+            elif vote['is_downvote'] != is_downvote:
+                # Different action, update the vote
+                Post.update_post_vote(cursor, vote['id'], is_downvote)
+            # If the action is the same as the existing vote, do nothing
+        else:
+            # No existing vote, insert new vote
+            Post.insert_post_vote(cursor, post_id, user_id, is_downvote)
 
         conn.commit()
 
-    except pymysql.MySQLError as e:
+    except Exception as e:  # Catching a broader exception to handle any errors
         conn.rollback()
         return jsonify({"error": str(e)}), 500
     finally:
         cursor.close()
         conn.close()
 
-    return jsonify({"message": "Post upvoted successfully"}), 200
-
-@post_bp.route('/removeUpvotePost', methods=['PUT'])
-def remove_upvote_post():
-    user_id = request.cookies.get('userId')
-    if not user_id:
-        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
-    try:
-        data = request.json
-        post_id = data.get('postId')
-
-        if not (user_id and post_id):
-            return jsonify({"error": "User ID and Post ID are required"}), 400
-
-        conn = db_manager.get_db_connection()
-        cursor = conn.cursor()
-
-        if not Post.is_post_liked_by_user(user_id, post_id):
-            return jsonify({"error": "User has not liked post"}), 409
-        
-        Post.remove_upvote_post_with_id(cursor, user_id, post_id)
-
-        # Check if the delete operation was successful
-        if cursor.rowcount == 0:
-            return jsonify({"error": "No upvote found or user did not upvote this post"}), 404
-
-        conn.commit()
-
-    except pymysql.MySQLError as e:
-        conn.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally:
-        cursor.close()
-        conn.close()
-
-    return jsonify({"message": "Post upvote removed successfully"}), 200
+    return jsonify({"message": "Vote updated successfully"}), 200

@@ -20,14 +20,29 @@ def get_comments(user_id):
 
     # Query to fetch comments and their upvote count
     query = """
-    SELECT c.id, c.user_id, u.username, c.comment_text, c.creation_time, c.update_time,
-           (SELECT COUNT(*) FROM CommentUpvote WHERE comment_id = c.id) as total_upvotes,
-           IF((SELECT COUNT(*) FROM CommentUpvote WHERE comment_id = c.id AND user_id = %s) > 0, TRUE, NULL) as user_vote
-    FROM Comment AS c
-    JOIN User AS u ON c.user_id = u.id
-    WHERE c.post_id = %s
-    ORDER BY c.id DESC
-    LIMIT %s OFFSET %s
+        SELECT 
+            c.id, 
+            c.user_id, 
+            u.username, 
+            c.comment_text, 
+            c.creation_time, 
+            c.update_time,
+            (SELECT COUNT(*) FROM CommentUpvote WHERE comment_id = c.id AND is_downvote = FALSE) as total_upvotes,
+            (SELECT COUNT(*) FROM CommentUpvote WHERE comment_id = c.id AND is_downvote = TRUE) as total_downvotes,
+            (
+                SELECT CASE 
+                    WHEN COUNT(*) > 0 AND is_downvote = FALSE THEN TRUE
+                    WHEN COUNT(*) > 0 AND is_downvote = TRUE THEN FALSE
+                    ELSE NULL 
+                END
+                FROM CommentUpvote 
+                WHERE comment_id = c.id AND user_id = %s
+            ) as user_vote
+        FROM Comment AS c
+        JOIN User AS u ON c.user_id = u.id
+        WHERE c.post_id = %s
+        ORDER BY c.id DESC
+        LIMIT %s OFFSET %s
     """
     cursor.execute(query, (user_id, post_id, count, (page - 1) * count))
     comment_bodies = cursor.fetchall()
@@ -114,79 +129,52 @@ def make_comment(user_id):
 
     return jsonify({"message": "Comment added successfully", "comment_id": comment_id}), 201
 
+
 @comment_bp.route('/upvoteComment', methods=['PUT'])
 @token_required
-def upvote_comment(user_id):
+def vote_comment(user_id):
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     try:
         data = request.json
         comment_id = data.get('commentId')
+        is_downvote = data.get('isDownvote', False)  # Default to False for upvote, True for downvote
 
-        if not (user_id and comment_id):
-            return jsonify({"error": "User ID and Comment ID are required"}), 400
+        if not comment_id:
+            return jsonify({"error": "Comment ID is required"}), 400
 
         conn = db_manager.get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
 
-        # Check if the user has already upvoted this comment
+        # Check if the user has already voted this comment
         cursor.execute("""
-            SELECT id FROM CommentUpvote 
+            SELECT id, is_downvote FROM CommentUpvote 
             WHERE user_id = %s AND comment_id = %s
         """, (user_id, comment_id))
-        if cursor.fetchone():
-            return jsonify({"error": "Comment already upvoted by this user"}), 409
+        vote = cursor.fetchone()
 
-        # Insert upvote into the CommentUpvote table
-        cursor.execute("""
-            INSERT INTO CommentUpvote (comment_id, user_id)
-            VALUES (%s, %s)
-        """, (comment_id, user_id))
+        if vote:
+            # If trying to perform the opposite action, remove the vote
+            if (vote['is_downvote'] and not is_downvote) or (not vote['is_downvote'] and is_downvote):
+                cursor.execute("""
+                    DELETE FROM CommentUpvote 
+                    WHERE id = %s
+                """, (vote['id'],))
+            # If attempting the same action, do nothing (vote remains)
+        else:
+            # Insert new vote
+            cursor.execute("""
+                INSERT INTO CommentUpvote (comment_id, user_id, is_downvote)
+                VALUES (%s, %s, %s)
+            """, (comment_id, user_id, is_downvote))
 
         conn.commit()
 
-    except pymysql.MySQLError as e:
+    except Exception as e:  # Using a generic exception to catch all possible errors
         conn.rollback()
         return jsonify({"error": str(e)}), 500
     finally:
         cursor.close()
         conn.close()
 
-    return jsonify({"message": "Comment upvoted successfully"}), 200
-
-@comment_bp.route('/removeUpvoteComment', methods=['PUT'])
-@token_required
-def remove_upvote_comment(user_id):
-    if not user_id:
-        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
-    try:
-        data = request.json
-        user_id = data.get('userId')
-        comment_id = data.get('commentId')
-
-        if not (user_id and comment_id):
-            return jsonify({"error": "User ID and Comment ID are required"}), 400
-
-        conn = db_manager.get_db_connection()
-        cursor = conn.cursor()
-
-        # Delete upvote from the CommentUpvote table
-        cursor.execute("""
-            DELETE FROM CommentUpvote
-            WHERE user_id = %s AND comment_id = %s
-        """, (user_id, comment_id))
-
-        # Check if the delete operation was successful
-        if cursor.rowcount == 0:
-            return jsonify({"error": "No upvote found or user did not upvote this comment"}), 404
-
-        conn.commit()
-
-    except pymysql.MySQLError as e:
-        conn.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally:
-        cursor.close()
-        conn.close()
-
-    return jsonify({"message": "Comment upvote removed successfully"}), 200
+    return jsonify({"message": "Vote updated successfully"}), 200

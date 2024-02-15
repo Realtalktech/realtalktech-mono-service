@@ -51,28 +51,33 @@ class Post:
         return post
     
     @classmethod
-    def upvote_post_with_id(cursor, user_id, post_id):
+    def get_user_vote_on_post(cls, cursor, user_id, post_id):
         cursor.execute("""
-            INSERT INTO PostUpvote (post_id, user_id)
-            VALUES (%s, %s)
-        """, (post_id, user_id))
-    
-    @classmethod
-    def remove_upvote_post_with_id(cursor, user_id, post_id):
-        # Delete upvote from the PostUpvote table
-        cursor.execute("""
-            DELETE FROM PostUpvote
+            SELECT id, is_downvote FROM PostUpvote 
             WHERE user_id = %s AND post_id = %s
         """, (user_id, post_id))
+        return cursor.fetchone()
 
     @classmethod
-    def is_post_liked_by_user(cursor, user_id, post_id):
+    def update_post_vote(cls, cursor, vote_id, is_downvote):
         cursor.execute("""
-            SELECT id FROM PostUpvote 
-            WHERE user_id = %s AND post_id = %s
-        """, (user_id, post_id))
-        if cursor.fetchone():
-            return True
+            UPDATE PostUpvote SET is_downvote = %s
+            WHERE id = %s
+        """, (is_downvote, vote_id))
+
+    @classmethod
+    def remove_post_vote(cls, cursor, vote_id):
+        cursor.execute("""
+            DELETE FROM PostUpvote 
+            WHERE id = %s
+        """, (vote_id,))
+
+    @classmethod
+    def insert_post_vote(cls, cursor, post_id, user_id, is_downvote):
+        cursor.execute("""
+            INSERT INTO PostUpvote (post_id, user_id, is_downvote)
+            VALUES (%s, %s, %s)
+        """, (post_id, user_id, is_downvote))
 
 
     def retrieve_post_category_names_and_ids(self, cursor, post_id):
