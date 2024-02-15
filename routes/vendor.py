@@ -38,10 +38,6 @@ def get_vendors_in_category(user_id, discover_category_id):
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     
-    if not isinstance(discover_category_id, int):
-        return jsonify({"error": "Invalid discover_category_id"}), 400
-
-
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
 
