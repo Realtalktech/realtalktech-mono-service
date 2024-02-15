@@ -60,6 +60,7 @@ def get_feed(user_id):
 
         if is_anonymous:
             username = ""
+            post.pop('user_id')
             post_author_id = -1
 
         else:
