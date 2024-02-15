@@ -74,9 +74,6 @@ def get_vendor(user_id, vendor_id):
     """Get details for a particular vendor"""
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
-    
-    if not vendor_id or not isinstance(vendor_id, int):
-        return jsonify({"error": "Vendor ID is required"}), 400
 
     conn = db_manager.get_db_connection()
     cursor = conn.cursor(dictionary=True)

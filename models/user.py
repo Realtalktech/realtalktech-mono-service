@@ -268,13 +268,13 @@ class User:
         return industry_involement_names, industry_involvement_ids
 
     @classmethod
-    def check_endorsement_from_id(vendor_id, user_id, cursor):
+    def check_endorsement_from_id(vendor_id, user_id, endorsee_id, cursor):
         # Check for endorsement
         cursor.execute("""
             SELECT COUNT(*) AS endorsement_count
             FROM UserPublicVendorEndorsement
-            WHERE endorser_user_id = %s AND vendor_id = %s
-        """, (user_id, vendor_id))
+            WHERE endorser_user_id = %s AND vendor_id = %s AND endorsee_user_id = %s
+        """, (user_id, vendor_id, endorsee_id))
         endorsement = cursor.fetchone()['endorsement_count'] > 0
         return endorsement
 

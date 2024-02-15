@@ -80,9 +80,7 @@ def get_user_profile_by_username(user_id, requested_username):
     vendors_with_endorsements = []
     for idx, vendor_id in enumerate(requested_user.tech_stack_vendor_ids):
         # Check for endorsement
-        endorsement = User.check_endorsement_from_id(
-            vendor_id, requested_user.id, cursor
-        )
+        endorsement = User.check_endorsement_from_id(user_id, requested_user.id, cursor)
 
         vendors_with_endorsements.append({
             'vendorId': vendor_id,
