@@ -31,7 +31,7 @@ def get_discover(user_id):
 
     return jsonify(discover_categories)
 
-@vendor_bp.route('/discover/categories/<disover_category_id>', methods=['GET'])
+@vendor_bp.route('/discover/categories/<discover_category_id>', methods=['GET'])
 @token_required
 def get_vendors_in_category(user_id, discover_category_id):
     """TODO: Vendor bodies within a particular category"""
