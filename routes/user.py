@@ -87,9 +87,7 @@ def get_user_profile_by_username(user_id, requested_username):
             'vendorName': requested_user.tech_stack_vendor_names[idx],
             'endorsedByRequester': endorsement
         })
-    
-    cursor.close()
-    conn.close()
+
 
     if is_profile_owner: #fullname, uername, current_company, email, linkedin_url, bio, creation_time, update_time
         user_details = {
@@ -123,6 +121,9 @@ def get_user_profile_by_username(user_id, requested_username):
             'userDetails': user_details,
             'vendors': vendors_with_endorsements
         }
+    
+    cursor.close()
+    conn.close()
 
     return jsonify(response)
 
