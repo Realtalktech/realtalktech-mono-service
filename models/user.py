@@ -167,7 +167,7 @@ class User:
                 password=user_data.get('password')
             )
             if subscribed_categories:
-                user.subscribed_discuss_category_names, user.subscribed_discuss_category_ids = cls.get_subscribed_discuss_categories(cursor, user.id)
+                user.subscribed_discuss_category_names, user.subscribed_discuss_category_ids = user.get_subscribed_discuss_categories(cursor, user.id)
 
             if tech_stack:
                 user.tech_stack_vendor_names, user.tech_stack_vendor_ids = user.get_tech_stack(cursor, user.id)
