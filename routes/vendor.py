@@ -16,7 +16,7 @@ def get_discover(user_id):
     cursor = conn.cursor()
 
     query = """
-    SELECT id, category_name, description
+    SELECT id, category_name
     FROM DiscoverCategory
     """
     cursor.execute(query)
