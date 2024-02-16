@@ -202,11 +202,14 @@ def get_interest_areas():
     industries = cursor.fetchall()
     cursor.execute("""SELECT id, category_name FROM DiscussCategory""")
     subscription_areas = cursor.fetchall()
+    cursor.execute("""SELECT id, vendor_name FROM PublicVendor""")
+    tech_stack = cursor.fetchall()
 
     return jsonify({
         'interestAreas': interest_areas,
         'industries': industries,
-        'subscriptionAreas': subscription_areas
+        'subscriptionAreas': subscription_areas,
+        'techstack': tech_stack
     })
 
 # @login_bp.route('/industryDropdown')
