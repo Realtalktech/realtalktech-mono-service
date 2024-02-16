@@ -133,12 +133,13 @@ def edit_profile(user_id):
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     
+    conn = db_manager.get_db_connection()
+    cursor = conn.cursor()
+    
     try:
         new_fullname = data.get('fullname')
         new_email = data.get('email')
         new_tech_stack = set(data.get('techstack', []))  # List of new vendor names
-        conn = db_manager.get_db_connection()
-        cursor = conn.cursor()
         user = User.find_by_id(cursor, user_id=user_id)
         data = request.json
         user.edit_profile(cursor, new_fullname, new_email, new_tech_stack)

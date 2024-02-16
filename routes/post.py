@@ -95,6 +95,9 @@ def edit_post(user_id):
 def vote_post(user_id):
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+    
+    conn = db_manager.get_db_connection()
+    cursor = conn.cursor()
     try:
         data = request.json
         post_id = data.get('postId')
@@ -102,9 +105,6 @@ def vote_post(user_id):
 
         if not post_id:
             return jsonify({"error": "Post ID is required"}), 400
-
-        conn = db_manager.get_db_connection()
-        cursor = conn.cursor()
 
         vote = Post.get_user_vote_on_post(cursor, user_id, post_id)
 

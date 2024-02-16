@@ -91,6 +91,8 @@ def get_comments(user_id):
 def make_comment(user_id):
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+    conn = db_manager.get_db_connection()
+    cursor = conn.cursor()
     try:
         data = request.json
         post_id = data.get('postId')
@@ -100,9 +102,6 @@ def make_comment(user_id):
         # Validate input
         if not (post_id and user_id and comment_text):
             return jsonify({"error": "Missing required comment information"}), 400
-
-        conn = db_manager.get_db_connection()
-        cursor = conn.cursor()
 
         # Insert comment into the database
         cursor.execute("""
@@ -135,6 +134,9 @@ def make_comment(user_id):
 def vote_comment(user_id):
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+    
+    conn = db_manager.get_db_connection()
+    cursor = conn.cursor()
     try:
         data = request.json
         comment_id = data.get('commentId')
@@ -143,8 +145,7 @@ def vote_comment(user_id):
         if not comment_id:
             return jsonify({"error": "Comment ID is required"}), 400
 
-        conn = db_manager.get_db_connection()
-        cursor = conn.cursor()
+
 
         # Check if the user has already voted this comment
         cursor.execute("""
