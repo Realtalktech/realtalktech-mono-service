@@ -96,7 +96,7 @@ def make_comment(user_id):
     try:
         data = request.json
         post_id = data.get('postId')
-        tagged_user_names = data.get('taggedUsernames')
+        tagged_user_names = data.get('taggedUsernames', [])
         comment_text = data.get('commentText')
 
         # Validate input
@@ -144,8 +144,6 @@ def vote_comment(user_id):
 
         if not comment_id:
             return jsonify({"error": "Comment ID is required"}), 400
-
-
 
         # Check if the user has already voted this comment
         cursor.execute("""

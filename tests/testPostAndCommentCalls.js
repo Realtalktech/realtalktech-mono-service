@@ -1,9 +1,8 @@
-const DEFAULT_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDgxMTI3MDUsImlhdCI6MTcwODEwMTkwNSwic3ViIjo2fQ.5HTCZjlhPT2kpl3NUd2r8zKwdtX4OKzmXowaCoegPiM'
-
+const DEFAULT_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDgxMjk0OTgsImlhdCI6MTcwODExODY5OCwic3ViIjo2fQ.Uk5xpTcmB7V04bFicE207cY6kSslWBOW9eQReIMb98c'
 // Post ---------------------------------------------
 
 function fetchPosts(categoryId, userId, token = DEFAULT_TOKEN, page = 2, count = 3) {
-  const url = `http://ec2-3-95-180-146.compute-1.amazonaws.com/feed?page=2&count=3`
+  const url = `http://ec2-3-95-180-146.compute-1.amazonaws.com/feed?categoryId=1&page=1&count=3`
   const params = {
     method: "GET",
     headers: {
@@ -49,7 +48,7 @@ function makePost(userId, title, body, categories, vendors, isAnonymous, token =
       console.log("ERR-makePost", err)
     })
   }
-makePost(1, "sometitle", "sombody", [1, 2],[1, 4, 6], false)
+// makePost(1, "sometitle", "sombody", [1, 2],[1, 4, 6], false)
 
 // Comment -----------------------
 
@@ -71,7 +70,7 @@ function fetchComments(postId, token = DEFAULT_TOKEN, page = 1) {
     console.log("ERR-fetchComments", err)
   })
 }
-fetchComments(1)
+// fetchComments(1)
 
 function makeComment(userId, postId, text, taggedUsernames = [], token = DEFAULT_TOKEN) {
     const url = `http://ec2-3-95-180-146.compute-1.amazonaws.com/makeComment`
@@ -98,4 +97,4 @@ function makeComment(userId, postId, text, taggedUsernames = [], token = DEFAULT
       console.log("ERR-makeComment", err)
     })
   }
-makeComment(1, 1, "mycomment", []);
+// makeComment(1, 1, "mycomment", []);
