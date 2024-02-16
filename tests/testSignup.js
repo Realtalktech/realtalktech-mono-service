@@ -25,7 +25,7 @@ const bodySignup = {
   techStack: [],
   currentCompany: "HERE",
   industryInvolvement: [],
-  workCategories: [],
+  workCategories: ['Engineering'],
   linkedinUrl: "www.linedin.com/rob1",
   bio: "alksdjflsd",
   interestAreas: [],

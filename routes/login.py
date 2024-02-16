@@ -185,6 +185,51 @@ def login():
         cursor.close()
         conn.close()
 
+# on signup, theres a few dropdowns where the user has to select
+# industry,
+# categories,
+# interests
+# we need lists for all those, thhough categories is the same list as in discuss
+
+
+@login_bp.route('/onboard')
+def get_interest_areas():
+    conn = db_manager.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""SELECT id, interest_area_name FROM InterestArea""")
+    interest_areas = cursor.fetchall()
+    cursor.execute("""SELECT id, industry_name FROM Industry""")
+    industries = cursor.fetchall()
+    cursor.execute("""SELECT id, category_name FROM DiscussCategory""")
+    subscription_areas = cursor.fetchall()
+
+    return jsonify({
+        'interestAreas': interest_areas,
+        'industries': industries,
+        'subscriptionAreas': subscription_areas
+    })
+
+# @login_bp.route('/industryDropdown')
+# def get_industry_areas():
+#     conn = db_manager.get_db_connection()
+#     cursor = conn.cursor()
+#     cursor.execute("""SELECT id, industry_name FROM Industry""")
+#     industries = cursor.fetchall()
+#     return jsonify({
+#         'industries': industries
+#     })
+
+# @login_bp('/categoryDropdown')
+# def get_subscription_areas():
+#     conn = db_manager.get_db_connection()
+#     cursor = conn.cursor()
+#     cursor.execute("""SELECT id, category_name FROM DiscussCategory""")
+#     subscription_areas = cursor.fetchall()
+#     return jsonify({
+#         'subscriptionAreas': subscription_areas
+#     })
+
+
 @login_bp.route('/logout', methods=['POST'])
 def logout():
     # Token must be deleted client-side

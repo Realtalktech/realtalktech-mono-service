@@ -1,9 +1,9 @@
-const DEFAULT_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDc4MDM2ODcsImlhdCI6MTcwNzc5Mjg4Nywic3ViIjo1fQ.OuGM28dMenfX3hUUctfVR_-6kAb9FYPIRvyYtCeu-c0';
+const DEFAULT_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDgxMTI3MDUsImlhdCI6MTcwODEwMTkwNSwic3ViIjo2fQ.5HTCZjlhPT2kpl3NUd2r8zKwdtX4OKzmXowaCoegPiM'
 
 // Post ---------------------------------------------
 
-function fetchPosts(categoryId, userId, token = DEFAULT_TOKEN, page = 1) {
-  const url = `http://ec2-3-95-180-146.compute-1.amazonaws.com/feed?categoryId=${categoryId}&userId=${userId}`
+function fetchPosts(categoryId, userId, token = DEFAULT_TOKEN, page = 2, count = 3) {
+  const url = `http://ec2-3-95-180-146.compute-1.amazonaws.com/feed?page=2&count=3`
   const params = {
     method: "GET",
     headers: {
