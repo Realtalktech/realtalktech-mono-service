@@ -135,13 +135,14 @@ def edit_profile(user_id):
     
     conn = db_manager.get_db_connection()
     cursor = conn.cursor()
+    data = request.json
+
     
     try:
         new_fullname = data.get('fullname')
         new_email = data.get('email')
         new_tech_stack = set(data.get('techstack', []))  # List of new vendor names
         user = User.find_by_id(cursor, user_id=user_id)
-        data = request.json
         user.edit_profile(cursor, new_fullname, new_email, new_tech_stack)
         conn.commit()
 
