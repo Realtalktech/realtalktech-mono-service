@@ -18,17 +18,16 @@ const signup = (body) => {
 };
 
 const bodySignup = {
-  fullname: 'robert',
-  username: 'smith',
-  email: 'rob1@gmail.com',
-  password: 'pass123',
+  fullname: 'asd',
+  username: 'asd',
+  email: 'asd@gmail.com',
+  password: 'asd',
   techStack: [],
-  currentCompany: "HERE",
-  industryInvolvement: [],
-  workCategories: ['Engineering'],
-  linkedinUrl: "www.linedin.com/rob1",
-  bio: "alksdjflsd",
-  interestAreas: [],
+  currentCompany: "asd",
+  industryInvolvement: ["Automation", "Cannabis"],
+  workCategories: ["Marketing"],
+  bio: "asd",
+  interestAreas: ["Analytics Tools & Software", "Commerce", "Design"],
 };
 
 const DEFAULT_TOKEN = "123423ff";

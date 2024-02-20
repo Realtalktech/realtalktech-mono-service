@@ -1,5 +1,6 @@
 import pymysql
 import logging
+from werkzeug.security import generate_password_hash
 
 # Database conn details
 DB_HOST = 'realtalktechrdsstack-realtalktechdbinstance-c7ciisdczocf.cnqm62ueodz0.us-east-1.rds.amazonaws.com'
@@ -58,7 +59,9 @@ class DataBuilder:
         employers = ["SuperchargedSoftware", "MacroAdvanced", "General Autos", "Capitol Tech"]
         for i, name in enumerate(names):
             username = name.replace(" ", "").lower()
-            email = username.join("@example.com")
+            email = username+"@example.com"
+            password = generate_password_hash('password')
+            logging.info(f"Inserting user with email {email}")
             current_company = employers[i]
             
             quarter_size = len(self.discuss_categories) // len(names)
@@ -72,7 +75,7 @@ class DataBuilder:
 
             self.cursor.execute(
                 """INSERT INTO User (full_name, username, password, current_company, email) 
-                VALUES (%s, %s, 'password', %s, %s)""", (name, username, current_company, email)
+                VALUES (%s, %s, %s, %s, %s)""", (name, username, password, current_company, email)
             )
 
             self.cursor.execute("SELECT LAST_INSERT_ID()")
@@ -109,7 +112,7 @@ class DataBuilder:
 
     
     def insert_post_1(self):
-        """Inserts a post from Elon Gates, tags Salesforce, comments from Bill and Mary, Elon likes Bill's comment"""
+        """Inserts a post from Elon Gates, tags Salesforce, links category as engineering comments from Bill and Mary, Elon likes Bill's comment"""
         # Insert post
         self.cursor.execute(
             """INSERT INTO Post (user_id, is_anonymous, title, body) VALUES (%s, %s, %s, %s)""",
@@ -143,8 +146,11 @@ class DataBuilder:
             (comment_id, False, self.test_user_ids[0])
         )
 
+        # Link to engineering
+        self.link_category_with_post(post_id, 2)
+
     def insert_post_2(self):
-        """Inserts a post from Elon Gates about HubSpot, with comments and likes"""
+        """Inserts a post from Elon Gates about HubSpot, links category as engineering, with comments and likes"""
         # Insert post about HubSpot
         self.cursor.execute(
             """INSERT INTO Post (user_id, is_anonymous, title, body) VALUES (%s, %s, %s, %s)""",
@@ -162,8 +168,12 @@ class DataBuilder:
         # Comments and likes
         self.insert_comment_and_like(post_id, self.test_user_ids[2], "HubSpot is indeed a game-changer!", self.test_user_ids[1])
 
+        # Link to engineering
+        self.link_category_with_post(post_id, 2)
+
+
     def insert_post_3(self):
-        """Inserts an anonymous post by Elon Gates, no tags, with comments"""
+        """Inserts an anonymous post by Elon Gates, links category as engineering, no tags, with comments"""
         # Insert anonymous post
         self.cursor.execute(
             """INSERT INTO Post (user_id, is_anonymous, title, body) VALUES (%s, %s, %s, %s)""",
@@ -175,8 +185,11 @@ class DataBuilder:
         # Comments
         self.insert_comment(post_id, self.test_user_ids[1], "AI is going to be crucial in understanding customer needs.")
 
+        # Link to engineering
+        self.link_category_with_post(post_id, 2)
+
     def insert_post_4(self):
-        """Inserts a post from Elon Gates about Zendesk Sell, with comments and likes"""
+        """Inserts a post from Elon Gates about Zendesk Sell,  links category as engineering, with comments and likes"""
         # Insert post about Zendesk Sell
         self.cursor.execute(
             """INSERT INTO Post (user_id, is_anonymous, title, body) VALUES (%s, %s, %s, %s)""",
@@ -193,6 +206,9 @@ class DataBuilder:
 
         # Comments and likes
         self.insert_comment_and_like(post_id, self.test_user_ids[3], "It's a superb tool!", self.test_user_ids[0])
+
+        # Link to engineering
+        self.link_category_with_post(post_id, 2)
 
     def insert_comment(self, post_id, user_id, text):
         """Helper function to insert a comment"""
@@ -212,6 +228,9 @@ class DataBuilder:
             """INSERT INTO CommentUpvote (comment_id, is_downvote, user_id) VALUES (%s, %s, %s)""",
             (comment_id, False, liker_id)
         )
+    
+    def link_category_with_post(self, post_id, category_id):
+        self.cursor.execute("""INSERT INTO PostDiscussCategory (post_id, category_id) VALUES (%s, %s)""", (post_id, category_id))
 
 if __name__ == '__main__':
     # Establish database connection and call methods to insert data

@@ -107,7 +107,7 @@ class User:
             cursor.execute("SELECT id FROM Industry WHERE industry_name = %s", (industry,))
             industry_obj = cursor.fetchone()
             if industry_obj:
-                cursor.execute("""INSERT INTO UserIndustry (user_id, interest_area_id) VALUES (%s, %s)""",
+                cursor.execute("""INSERT INTO UserIndustry (user_id, industry_id) VALUES (%s, %s)""",
                             (self.id, industry_obj['id']))
     
     def set_tech_stack(self, cursor):
