@@ -120,6 +120,10 @@ class User:
                     INSERT INTO UserPublicVendor (user_id, vendor_id) 
                     VALUES (%s, %s)
                 """, (self.id, vendor['id']))
+            else:
+                cursor.execute("""
+                    INSERT INTO PublicVendor (vendor_name) VALUES (%s)
+                """, (tech))
 
     @classmethod 
     def find_by_id(cls, cursor, user_id,

@@ -2,7 +2,7 @@ __pycache__/
 env/
 *.pyc
 dbScripts/connect/unsafeConnect.sh
-dbScripts/data/vendor_logos/
+dbScripts/data/
 dbScripts/populate/populateProdVendors.py
 dbScripts/unsafeRefresh.sh
 .DS_Store

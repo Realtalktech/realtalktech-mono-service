@@ -1,11 +1,15 @@
 import pymysql
-import pprint
+import logging
 
 # Database conn details
 DB_HOST = 'realtalktechrdsstack-realtalktechdbinstance-c7ciisdczocf.cnqm62ueodz0.us-east-1.rds.amazonaws.com'
 DB_USER = 'admin'
 DB_PASSWORD = 'ReallyRealAboutTech123!'
 DB_NAME = 'RealTalkTechDB'
+
+
+# Configure Logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class DataBuilder:
     def __init__(self):
@@ -18,45 +22,6 @@ class DataBuilder:
             "Data", "Product", "HR & Talent", "Finance", "Leadership/Exec", "Founder",
             "Community"
         ]
-        self.discuss_category_ids = []
-        self.discuss_category_mappings = {}
-        self.discover_categories = [
-            "Sales Tools", "Marketing", "Analytics Tools & Software", "CAD & PLM", "Collaboration & Productivity",
-            "Commerce", "Content Management", "Customer Service", "Data Privacy", "Design", "Development",
-            "Digital Advertising Tech", "ERP", "Governance, Risk & Compliance", "Hosting", "HR", "IT Infrastructure",
-            "IT Management", "Security", "Supply Chains & Logistics", "Vertical Industry"
-        ]
-        self.discover_category_ids = []
-        self.discover_category_mappings = {}
-        self.vendors = {
-            'Salesforce': {
-                'vendor_name': "Salesforce",
-                'vendor_type': "CRM Software",
-                'description': "Salesforce forces sales",
-                'vendor_hq': "Somewhere",
-                'vendor_homepage_url': "https://www.salesforce.com/",
-                'vendor_logo_url': "https://vendor-logos-bucket.s3.amazonaws.com/vendorLogos/Salesforce-logo.jpg"
-            },
-
-            'HubSpot': {
-                'vendor_name': "HubSpot",
-                'vendor_type': "Inbound Marketing and Sales Software",
-                'description': "The spot for all the hubs",
-                'vendor_hq': "Over the Rainbow",
-                'vendor_homepage_url': "https://www.hubspot.com/",
-                'vendor_logo_url': "https://vendor-logos-bucket.s3.amazonaws.com/vendorLogos/HubSpot-logo.jpg"
-            },
-
-            'Zendesk Sell': {
-                'vendor_name': "Zendesk Sell",
-                'vendor_type': "Sales CRM",
-                'description': "Feng Shui desks for selling",
-                'vendor_hq': "Beyond the Sea",
-                'vendor_homepage_url': "https://www.zendesk.com/",
-                'vendor_logo_url': "https://vendor-logos-bucket.s3.amazonaws.com/vendorLogos/Zendesk_Sell-logo.jpg"
-            }                        
-        }
-        self.vendor_ids = []
         self.industries = [
             "AdTech", "Angel or VC Firm", "AI", "Automation", "Big Data", "Biotech", "Blockchain",
             "Business Intelligence", "Cannabis", "Cloud", "Consulting", "Web/Internet", "Crypto",
@@ -66,7 +31,6 @@ class DataBuilder:
             "NFT", "Payments", "Pharmaceutical", "Procurement", "Professional Services", "Real Estate", "Sales",
             "Software", "Sports", "Travel", "Web3", "Other"
         ]
-        self.industry_ids = []
         self.interest_areas = [
             "Sales Tools", "Marketing", "Analytics Tools & Software", "CAD & PLM", "Collaboration & Productivity",
             "Commerce", "Customer Service", "Data Privacy", "Design", "Development", "Digital Advertising",
@@ -75,26 +39,13 @@ class DataBuilder:
             "Customer Management", "Revenue Operations", "Payments", "Accounting", "Learning Management System",
             "Robotic Process Automation", "Artificial Intelligence"
         ]
-        self.interest_area_ids = []
-
-
-        pp = pprint.PrettyPrinter(indent=4)
 
         try:
             self.insert_test_users()
-            self.insert_discuss_categories()
-            self.discuss_category_mappings = {k: v for k, v in sorted(self.discuss_category_mappings.items(), key=lambda item: item[1])}
-            print(self.discuss_category_mappings)
-            self.insert_discover_categories()
-            self.discover_category_mappings = {k: v for k, v in sorted(self.discover_category_mappings.items(), key=lambda item: item[1])}
-            print(self.discover_category_mappings)
-            self.insert_test_vendors()
             self.insert_post_1()
             self.insert_post_2()
             self.insert_post_3()
             self.insert_post_4()
-            self.insert_industries()
-            self.insert_interest_areas()
 
         finally:
             conn.commit()
@@ -105,82 +56,57 @@ class DataBuilder:
         """Inserts four test users"""
         names = ["Elon Gates", "Bill Musk", "Mary Barra", "Kamala Clinton"]
         employers = ["SuperchargedSoftware", "MacroAdvanced", "General Autos", "Capitol Tech"]
-        for idx, name in enumerate(names):
+        for i, name in enumerate(names):
             username = name.replace(" ", "").lower()
             email = username.join("@example.com")
-            current_company = employers[idx]
+            current_company = employers[i]
+            
+            quarter_size = len(self.discuss_categories) // len(names)
+            user_discuss_categories = self.discuss_categories[i * quarter_size: (i + 1) * quarter_size]
+            
+            quarter_size = len(self.industries) // len(names)
+            user_industries = self.industries[i * quarter_size: (i + 1) * quarter_size]
+            
+            quarter_size = len(self.interest_areas) // len(names)
+            user_interest_areas = self.interest_areas[i * quarter_size: (i + 1) * quarter_size]
 
             self.cursor.execute(
                 """INSERT INTO User (full_name, username, password, current_company, email) 
                 VALUES (%s, %s, 'password', %s, %s)""", (name, username, current_company, email)
             )
+
             self.cursor.execute("SELECT LAST_INSERT_ID()")
             user_id = self.cursor.fetchone()['LAST_INSERT_ID()']
             self.test_user_ids.append(user_id)
 
-    def insert_discuss_categories(self):
-        """Insert categories according to Figma Designs"""
-        for name in self.discuss_categories:
-            self.cursor.execute("INSERT INTO DiscussCategory (category_name) VALUES (%s)", (name,))
-            self.cursor.execute("SELECT LAST_INSERT_ID()")
-            category_id = self.cursor.fetchone()['LAST_INSERT_ID()']
-            self.discuss_category_ids.append(category_id)
-            self.discuss_category_mappings[name] = category_id
-    
-    def insert_discover_categories(self):
-        """Inserting just the sales category, for now"""
-        for category in self.discover_categories:
-            self.cursor.execute(
-                "INSERT INTO DiscoverCategory (category_name) VALUES (%s)", 
-                (category))
-            self.cursor.execute("SELECT LAST_INSERT_ID()")
-            vendor_category_id = self.cursor.fetchone()['LAST_INSERT_ID()']
-            self.discover_category_ids.append(vendor_category_id)
-            self.discover_category_mappings[category] = vendor_category_id
-    
-    def insert_industries(self):
-        for industry in self.industries:
-            self.cursor.execute(
-                """INSERT INTO Industry (industry_name) VALUES (%s)""",
-                (industry)
-            )
-            self.cursor.execute("SELECT LAST_INSERT_ID()")
-            industry_id = self.cursor.fetchone()['LAST_INSERT_ID()']            
-            self.industry_ids.append(industry_id)
-    
-    def insert_interest_areas(self):
-        for area in self.interest_areas:
-            self.cursor.execute(
-                """INSERT INTO InterestArea (interest_area_name) VALUES (%s)""",
-                (area)
-            )
-            self.cursor.execute("SELECT LAST_INSERT_ID()")
-            interest_area_id = self.cursor.fetchone()['LAST_INSERT_ID()']            
-            self.interest_area_ids.append(interest_area_id)
-    
-    def insert_test_vendors(self):
-        """Inserting Salesforce, HubSpot, Zendesk Sell"""
-        for vendor, details in self.vendors.items():
-            # Insert vendors into table
-            self.cursor.execute(
-                """INSERT INTO DiscoverVendor (vendor_name, vendor_type, description, vendor_hq, vendor_homepage_url, vendor_logo_url) 
-                VALUES (%s, %s, %s, %s, %s, %s)""", 
-                (details['vendor_name'], 
-                 details['vendor_type'],
-                 details['description'],
-                 details['vendor_hq'],
-                 details['vendor_homepage_url'],
-                 details['vendor_logo_url']
-                )
-            )
-            # Link vendors to categories
-            self.cursor.execute("SELECT LAST_INSERT_ID()")
-            vendor_id = self.cursor.fetchone()['LAST_INSERT_ID()']
-            self.vendor_ids.append(vendor_id)
-            self.cursor.execute(
-                """INSERT INTO VendorDiscoverCategory (vendor_id, category_id) VALUES (%s, %s)""", 
-                (vendor_id, self.discover_category_ids[0])
-            )
+            # Subscribe user to categories
+            for category in user_discuss_categories:
+                self.cursor.execute("""SELECT id FROM DiscussCategory WHERE category_name = %s""", (category))
+                category_id = self.cursor.fetchone().get('id')
+                if category_id:
+                    self.cursor.execute("""INSERT INTO UserDiscussCategory (user_id, category_id) VALUES (%s, %s)""", (user_id, category_id))
+                else:
+                    logging.error("Could not find category named: %s", (category))
+            
+            # Subscribe user to industries
+            for industry in user_industries:
+                self.cursor.execute("""SELECT id FROM Industry WHERE industry_name = %s""", (industry))
+                industry_id = self.cursor.fetchone().get('id')
+                if industry_id:
+                    self.cursor.execute("""INSERT INTO UserIndustry (user_id, industry_id) VALUES (%s, %s)""", (user_id, industry_id))
+                else:
+                    logging.error("Could not find industry named: %s", (industry))
+
+            # Subscribe user to interest area
+            for area in user_interest_areas:
+                self.cursor.execute("""SELECT id FROM InterestArea WHERE interest_area_name = %s""", (area))
+                area_id = self.cursor.fetchone().get('id')
+                if area_id:
+                    self.cursor.execute("""INSERT INTO UserIndustry (user_id, industry_id) VALUES (%s, %s)""", (user_id, area_id))
+                else:
+                    logging.error("Could not find interest_area named: %s", (area))
+
+
     
     def insert_post_1(self):
         """Inserts a post from Elon Gates, tags Salesforce, comments from Bill and Mary, Elon likes Bill's comment"""
@@ -195,7 +121,7 @@ class DataBuilder:
         # Tag Salesforce in post
         self.cursor.execute(
             """INSERT INTO PostDiscoverVendor (post_id, vendor_id) VALUES (%s,%s)""",
-            (post_id, self.vendor_ids[0])
+            (post_id, 2)
         )
         # Insert comment from Bill
         self.cursor.execute(
@@ -230,7 +156,7 @@ class DataBuilder:
         # Tag HubSpot in post
         self.cursor.execute(
             """INSERT INTO PostDiscoverVendor (post_id, vendor_id) VALUES (%s, %s)""",
-            (post_id, self.vendor_ids[1])
+            (post_id, 5)
         )
 
         # Comments and likes
@@ -262,7 +188,7 @@ class DataBuilder:
         # Tag Zendesk Sell in post
         self.cursor.execute(
             """INSERT INTO PostDiscoverVendor (post_id, vendor_id) VALUES (%s, %s)""",
-            (post_id, self.vendor_ids[2])
+            (post_id, 42)
         )
 
         # Comments and likes

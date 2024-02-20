@@ -12,24 +12,40 @@ The script inserts four test users with the following details (User IDs start at
    - Email: elongates@example.com
    - Password: password
    - Company: SuperchargedSoftware
+   - Subscribed Discuss Categories: AI, Engineering
+   - Industries: AdTech, Angel or VC Firm
+   - Interest Areas: Sales Tools, Marketing
+
 2. **Bill Musk**: 
    - User ID: 2
    - Username: billmusk
    - Email: billmusk@example.com
    - Password: password
    - Company: MacroAdvanced
+   - Subscribed Discuss Categories: Operations, Marketing
+   - Industries: AI, Automation
+   - Interest Areas: Analytics Tools & Software, CAD & PLM
+
 3. **Mary Barra**: 
    - User ID: 3
    - Username: marybarra
    - Email: marybarra@example.com
    - Password: password
    - Company: General Autos
+   - Subscribed Discuss Categories: Sales, Customer Success
+   - Industries: Big Data, Biotech
+   - Interest Areas: Collaboration & Productivity, Commerce
+
 4. **Kamala Clinton**: 
    - User ID: 4
    - Username: kamalaclinton
    - Email: kamalaclinton@example.com
    - Password: password
    - Company: Capitol Tech
+   - Subscribed Discuss Categories: Data, Product
+   - Industries: Blockchain, Business Intelligence
+   - Interest Areas: Customer Service, Data Privacy
+
 
 ## Posts
 
