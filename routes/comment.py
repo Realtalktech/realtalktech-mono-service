@@ -49,7 +49,7 @@ def get_comments(user_id):
 
     for comment in comment_bodies:
         # Get username for response body
-        cursor.execute("""SELECT username FROM User WHERE id = %s""", (user_id))
+        cursor.execute("""SELECT username FROM User WHERE id = %s""", (comment['user_id']))
         username = cursor.fetchone()['username']
         comment_user_id = comment.pop('user_id')
 

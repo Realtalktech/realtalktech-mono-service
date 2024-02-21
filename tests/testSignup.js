@@ -63,7 +63,7 @@ function sleep(ms) {
 const executeSignupAndLogin = async (bodySignup) => {
   await signup(bodySignup); // Wait for signup to finish
   await sleep(5000); // Wait for 5 seconds
-  login('smith', 'pass123'); // Then login
+  login('asd', 'asd'); // Then login
 };
 
 executeSignupAndLogin(bodySignup); // Call the function

@@ -3,6 +3,7 @@ from flask import jsonify, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import pymysql
+import re
 
 class User:
     def __init__(
@@ -69,6 +70,11 @@ class User:
 
     @classmethod
     def authenticate_and_create_returning_user(cls, cursor, entered_username, entered_password):
+        
+        if re.match(r"[^@]+@[^@]+\.[^@]+", entered_username):
+            cursor.execute("""SELECT username FROM User WHERE email = %s""", (entered_username))
+            entered_username = cursor.fetchone()['username']
+
         # Fetch the user by username
         user = cls.find_by_username(cursor, 
                                     username = entered_username,
