@@ -85,7 +85,8 @@ class User:
                                     needed_info=['id', 'full_name', 'password', 'current_company', 'email', 'linkedin_url', 'bio'],
                                     tech_stack=True,
                                     interest_areas=True,
-                                    industry_involvement=True
+                                    industry_involvement=True,
+                                    subscribed_categories=True
                                     )
         if user and check_password_hash(user.password, entered_password):
             # Authentication successful
