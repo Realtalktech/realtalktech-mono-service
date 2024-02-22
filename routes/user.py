@@ -135,7 +135,7 @@ def edit_profile(user_id):
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
     
     conn = db_manager.get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
     data = request.json
 
     try:
