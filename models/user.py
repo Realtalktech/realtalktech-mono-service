@@ -319,9 +319,9 @@ class User:
                     ):
         
         if new_full_name:
-            cursor.execute("""UPDATE User SET full_name = %s""",(new_full_name))
+            cursor.execute("""UPDATE User SET full_name = %s WHERE id = %s""",(new_full_name, self.id))
         if new_email:
-            cursor.execute("""UPDATE User SET email = %s""",(new_email))
+            cursor.execute("""UPDATE User SET email = %s WHERE id = %s""",(new_email, self.id))
         if new_tech_stack:
             self.get_tech_stack(cursor, self.id)
 
@@ -351,7 +351,7 @@ class User:
                 self.cursor.execute("DELETE FROM UserPublicVendor WHERE user_id = %s AND vendor_id = %s", (self.id, vendor_id))
 
         if new_bio:
-            cursor.execute("""UPDATE User SET bio = %s""", (new_bio))
+            cursor.execute("""UPDATE User SET bio = %s WHERE id = %s""", (new_bio, self.id))
         
         cursor.execute("""UPDATE User SET update_time = CURRENT_TIMESTAMP(3) WHERE id = %s""",(self.id))
 
