@@ -319,7 +319,7 @@ class User:
                     ):
         
         if new_full_name:
-            cursor.execute("""UPDATE User SET full_name = COALESCE(%s, full_name)""",(new_full_name))
+            cursor.execute("""UPDATE User SET full_name = %s""",(new_full_name))
         if new_email:
             cursor.execute("""UPDATE User SET email = %s""",(new_email))
         if new_tech_stack:
@@ -327,22 +327,31 @@ class User:
 
             # In with the new
             for tech in new_tech_stack - self.tech_stack_vendor_names:
-                cursor.execute("SELECT id FROM PublicVendor WHERE vendor_name = %s", (tech,))
-                vendor = cursor.fetchone()
-                if vendor:
-                    cursor.execute("""
-                        INSERT INTO UserPublicVendor (user_id, vendor_id) 
-                        VALUES (%s, %s)
-                    """, (self.id, vendor['id']))
-            
-            # Out with the old
+                self.cursor.execute("SELECT id FROM PublicVendor WHERE vendor_name = %s", (tech,))
+                vendor = self.cursor.fetchone()
+
+                # If the vendor does not exist, create a new entry in PublicVendor
+                if not vendor:
+                    self.cursor.execute("INSERT INTO PublicVendor (vendor_name) VALUES (%s)", (tech,))
+                    self.conn.commit()  # Commit the new vendor to the database
+                    vendor_id = self.cursor.lastrowid  # Retrieve the ID of the newly inserted vendor
+                else:
+                    vendor_id = vendor['id']  # Use the existing ID if the vendor is already in the database
+
+                # Add the new tech to the user's tech stack
+                self.cursor.execute("""
+                    INSERT INTO UserPublicVendor (user_id, vendor_id) 
+                    VALUES (%s, %s)
+                """, (self.id, vendor_id))
+                self.conn.commit()  # Commit the new user-tech association to the database
+
+            # Out with the old   
             for tech in self.tech_stack_vendor_names - new_tech_stack:
-                self.tech_stack_vendor_ids[
-                    self.tech_stack_vendor_names.index(tech)
-                ]
-                
+                vendor_id = self.tech_stack_vendor_ids[self.tech_stack_vendor_names.index(tech)]
+                self.cursor.execute("DELETE FROM UserPublicVendor WHERE user_id = %s AND vendor_id = %s", (self.id, vendor_id))
+
         if new_bio:
-            cursor.execute("""UPDATE User SET bio = COALESCE(%s, bio)""", (new_bio))
+            cursor.execute("""UPDATE User SET bio = %s""", (new_bio))
         
         cursor.execute("""UPDATE User SET update_time = CURRENT_TIMESTAMP(3) WHERE id = %s""",(self.id))
 
