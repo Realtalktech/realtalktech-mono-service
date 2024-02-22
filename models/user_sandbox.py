@@ -1,12 +1,15 @@
 # models/user.py
 from flask import jsonify, make_response
+from flask import current_app as app
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
 from email_validator import validate_email, EmailNotValidError
 from datetime import datetime
 import pymysql
+import re
 from utils import DBManager
 from auth import Authorizer
+
 
 class SandUser:
     def __init__(self):
@@ -15,6 +18,13 @@ class SandUser:
         self.cursor = self.conn.cursor()
 
     def authenticate_returning_user(self, entered_username, entered_password):
+        if re.match(r"[^@]+@[^@]+\.[^@]+", entered_username):
+            self.cursor.execute("""SELECT username FROM User WHERE email = %s""", (entered_username))
+            username = self.cursor.fetchone()
+            if not username:
+                raise Unauthorized("Invalid Email")
+            else:
+                entered_username = username['username']
         try:
             user_data = self.fetch_login_credentials_by_username(entered_username)
             if user_data is None:
@@ -24,9 +34,9 @@ class SandUser:
                 raise Unauthorized("Incorrect Password")
             
             # Authorized, generate token
-            token = Authorizer.generate_token(user_data.get('user_id'))
             user_id = user_data.get('user_id')
-
+            token = Authorizer.generate_token(user_id)
+            
             # Grab user details
             user_details = self.get_user_details(user_id, True)
             tech_stack = self.get_user_tech_stack(user_id)
@@ -97,7 +107,7 @@ class SandUser:
 
         # Raise error if not in standard email format
         try:
-            v = validate_email(email)
+            v = validate_email(email, check_deliverability=True)
             # replace with normalized form
             email = v["email"]
         except EmailNotValidError as e:

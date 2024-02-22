@@ -21,13 +21,13 @@ def signup():
 
 @login_bp.route('/login', methods=['POST'])
 def login():
-    # Extract username and password from the request
+    # Extract username/email and password from the request
     data = request.json
     username = data.get('username')
     password = data.get('password')
 
     if not username or not password:
-        raise BadRequest("Username and password are required")
+        raise BadRequest("Username/Email and password are required")
     
     user = SandUser()
     return user.authenticate_returning_user(username, password)

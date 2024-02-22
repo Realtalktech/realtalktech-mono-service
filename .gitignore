@@ -7,3 +7,4 @@ dbScripts/populate/populateProdVendors.py
 dbScripts/unsafeRefresh.sh
 .DS_Store
 .pytest_cache
+dbScripts/data/
