@@ -314,7 +314,8 @@ class User:
     def edit_profile(self, cursor,
                      new_full_name = None,
                      new_email = None,
-                     new_tech_stack = None
+                     new_tech_stack = None,
+                     new_bio = None
                     ):
         
         if new_full_name:
@@ -339,6 +340,9 @@ class User:
                 self.tech_stack_vendor_ids[
                     self.tech_stack_vendor_names.index(tech)
                 ]
+                
+        if new_bio:
+            cursor.execute("""UPDATE User SET bio = COALESCE(%s, bio)""", (new_bio))
         
         cursor.execute("""UPDATE User SET update_time = CURRENT_TIMESTAMP(3) WHERE id = %s""",(self.id))
 
