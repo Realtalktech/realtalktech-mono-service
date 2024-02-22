@@ -3,6 +3,7 @@ import pymysql
 import pymysql.cursors
 from utils.db_manager import DBManager
 from utils.responseFormatter import convert_keys_to_camel_case
+from werkzeug.security import generate_password_hash, check_password_hash
 from models import User
 from utils import token_required
 
@@ -137,7 +138,6 @@ def edit_profile(user_id):
     cursor = conn.cursor()
     data = request.json
 
-    
     try:
         new_fullname = data.get('fullname')
         new_email = data.get('email')
@@ -189,3 +189,36 @@ def endorse_user(user_id):
 
     return jsonify({"message": "Profile endorsed successfully"}), 200
 
+@user_bp.route('/editPassword', methods=['POST'])
+@token_required  # Assuming you have a token_required decorator
+def edit_password(current_user):
+    # Get JSON data from request
+    data = request.get_json()
+    old_password = data.get('oldPassword')
+    new_password = data.get('newPassword')
+
+    if not old_password or not new_password:
+        return jsonify({'message': 'Missing old or new password'}), 400
+
+    # Connect to the database
+    conn = db_manager.get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Fetch the current user's password
+        cursor.execute("SELECT password FROM User WHERE id = %s", (current_user.id,))
+        user_record = cursor.fetchone()
+
+        if user_record and check_password_hash(user_record['password'], old_password):
+            # If the old password is correct, update with the new hashed password
+            hashed_new_password = generate_password_hash(new_password)
+            cursor.execute("UPDATE User SET password = %s WHERE id = %s", (hashed_new_password, current_user.id))
+            conn.commit()
+            return jsonify({'message': 'Password updated successfully'}), 200
+        else:
+            return jsonify({'message': 'Old password is incorrect'}), 401
+    except Exception as e:
+        return jsonify({'message': 'Error updating password', 'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
