@@ -21,7 +21,7 @@ S3_BUCKET = 'vendor-logos-bucket'
 # Paths
 CATEGORY_ICON_PATH = 'dbScripts/data/discover_logo_prod'
 VENDOR_LOGO_PATH = 'dbScripts/data/vendor_logo_prod'
-CSV_PATH = 'dbScripts/data/discoverVendors_v2.csv'
+CSV_PATH = 'dbScripts/data/discoverVendors_v4.csv'
 
 IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'svg']  # Add more as needed
 
@@ -180,6 +180,7 @@ def populate_database():
             bio = row['Bio']
             hq = row['HQ']
             headcount = row['Headcount']
+            homepage_url = row['URL']
 
             # Try to find and upload the vendor logo
             vendor_logo_filename = name.replace(' ', '-').lower()  # Adjust for actual file finding logic if necessary
@@ -196,7 +197,7 @@ def populate_database():
                 continue  # Skip this vendor and go to the next one
 
             # Now insert the vendor into DiscoverVendor
-            cursor.execute("INSERT INTO DiscoverVendor (vendor_name, vendor_type, description, vendor_hq, total_employees, vendor_logo_url) VALUES (%s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE vendor_type = VALUES(vendor_type), description = VALUES(description), vendor_hq = VALUES(vendor_hq), total_employees = VALUES(total_employees), vendor_logo_url = VALUES(vendor_logo_url)", (name, category, bio, hq, headcount, vendor_logo_url))
+            cursor.execute("INSERT INTO DiscoverVendor (vendor_name, vendor_type, description, vendor_hq, total_employees, vendor_homepage_url, vendor_logo_url) VALUES (%s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE vendor_type = VALUES(vendor_type), description = VALUES(description), vendor_hq = VALUES(vendor_hq), total_employees = VALUES(total_employees), vendor_logo_url = VALUES(vendor_logo_url)", (name, category, bio, hq, headcount, homepage_url, vendor_logo_url))
             db.commit()
             discover_vendor_id = cursor.lastrowid
 
