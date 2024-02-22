@@ -6,6 +6,7 @@ from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
 from email_validator import validate_email, EmailNotValidError
 from datetime import datetime
 import pymysql
+import pymysql.cursors
 import re
 from utils import DBManager
 from auth import Authorizer
@@ -15,7 +16,7 @@ class SandUser:
     def __init__(self):
         self.db_manager = DBManager()
         self.conn = self.db_manager.get_db_connection()
-        self.cursor = self.conn.cursor()
+        self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
 
     def authenticate_returning_user(self, entered_username, entered_password):
         if re.match(r"[^@]+@[^@]+\.[^@]+", entered_username):
@@ -62,6 +63,7 @@ class SandUser:
             raise InternalServerError(f"Database error: {str(e)}")
 
         finally:
+            self.conn.commit()
             self.cursor.close()
             self.conn.close()
     
@@ -88,6 +90,25 @@ class SandUser:
             self.conn.rollback()
             raise InternalServerError(f"Database error: {str(e)}")
         finally:
+            self.conn.commit()
+            self.cursor.close()
+            self.conn.close()
+    
+    def get_user_private_profile(self, user_id):
+        try:
+            user_details = self.get_user_details(user_id, True)
+            tech_stack = self.get_tech_stack(user_id)
+            vendors_with_endorsements = self.get_user_techstack_endorsements(user_id, tech_stack, requester_id=user_id)
+            response = {
+                'userDetails': user_details,
+                'vendors': vendors_with_endorsements
+            }
+            return jsonify(response)
+        except pymysql.MySQLError as e:
+            self.conn.rollback()
+            raise InternalServerError(f"Database error: {str(e)}")
+        finally:
+            self.conn.commit()
             self.cursor.close()
             self.conn.close()
 
@@ -101,9 +122,9 @@ class SandUser:
             error_message = f"Missing required fields: {missing_fields_str}"
             raise BadRequest(error_message)
         
-        (full_name, username, email, password, tech_stack, 
-        current_company, industry_involvement, subscribed_discuss_categories, 
-        interest_areas, linkedin_url, bio) = self.extract_signup_fields(data)
+        (full_name, username, email, password, tech_stack_names, 
+        current_company, industry_involvement_ids, subscribed_discuss_categories_ids, 
+        interest_area_ids, linkedin_url, bio) = self.extract_signup_fields(data)
 
         # Raise error if not in standard email format
         try:
@@ -118,10 +139,10 @@ class SandUser:
             user_id = self.create_user_and_fetch_id(full_name, username, 
                              email, password, current_company, 
                              linkedin_url, bio)
-            self.set_subscribed_discuss_categories(user_id, subscribed_discuss_categories)
-            self.set_interest_areas(user_id, interest_areas)
-            self.set_industry_involvement(user_id, industry_involvement)
-            self.set_tech_stack(user_id, tech_stack)
+            self.set_subscribed_discuss_categories(user_id, subscribed_discuss_categories_ids)
+            self.set_interest_areas(user_id, interest_area_ids)
+            self.set_industry_involvement(user_id, industry_involvement_ids)
+            self.set_tech_stack(user_id, tech_stack_names)
 
             token = Authorizer.generate_token(user_id)
             response = jsonify(
@@ -136,6 +157,7 @@ class SandUser:
             self.conn.rollback()
             raise InternalServerError(str(e))
         finally:
+            self.conn.commit()
             self.cursor.close()
             self.conn.close()
 
@@ -168,13 +190,13 @@ class SandUser:
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
-        tech_stack = data.get('techStack', [])  # List of vendor names from "setup your profile"
+        tech_stack = data.get('techStack', [])  # List of vendor ids from "setup your profile"
         current_company = data.get('currentCompany')
-        industry_involvement = data.get('industryInvolvement', []) # List of "what industry are you in?" names
-        categories_of_work = data.get('workCategories', []) # List of "what do you do?" names
+        industry_involvement = data.get('industryInvolvement', []) # List of "what industry are you in?" ids
+        categories_of_work = data.get('workCategories', []) # List of "what do you do?" ids
         linkedin_url = data.get('linkedinUrl')
         bio = data.get('bio')
-        interest_areas = data.get('interestAreas', []) # List of interest area names
+        interest_areas = data.get('interestAreas', []) # List of interest area ids
         
         return (full_name, username, email, 
                 password, tech_stack, current_company, industry_involvement, 
@@ -203,32 +225,25 @@ class SandUser:
         user_id = self.cursor.lastrowid # Get ID of newly inserted user
         return user_id
     
-    def set_subscribed_discuss_categories(self, user_id, subscribed_discuss_category_names):
+    def set_subscribed_discuss_categories(self, user_id, subscribed_discuss_category_ids):
         # Link categories of work to User in UserDiscussCategory for feed population
-        for work_category in subscribed_discuss_category_names:
-            self.cursor.execute("SELECT id FROM DiscussCategory WHERE category_name = %s", (work_category,))
-            category_obj = self.cursor.fetchone()
-            if category_obj:
-                self.cursor.execute("""INSERT INTO UserDiscussCategory (user_id, category_id) VALUES (%s, %s)""",
-                            (user_id, category_obj['id']))
+        for discuss_category in subscribed_discuss_category_ids:
+            self.cursor.execute("""INSERT INTO UserDiscussCategory (user_id, category_id) VALUES (%s, %s)""",
+                            (user_id, discuss_category))
     
-    def set_interest_areas(self, user_id, interest_area_names):
+    def set_interest_areas(self, user_id, interest_area_ids):
         # Link interest areas to user
-        for area in interest_area_names:
-            self.cursor.execute("SELECT id FROM InterestArea WHERE interest_area_name = %s", (area,))
-            interest_area_obj = self.cursor.fetchone()
-            if interest_area_obj :
-                self.cursor.execute("""INSERT INTO UserInterestArea (user_id, interest_area_id) VALUES (%s, %s)""",
-                            (user_id, interest_area_obj['id']))     
+        for area in interest_area_ids:
+            self.cursor.execute(
+                """INSERT INTO UserInterestArea (user_id, interest_area_id) VALUES (%s, %s)""",
+                                (user_id, area)
+                            )     
     
-    def set_industry_involvement(self, user_id, industry_involvement_names):
+    def set_industry_involvement(self, user_id, industry_involvement_ids):
         # Link industry involvement to user
-        for industry in industry_involvement_names:
-            self.cursor.execute("SELECT id FROM Industry WHERE industry_name = %s", (industry,))
-            industry_obj = self.cursor.fetchone()
-            if industry_obj:
-                self.cursor.execute("""INSERT INTO UserIndustry (user_id, interest_area_id) VALUES (%s, %s)""",
-                            (user_id, industry_obj['id']))
+        for industry in industry_involvement_ids:
+            self.cursor.execute("""INSERT INTO UserIndustry (user_id, interest_area_id) VALUES (%s, %s)""",
+                            (user_id, industry))
     
     def set_tech_stack(self, user_id, tech_stack_vendor_names):
         # Link tech stack to user
@@ -394,14 +409,25 @@ class SandUser:
     def get_user_techstack_endorsements(self, user_id, requester_id, tech_stack):
         # Process associated vendors from tech_stack and check endorsements
         vendors_with_endorsements = []
-        for item in tech_stack:
-            endorsement = self.check_endorsement_from_id(item['id'], user_id, requester_id)
-            vendors_with_endorsements.append({
-                'vendorId': item['id'],
-                'vendorName': item['name'],
-                'endorsedByRequester': endorsement
-            })
-        return vendors_with_endorsements
+        if user_id == requester_id:
+            for item in tech_stack:
+                all_endorsements = self.get_all_endorsements_from_id(item['id'], user_id)
+                vendors_with_endorsements.append({
+                    'vendorId': item['id'],
+                    'vendorName': item['name'],
+                    'totalEndorsements': self.get_total_endorsements_from_id(item['id'], user_id),
+                    'userEndorsements': all_endorsements
+                })
+        else:
+            for item in tech_stack:
+                endorsement = self.check_endorsement_from_id(item['id'], user_id, requester_id)
+                vendors_with_endorsements.append({
+                    'vendorId': item['id'],
+                    'vendorName': item['name'],
+                    'totalEndorsements': self.get_total_endorsements_from_id(item['id'], user_id),
+                    'endorsedByRequester': endorsement
+                })
+            return vendors_with_endorsements
 
     def check_endorsement_from_id(self, vendor_id, user_id, requester_id):
         # Check for endorsement
@@ -412,6 +438,108 @@ class SandUser:
         """, (requester_id, user_id, vendor_id))
         endorsement = self.cursor.fetchone().get('endorsement_count') > 0
         return endorsement
+
+    def get_all_endorsements_from_id(self, vendor_id, user_id):
+        # Get all users who have endorsed (user_id) in a particular skill (vendor)
+        users_with_endorsement = []
+        self.cursor.execute(
+            """SELECT endorser_user_id FROM UserPublicVendorEndorsement WHERE endorsee_user_id = %s AND vendor_id = %s""",
+                            (user_id, vendor_id))
+        endorsing_users = self.cursor.fetchall()
+        for user in endorsing_users:
+            self.cursor.execute("""SELECT username FROM User WHERE id = %s""", (user.get('endorser_user_id')))
+            username = self.cursor.fetchone().get('username')
+            user_obj = {
+                'id': user.get('endorser_user_id'),
+                'username': username
+            }
+            users_with_endorsement.append(user_obj)
+        return users_with_endorsement
+
+    def get_total_endorsements_from_id(self, vendor_id, user_id):
+           self.cursor.execute(
+               """SELECT COUNT(*) FROM UserPublicVendorEndorsement WHERE vendor_id = %s AND endorsee_user_id = %s""",
+               (vendor_id, user_id))
+           total_count = self.cursor.fetchone().get('COUNT(*)')
+           return total_count
+
+    def new_edit_profile(self, user_id, 
+                         new_full_name = None, 
+                         new_email = None, 
+                         new_bio = None, 
+                         new_linkedin = None, 
+                         new_tech_stack_names = None,
+                         new_company = None):
+        try:
+            if new_full_name:
+                self.cursor.execute("""UPDATE User SET full_name = %s WHERE id = %s""",(new_full_name, user_id))
+            if new_email:
+                self.cursor.execute("""UPDATE User SET email = %s WHERE id = %s""",(new_email, user_id))
+            if new_tech_stack_names:
+                user_tech_stack = self.get_user_tech_stack(user_id)
+                tech_stack_vendor_names = [item['name'] for item in user_tech_stack]
+
+                # In with the new
+                for tech in new_tech_stack_names - user_tech_stack:
+                    self.cursor.execute("SELECT id FROM PublicVendor WHERE vendor_name = %s", (tech,))
+                    vendor = self.cursor.fetchone()
+                    # If the vendor does not exist, create a new entry in PublicVendor
+                    if not vendor:
+                        self.cursor.execute("INSERT INTO PublicVendor (vendor_name) VALUES (%s)", (tech,))
+                        self.conn.commit()  # Commit the new vendor to the database
+                        vendor_id = self.cursor.lastrowid  # Retrieve the ID of the newly inserted vendor
+                    else:
+                        vendor_id = vendor['id']  # Use the existing ID if the vendor is already in the database
+
+                    # Add the new tech to the user's tech stack
+                    self.cursor.execute("""
+                        INSERT INTO UserPublicVendor (user_id, vendor_id) 
+                        VALUES (%s, %s)
+                    """, (user_id, vendor_id))
+                    self.conn.commit()  # Commit the new user-tech association to the database
+
+                # Out with the old   
+                for tech in tech_stack_vendor_names - new_tech_stack_names:
+                    self.cursor.execute("SELECT id FROM PublicVendor WHERE vendor_name = %s", (tech,))
+                    vendor = self.cursor.fetchone()
+                    self.cursor.execute("DELETE FROM UserPublicVendor WHERE user_id = %s AND vendor_id = %s", (user_id, vendor['id']))
+            
+            self.cursor.execute("""UPDATE User SET update_time = CURRENT_TIMESTAMP(3) WHERE id = %s""",(user_id))
+
+            if new_bio:
+                self.cursor.execute("""UPDATE User SET bio = %s WHERE id = %s""", (new_bio, user_id))
+            
+            if new_linkedin:
+                self.cursor.execute("""UPDATE User SET linkedin_url = %s WHERE id = %s""", (new_linkedin, user_id))
+            
+            if new_company:
+                self.cursor.execute("""UPDATE User SET current_company = %s WHERE id = %s""", (new_company, user_id))
+            
+            self.cursor.execute("""UPDATE User SET update_time = CURRENT_TIMESTAMP(3) WHERE id = %s""",(user_id))
+
+        except pymysql.MySQLError as e:
+            self.conn.rollback()
+            raise InternalServerError(f"Database error: {str(e)}")
+        
+        finally:
+            self.conn.commit()
+            self.cursor.close()
+            self.conn.close()
+
+    def endorse_user(self, user_id, endorsee_user_id, vendor_id):
+        try:
+            # Insert Endorsement     
+            self.cursor.execute(
+                """INSERT INTO UserPublicVendorEndorsement (endorser_user_id, endorsee_user_id, vendor_id) VALUES (%s, %s, %s)""",
+                (user_id, endorsee_user_id, vendor_id)
+            )
+        except pymysql.MySQLError as e:
+            self.conn.rollback()
+            raise InternalServerError(str(e))
+        finally:
+            self.conn.commit()
+            self.conn.close()
+            self.cursor.close()
 
     @classmethod 
     def find_by_id(cls, cursor, user_id,
@@ -586,7 +714,7 @@ class SandUser:
         if new_full_name:
             cursor.execute("""UPDATE User SET full_name = COALESCE(%s, full_name)""",(new_full_name))
         if new_email:
-            cursor.execute("""UPDATE User SET email = %s""",(new_email))
+            cursor.execute("""UPDATE User SET email = %s WHERE id = %s""",(new_email))
         if new_tech_stack:
             self.get_tech_stack(cursor, self.id)
 
