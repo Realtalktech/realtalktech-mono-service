@@ -136,12 +136,12 @@ def edit_profile(user_id):
     
     conn = db_manager.get_db_connection()
     cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
-    data = request.json
+    data:dict = request.json
 
     try:
         new_fullname = data.get('fullname')
         new_email = data.get('email')
-        new_tech_stack = set(data.get('techstack', []))  # List of new vendor names
+        new_tech_stack = data.get('techstack', [])  # List of new vendor names
         new_bio = data.get('bio')
         new_linkedin = data.get('linkedin')
         new_company = data.get('company')
@@ -193,8 +193,8 @@ def endorse_user(user_id):
     return jsonify({"message": "Profile endorsed successfully"}), 200
 
 @user_bp.route('/editPassword', methods=['POST'])
-@token_required  # Assuming you have a token_required decorator
-def edit_password(current_user):
+@token_required 
+def edit_password(user_id):
     # Get JSON data from request
     data = request.get_json()
     old_password = data.get('oldPassword')
@@ -209,13 +209,13 @@ def edit_password(current_user):
 
     try:
         # Fetch the current user's password
-        cursor.execute("SELECT password FROM User WHERE id = %s", (current_user.id,))
+        cursor.execute("SELECT password FROM User WHERE id = %s", (user_id,))
         user_record = cursor.fetchone()
 
         if user_record and check_password_hash(user_record['password'], old_password):
             # If the old password is correct, update with the new hashed password
             hashed_new_password = generate_password_hash(new_password)
-            cursor.execute("UPDATE User SET password = %s WHERE id = %s", (hashed_new_password, current_user.id))
+            cursor.execute("UPDATE User SET password = %s WHERE id = %s", (hashed_new_password, user_id))
             conn.commit()
             return jsonify({'message': 'Password updated successfully'}), 200
         else:
