@@ -2,9 +2,8 @@ from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
 from utils.db_manager import DBManager
-from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
-from utils.responseFormatter import convert_keys_to_camel_case
-from models import User, SandUser
+from werkzeug.exceptions import BadRequest, Unauthorized
+from models import User
 from utils import token_required
 
 user_bp = Blueprint('user_bp', __name__)
@@ -15,14 +14,10 @@ db_manager = DBManager()
 def get_user_profile_by_username(user_id, requested_username):
     """Get a user's public profile"""
     if not user_id:
-        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+        raise Unauthorized("error: User is not authorized") # 401 Unauthorized
     
-    requested_user = SandUser()
-    try:
-        requested_user_id = requested_user.convert_username_to_id(requested_username)
-    except pymysql.MySQLError as e:
-        requested_user.conn.rollback()
-        raise InternalServerError(f"Database error: {str(e)}")
+    requested_user = User()
+    requested_user_id = requested_user.convert_username_to_id(requested_username)
 
     if requested_user_id is None:
         raise BadRequest(f"Username {requested_username} not found")
@@ -38,7 +33,7 @@ def get_user_profile_by_username(user_id, requested_username):
 @token_required
 def edit_profile(user_id):
     if not user_id:
-        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+        raise Unauthorized("error: User is not authorized") # 401 Unauthorized
     
     data = request.json
 
@@ -48,12 +43,11 @@ def edit_profile(user_id):
     new_bio = data.get('bio')
     new_linkedin = data.get('linkedin')
     new_company = data.get('new_company')
-    user = SandUser()
-    user.new_edit_profile(user_id, new_fullname, new_email, 
+    user = User()
+    user.edit_profile(user_id, new_fullname, new_email, 
                           new_tech_stack, new_bio, new_linkedin, new_company)
 
     return jsonify({"message": "Profile updated successfully"}), 200
-
 
 @user_bp.route('/endorse', methods = ['PUT'])
 @token_required
@@ -68,7 +62,21 @@ def endorse_user(user_id):
     if not(endorsee_user_id and vendor_id):
         raise BadRequest("Endorsee User Id, Vendor Id is required")
     
-    user = SandUser()
+    user = User()
     user.endorse_user(user_id, endorsee_user_id, vendor_id)
     return jsonify({"message": "Profile endorsed successfully"}), 200
 
+@user_bp.route('/editPassword', methods=['POST'])
+@token_required 
+def edit_password(user_id):
+    # Get JSON data from request
+    data = request.get_json()
+    old_password = data.get('oldPassword')
+    new_password = data.get('newPassword')
+
+    if not old_password or not new_password:
+        raise BadRequest("error: Missing old or new password")
+    
+    user = User()
+    user.edit_password(user_id, old_password, new_password)
+    return jsonify({'message': 'Password updated successfully'}), 200
