@@ -1,9 +1,10 @@
 # models/user.py
-from flask import jsonify, make_response
+from flask import jsonify
 from flask import current_app as app
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
 from email_validator import validate_email, EmailNotValidError
+from typing import Optional, Dict, List, Tuple, Union
 from datetime import datetime
 import pymysql
 import pymysql.cursors
@@ -18,7 +19,7 @@ class User:
         self.conn = self.db_manager.get_db_connection()
         self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
     
-    def __fetch_login_credentials_by_username(self, username:str) -> list:
+    def __fetch_login_credentials_by_username(self, username:str) -> Optional[Dict[str, Optional[str]]]:
         # Database lookup to find a user by username
         self.cursor.execute(f"SELECT id, password FROM User WHERE username = %s", (username))
         user_data = self.cursor.fetchone()
@@ -27,15 +28,15 @@ class User:
         else:
             return {'user_id': user_data.get('id'), 'password': user_data.get('password')}
 
-    def __fetch_account_creation_time(self, user_id:int):
+    def __fetch_account_creation_time(self, user_id:int) -> Optional[str]:
         self.cursor.execute("""SELECT creation_time FROM User WHERE id=%s""",(user_id))
-        creation_time = self.cursor.fetchone().get('creation_time')
+        creation_time:datetime = self.cursor.fetchone().get('creation_time')
         creation_time = creation_time.isoformat()
         return creation_time
     
-    def __fetch_account_update_time(self, user_id:int):
+    def __fetch_account_update_time(self, user_id:int) -> Optional[str]:
         self.cursor.execute("""SELECT update_time FROM User WHERE id=%s""",(user_id))
-        update_time = self.cursor.fetchone().get('update_time')
+        update_time:datetime = self.cursor.fetchone().get('update_time')
         update_time = update_time.isoformat()
         return update_time
 
@@ -50,7 +51,7 @@ class User:
         else:
             return username.get('username')
 
-    def __get_user_tech_stack(self, user_id:int) -> list:
+    def __get_user_tech_stack(self, user_id:int) -> List[Dict[str, int | str]]:
         # Database lookup to find tech_stack (UserPublicVendor)
         self.cursor.execute(
             """SELECT vendor_id FROM UserPublicVendor WHERE user_id = %s""",
@@ -78,7 +79,7 @@ class User:
         
         return tech_stack
 
-    def __get_user_industry_involvement(self, user_id:int) -> list:
+    def __get_user_industry_involvement(self, user_id:int)  -> List[Dict[str, int | str]]:
         # Database lookup to find industry involvement
         self.cursor.execute(
             """SELECT industry_id FROM UserIndustry WHERE user_id = %s""",
@@ -106,7 +107,7 @@ class User:
         
         return industry_involvement
 
-    def __get_user_subscribed_discuss_categories(self, user_id:int) -> list:
+    def __get_user_subscribed_discuss_categories(self, user_id:int) -> List[Dict[str, int | str]]:
         # Database lookup to find subscribed discuss categories (categories of work)
         self.cursor.execute(
             """SELECT category_id FROM UserDiscussCategory WHERE user_id = %s""",
@@ -133,7 +134,7 @@ class User:
 
         return subscribed_discuss_categories        
 
-    def __get_user_interest_areas(self, user_id:int) -> list:
+    def __get_user_interest_areas(self, user_id:int) -> List[Dict[str, int | str]]:
         # Database lookup to find interest area names and ids
         self.cursor.execute(
             """SELECT interest_area_id FROM UserInterestArea WHERE user_id = %s""",
@@ -161,10 +162,10 @@ class User:
         
         return interest_areas
 
-    def __get_user_details(self, user_id:int, is_owner:bool) -> dict:
+    def __get_user_details(self, user_id:int, is_owner:bool) -> Dict[str, int | str]:
         if is_owner:
-            self.cursor.execute("""SELECT (id, full_name, username, current_company, email, linkedin_url, bio) FROM User WHERE id = %s""", (user_id))
-            userObj = self.cursor.fetchall()
+            self.cursor.execute("""SELECT id, full_name, username, current_company, email, linkedin_url, bio FROM User WHERE id = %s""", (user_id))
+            userObj:dict = self.cursor.fetchone()
             user_details = {
                 'id': userObj.get('id'),
                 'fullName': userObj.get('full_name'),
@@ -177,8 +178,8 @@ class User:
                 'accountUpdateTime': self.__fetch_account_update_time(user_id)
             }
         else:
-            self.cursor.execute("""SELECT (full_name, username, current_company, linkedin_url, bio) FROM User WHERE id = %s""", (user_id))
-            userObj = self.cursor.fetchall()
+            self.cursor.execute("""SELECT full_name, username, current_company, linkedin_url, bio FROM User WHERE id = %s""", (user_id))
+            userObj:dict = self.cursor.fetchone()
             user_details = {
                 'fullName': userObj.get('full_name'),
                 'username': userObj.get('username'),
@@ -189,7 +190,7 @@ class User:
 
         return user_details          
 
-    def __validate_signup_fields(self, data:dict) -> list:
+    def __validate_signup_fields(self, data:dict) -> List[str]:
         full_name = data.get('fullname')
         username = data.get('username')
         email = data.get('email')
@@ -213,7 +214,10 @@ class User:
         
         return missing_fields
 
-    def __extract_signup_fields(self,data:dict):
+    def __extract_signup_fields(self, data:dict) -> Tuple[Optional[str], Optional[str], Optional[str], 
+                                                                                               Optional[str], List[int], Optional[str], 
+                                                                                               List[int], List[int], List[int], 
+                                                                                               Optional[str], Optional[str]]:
         full_name = data.get('fullname')
         username = data.get('username')
         email = data.get('email')
@@ -231,7 +235,7 @@ class User:
                 categories_of_work, interest_areas, linkedin_url, bio)
 
     def __create_user_and_fetch_id(self, full_name:str, username:str, email:str, 
-                                   password:str, current_company:str, linkedin_url:str, bio:str) -> str:
+                                   password:str, current_company:str, linkedin_url:str, bio:str) -> int:
         # Hash the password
         hashed_password = generate_password_hash(password)
 
@@ -254,13 +258,13 @@ class User:
         user_id = self.cursor.lastrowid # Get ID of newly inserted user
         return user_id
     
-    def __set_user_subscribed_discuss_categories(self, user_id:int, subscribed_discuss_category_ids:list):
+    def __set_user_subscribed_discuss_categories(self, user_id:int, subscribed_discuss_category_ids:List[int]) -> None:
         # Link categories of work to User in UserDiscussCategory for feed population
         for discuss_category in subscribed_discuss_category_ids:
             self.cursor.execute("""INSERT INTO UserDiscussCategory (user_id, category_id) VALUES (%s, %s)""",
                             (user_id, discuss_category))
     
-    def __set_user_interest_areas(self, user_id:int, interest_area_ids:list):
+    def __set_user_interest_areas(self, user_id:int, interest_area_ids:List[int]) -> None:
         # Link interest areas to user
         for area in interest_area_ids:
             self.cursor.execute(
@@ -268,13 +272,13 @@ class User:
                                 (user_id, area)
                             )     
     
-    def __set_user_industry_involvement(self, user_id:int, industry_involvement_ids:list):
+    def __set_user_industry_involvement(self, user_id:int, industry_involvement_ids:List[int]) -> None:
         # Link industry involvement to user
         for industry in industry_involvement_ids:
             self.cursor.execute("""INSERT INTO UserIndustry (user_id, interest_area_id) VALUES (%s, %s)""",
                             (user_id, industry))
     
-    def __set_user_tech_stack(self, user_id:int, tech_stack_vendor_names:list):
+    def __set_user_tech_stack(self, user_id:int, tech_stack_vendor_names:List[str]) -> None:
         # Link tech stack to user
         for tech in tech_stack_vendor_names:
             self.cursor.execute("SELECT id FROM PublicVendor WHERE vendor_name = %s", (tech,))
@@ -288,7 +292,8 @@ class User:
                 VALUES (%s, %s)
             """, (user_id, vendor['id']))
 
-    def __get_user_techstack_endorsements(self, user_id:int, requester_id:int, tech_stack:list):
+    def __get_user_techstack_endorsements(self, user_id:int, requester_id:int, 
+                                          tech_stack:List[Dict[str, int | str]]) -> Dict[str, int | str | bool]:
         # Process associated vendors from tech_stack and check endorsements
         vendors_with_endorsements = []
         if user_id == requester_id:
@@ -321,7 +326,7 @@ class User:
         endorsement = self.cursor.fetchone().get('endorsement_count') > 0
         return endorsement
 
-    def __get_all_endorsements_from_id(self, vendor_id:int, user_id:int):
+    def __get_all_endorsements_from_id(self, vendor_id:int, user_id:int) -> List[Dict[str, int | str]]:
         # Get all users who have endorsed (user_id) in a particular skill (vendor)
         users_with_endorsement = []
         self.cursor.execute(
@@ -338,7 +343,7 @@ class User:
             users_with_endorsement.append(user_obj)
         return users_with_endorsement
 
-    def __get_total_endorsements_from_id(self, vendor_id:int, user_id:int):
+    def __get_total_endorsements_from_id(self, vendor_id:int, user_id:int) -> int:
            self.cursor.execute(
                """SELECT COUNT(*) FROM UserPublicVendorEndorsement WHERE vendor_id = %s AND endorsee_user_id = %s""",
                (vendor_id, user_id))
@@ -390,6 +395,7 @@ class User:
 
         except pymysql.MySQLError as e:
             self.conn.rollback()
+            app.logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
 
         finally:
@@ -409,6 +415,7 @@ class User:
             return jsonify(response)
         except pymysql.MySQLError as e:
             self.conn.rollback()
+            app.logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
         finally:
             self.conn.commit()
@@ -427,6 +434,7 @@ class User:
             return jsonify(response)
         except pymysql.MySQLError as e:
             self.conn.rollback()
+            app.logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
         finally:
             self.conn.commit()
@@ -475,23 +483,21 @@ class User:
             return response
 
         except pymysql.MySQLError as e:
+            app.logger.error(str(e))
             self.conn.rollback()
             raise InternalServerError(str(e))
         finally:
             self.conn.commit()
             self.cursor.close()
             self.conn.close()
- 
-        self.cursor.execute("""SELECT username FROM User WHERE id = %s""", user_id)
-        user_obj = self.cursor.fetchone()
-        return user_obj.get('username')
         
-    def convert_username_to_id(self,username:str):
+    def convert_username_to_id(self,username:str)->int:
         try:
             self.cursor.execute("""SELECT id FROM User WHERE username = %s""", username)
             user_obj = self.cursor.fetchone()
             return user_obj.get('id')
         except pymysql.MySQLError as e:
+            app.logger.error(str(e))
             raise InternalServerError(str(e))
         finally:
             self.cursor.close()
@@ -553,6 +559,7 @@ class User:
 
         except pymysql.MySQLError as e:
             self.conn.rollback()
+            app.logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
         
         finally:
@@ -574,6 +581,7 @@ class User:
             else:
                 raise BadRequest("error: Old Password is Incorrect")
         except pymysql.MySQLError as e:
+            app.logger.error(str(e))
             raise InternalServerError(str(e))
         finally:
             self.conn.commit()
@@ -588,6 +596,7 @@ class User:
                 (user_id, endorsee_user_id, vendor_id)
             )
         except pymysql.MySQLError as e:
+            app.logger.error(str(e))
             self.conn.rollback()
             raise InternalServerError(str(e))
         finally:

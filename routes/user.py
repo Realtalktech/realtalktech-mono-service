@@ -35,11 +35,11 @@ def edit_profile(user_id):
     if not user_id:
         raise Unauthorized("error: User is not authorized") # 401 Unauthorized
     
-    data = request.json
+    data:dict = request.json
 
     new_fullname = data.get('fullname')
     new_email = data.get('email')
-    new_tech_stack = set(data.get('techstack', []))  # List of new vendor names
+    new_tech_stack = data.get('techstack', [])  # List of new vendor names
     new_bio = data.get('bio')
     new_linkedin = data.get('linkedin')
     new_company = data.get('new_company')

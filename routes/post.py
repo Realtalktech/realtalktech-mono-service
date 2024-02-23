@@ -13,8 +13,7 @@ db_manager = DBManager()
 @token_required
 def make_post(user_id):
     if not user_id:
-        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
-    
+        raise Unauthorized("error: User not authenticated")    
     data = request.json
     title = data.get('title')
     body = data.get('body')
@@ -29,18 +28,16 @@ def make_post(user_id):
         if is_anonymous is None: missing_fields += 'anonymity status '
         raise BadRequest(f"Missing required post information: {missing_fields}")
 
-    post = Post()
-    post.new_create_post(user_id, title, body, categories, is_anonymous, vendors)
-
-    return jsonify({"message": "Post created successfully", "post_id": post.post_id}), 201
+    post_id = Post().create_post_and_fetch_id(user_id, title, body, categories, is_anonymous, vendors)
+    return jsonify({"message": "Post created successfully", "post_id": post_id}), 201
 
 @post_bp.route('/editPost', methods=['PUT'])
 @token_required
 def edit_post(user_id):
     if not user_id:
-        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+        raise Unauthorized("error: User not authenticated")  # 401 Unauthorized
     
-    data = request.json
+    data:dict = request.json
     post_id = data.get('postId')
     new_title = data.get('title')
     new_body = data.get('body')
@@ -51,7 +48,7 @@ def edit_post(user_id):
         raise BadRequest("Post ID is required")
     
     post = Post()
-    post.new_edit_post(
+    post.edit_post(
         user_id, post_id, new_title, new_body, new_categories, new_vendors
     )
     
@@ -63,7 +60,7 @@ def upvote_post(user_id):
     if not user_id:
         raise Unauthorized("error: User not authenticated")
     
-    data = request.json
+    data:dict = request.json
     post_id = data.get('postId')
     is_downvote = data.get('isDownvote', False) # False for upvote
 
@@ -72,7 +69,6 @@ def upvote_post(user_id):
     if not is_downvote:
         raise BadRequest("error: vote intention is required")
     
-    post = Post()
-    post.toggle_post_vote(post_id, user_id, is_downvote)
+    Post().toggle_post_vote(post_id, user_id, is_downvote)
 
     return jsonify({"message": "Post upvoted successfully"}), 200

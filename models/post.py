@@ -1,6 +1,7 @@
 # models/user.py
 from flask import current_app as app
-from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
+from typing import Optional, Tuple, List
+from werkzeug.exceptions import InternalServerError
 import pymysql
 import pymysql.cursors
 from utils import DBManager
@@ -11,21 +12,21 @@ class Post:
         self.conn = self.db_manager.get_db_connection()
         self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
 
-    def __get_category_ids_from_post_id(self, post_id):
+    def __get_category_ids_from_post_id(self, post_id:int) -> List[int]:
         """Returns a list of category ids associated with a post"""
         self.cursor.execute("""SELECT category_id FROM PostDiscussCategory WHERE post_id = %s""", (post_id))
         category_ids = self.cursor.fetchall()
         category_ids = [item['category_id'] for item in category_ids]
         return category_ids
 
-    def __get_vendor_ids_from_post_id(self, post_id):
+    def __get_vendor_ids_from_post_id(self, post_id:int) -> List[int]:
         """Returns a list of vendor ids associated with a post"""
         self.cursor.execute("""SELECT vendor_id FROM PostDiscussVendor WHERE post_id = %s""", (post_id))
         vendor_ids = self.cursor.fetchall()
         vendor_ids = [item['vendor_id'] for item in vendor_ids]
         return vendor_ids
     
-    def __check_user_vote_from_id(self, post_id, user_id):
+    def __check_user_vote_from_id(self, post_id:int, user_id:int) -> Tuple[Optional[bool], Optional[int]]:
         # Return true for upvote, false for downvote, none for none
         self.cursor.execute("""
             SELECT id, is_downvote FROM PostUpvote 
@@ -39,20 +40,19 @@ class Post:
         else:
             return True, vote.get['id']
     
-    def __delete_vote_from_id(self, vote_id):
+    def __delete_vote_from_id(self, vote_id:int) -> None:
         self.cursor.execute("""
             DELETE FROM PostUpvote 
             WHERE id = %s
         """, (vote_id,))
     
-    def __insert_vote_from_id(self, post_id, user_id, is_downvote):
+    def __insert_vote_from_id(self, post_id:int, user_id:int, is_downvote:bool) -> None:
         self.cursor.execute("""
             INSERT INTO PostUpvote (post_id, user_id, is_downvote)
             VALUES (%s, %s, %s)
         """, (post_id, user_id, is_downvote))        
 
-    def toggle_post_vote(self, post_id, user_id, is_downvote):
-
+    def toggle_post_vote(self, post_id:int, user_id:int, is_downvote:bool) -> None:
         try:
             user_vote, vote_id = self.__check_user_vote_from_id(post_id, user_id)
             if user_vote is None:
@@ -68,21 +68,22 @@ class Post:
                     self.__delete_vote_from_id(post_id, vote_id)
                 # Do nothing otherwise
         except pymysql.MySQLError as e:
+            app.logger.error(str(e))
             raise InternalServerError(str(e))
         finally:
             self.conn.commit()
             self.conn.close()
             self.cursor.close()
 
-    def new_create_post(
+    def create_post_and_fetch_id(
             self,
-            author_id,
-            title,
-            body,
-            category_ids,
-            is_anonymous,
-            tagged_vendor_ids
-    ):
+            author_id:int,
+            title:str,
+            body:str,
+            category_ids:List[int],
+            is_anonymous:bool,
+            tagged_vendor_ids:List[int]
+    )->int:
         try:
             # Insert post into database
             self.cursor.execute("""
@@ -105,8 +106,11 @@ class Post:
                     VALUES (%s, %s)
                 """, (post_id, tagged_vendor_id))
             
+            return post_id
+            
         except pymysql.MySQLError as e:
             self.conn.rollback()
+            app.logger.error(str(e))
             raise InternalServerError(str(e))
     
         finally:
@@ -114,13 +118,13 @@ class Post:
             self.cursor.close()
             self.conn.close()
     
-    def new_edit_post(self,
-                author_id,
-                post_id,
-                new_title = None,
-                new_body = None,
-                new_category_ids = None,
-                new_vendor_ids = None):
+    def edit_post(self,
+                author_id:int,
+                post_id:int,
+                new_title:str = None,
+                new_body:str = None,
+                new_category_ids:List[int] = None,
+                new_vendor_ids:List[int] = None) -> None:
         
         try:
             # Edit post information
@@ -171,6 +175,7 @@ class Post:
                             WHERE post_id = %s AND vendor_id = %s
                         """, (post_id, vendor_id))
         except pymysql.MySQLError as e:
+            app.logger.error(str(e))
             raise InternalServerError(str(e))
         finally:
             self.conn.commit()
