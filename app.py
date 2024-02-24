@@ -30,5 +30,4 @@ app = create_app(config_class=ProductionConfig)
 
 if __name__ == '__main__':
     # update_trie() # Initial Trie population
-    setup_logging()  # Call this before routes are initialized
     app.run()

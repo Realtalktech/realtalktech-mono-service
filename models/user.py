@@ -11,7 +11,6 @@ import re
 from utils import DBManager
 from auth import Authorizer
 import logging
-logger = logging.getLogger(__name__)
 
 
 class User:
@@ -19,6 +18,7 @@ class User:
         self.db_manager = DBManager()
         self.conn = self.db_manager.get_db_connection()
         self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
+        self.logger = logging.getLogger(__name__)
     
     def __fetch_login_credentials_by_username(self, username:str) -> Optional[Dict[str, Optional[str]]]:
         # Database lookup to find a user by username
@@ -396,7 +396,7 @@ class User:
 
         except pymysql.MySQLError as e:
             self.conn.rollback()
-            logger.error(str(e))
+            self.logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
 
         finally:
@@ -416,7 +416,7 @@ class User:
             return jsonify(response)
         except pymysql.MySQLError as e:
             self.conn.rollback()
-            logger.error(str(e))
+            self.logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
         finally:
             self.conn.commit()
@@ -435,7 +435,7 @@ class User:
             return jsonify(response)
         except pymysql.MySQLError as e:
             self.conn.rollback()
-            logger.error(str(e))
+            self.logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
         finally:
             self.conn.commit()
@@ -484,7 +484,7 @@ class User:
             return response
 
         except pymysql.MySQLError as e:
-            logger.error(str(e))
+            self.logger.error(str(e))
             self.conn.rollback()
             raise InternalServerError(str(e))
         finally:
@@ -498,7 +498,7 @@ class User:
             user_obj = self.cursor.fetchone()
             return user_obj.get('id')
         except pymysql.MySQLError as e:
-            logger.error(str(e))
+            self.logger.error(str(e))
             raise InternalServerError(str(e))
         finally:
             self.cursor.close()
@@ -560,7 +560,7 @@ class User:
 
         except pymysql.MySQLError as e:
             self.conn.rollback()
-            logger.error(str(e))
+            self.logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
         
         finally:
@@ -582,7 +582,7 @@ class User:
             else:
                 raise BadRequest("error: Old Password is Incorrect")
         except pymysql.MySQLError as e:
-            logger.error(str(e))
+            self.logger.error(str(e))
             raise InternalServerError(str(e))
         finally:
             self.conn.commit()
@@ -597,7 +597,7 @@ class User:
                 (user_id, endorsee_user_id, vendor_id)
             )
         except pymysql.MySQLError as e:
-            logger.error(str(e))
+            self.logger.error(str(e))
             self.conn.rollback()
             raise InternalServerError(str(e))
         finally:
