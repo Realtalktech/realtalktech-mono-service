@@ -8,7 +8,7 @@ def setup_global_logging():
     if not os.path.exists(log_directory):
         os.makedirs(log_directory)
 
-    log_file = os.path.join(log_directory, 'global_flask_app.log')
+    log_file = os.path.join(log_directory, 'flask_app.log')
 
     # Create a rotating file handler
     handler = RotatingFileHandler(log_file, maxBytes=10000, backupCount=3)

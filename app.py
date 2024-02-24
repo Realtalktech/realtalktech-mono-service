@@ -17,7 +17,6 @@ def create_app(config_class=ProductionConfig):
     app = Flask(__name__)
     CORS(app)
     app.config.from_object(config_class)
-
     app.register_blueprint(feed_bp)
     app.register_blueprint(user_bp)
     app.register_blueprint(comment_bp)
