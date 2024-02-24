@@ -1,6 +1,5 @@
 # models/user.py
 from flask import jsonify
-from flask import current_app as app
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
 from email_validator import validate_email, EmailNotValidError
@@ -11,6 +10,8 @@ import pymysql.cursors
 import re
 from utils import DBManager
 from auth import Authorizer
+import logging
+logger = logging.getLogger(__name__)
 
 
 class User:
@@ -395,7 +396,7 @@ class User:
 
         except pymysql.MySQLError as e:
             self.conn.rollback()
-            app.logger.error(str(e))
+            logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
 
         finally:
@@ -415,7 +416,7 @@ class User:
             return jsonify(response)
         except pymysql.MySQLError as e:
             self.conn.rollback()
-            app.logger.error(str(e))
+            logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
         finally:
             self.conn.commit()
@@ -434,7 +435,7 @@ class User:
             return jsonify(response)
         except pymysql.MySQLError as e:
             self.conn.rollback()
-            app.logger.error(str(e))
+            logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
         finally:
             self.conn.commit()
@@ -483,7 +484,7 @@ class User:
             return response
 
         except pymysql.MySQLError as e:
-            app.logger.error(str(e))
+            logger.error(str(e))
             self.conn.rollback()
             raise InternalServerError(str(e))
         finally:
@@ -497,7 +498,7 @@ class User:
             user_obj = self.cursor.fetchone()
             return user_obj.get('id')
         except pymysql.MySQLError as e:
-            app.logger.error(str(e))
+            logger.error(str(e))
             raise InternalServerError(str(e))
         finally:
             self.cursor.close()
@@ -559,7 +560,7 @@ class User:
 
         except pymysql.MySQLError as e:
             self.conn.rollback()
-            app.logger.error(str(e))
+            logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
         
         finally:
@@ -581,7 +582,7 @@ class User:
             else:
                 raise BadRequest("error: Old Password is Incorrect")
         except pymysql.MySQLError as e:
-            app.logger.error(str(e))
+            logger.error(str(e))
             raise InternalServerError(str(e))
         finally:
             self.conn.commit()
@@ -596,7 +597,7 @@ class User:
                 (user_id, endorsee_user_id, vendor_id)
             )
         except pymysql.MySQLError as e:
-            app.logger.error(str(e))
+            logger.error(str(e))
             self.conn.rollback()
             raise InternalServerError(str(e))
         finally:

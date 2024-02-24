@@ -1,10 +1,11 @@
 # models/user.py
-from flask import current_app as app
 from typing import Optional, Tuple, List
 from werkzeug.exceptions import InternalServerError
 import pymysql
 import pymysql.cursors
 from utils import DBManager
+import logging
+logger = logging.getLogger(__name__)
 
 class Post:
     def __init__(self):
@@ -68,7 +69,7 @@ class Post:
                     self.__delete_vote_from_id(post_id, vote_id)
                 # Do nothing otherwise
         except pymysql.MySQLError as e:
-            app.logger.error(str(e))
+            logger.error(str(e))
             raise InternalServerError(str(e))
         finally:
             self.conn.commit()
@@ -110,7 +111,7 @@ class Post:
             
         except pymysql.MySQLError as e:
             self.conn.rollback()
-            app.logger.error(str(e))
+            logger.error(str(e))
             raise InternalServerError(str(e))
     
         finally:
@@ -175,7 +176,7 @@ class Post:
                             WHERE post_id = %s AND vendor_id = %s
                         """, (post_id, vendor_id))
         except pymysql.MySQLError as e:
-            app.logger.error(str(e))
+            logger.error(str(e))
             raise InternalServerError(str(e))
         finally:
             self.conn.commit()
