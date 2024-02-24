@@ -1,11 +1,5 @@
 from flask import Flask
 from flask_cors import CORS
-from routes.feed import feed_bp
-from routes.comment import comment_bp
-from routes.vendor import vendor_bp
-from routes.login import login_bp
-from routes.user import user_bp
-from routes.post import post_bp
 from config import ProductionConfig
 import os
 
@@ -29,7 +23,14 @@ def setup_logging():
     app.logger.setLevel(logging.INFO)
     logging.getLogger('werkzeug').setLevel(logging.INFO)
 
+setup_logging()
 
+from routes.feed import feed_bp
+from routes.comment import comment_bp
+from routes.vendor import vendor_bp
+from routes.login import login_bp
+from routes.user import user_bp
+from routes.post import post_bp
 
 def create_app(config_class=ProductionConfig):
     app = Flask(__name__)

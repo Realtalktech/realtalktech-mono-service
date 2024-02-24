@@ -1,5 +1,5 @@
 const signup = (body) => {
-  const url = `http://ec2-3-95-180-146.compute-1.amazonaws.com/signup`;
+  const url = `http://ec2-44-201-178-172.compute-1.amazonaws.com/signup`;
   const params = {
     method: "PUT",
     headers: {
