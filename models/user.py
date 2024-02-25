@@ -400,7 +400,6 @@ class User:
             raise InternalServerError(f"Database error: {str(e)}")
 
         finally:
-            self.conn.commit()
             self.cursor.close()
             self.conn.close()
     
@@ -419,7 +418,6 @@ class User:
             self.logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
         finally:
-            self.conn.commit()
             self.cursor.close()
             self.conn.close()
     
@@ -438,7 +436,6 @@ class User:
             self.logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
         finally:
-            self.conn.commit()
             self.cursor.close()
             self.conn.close()
 
