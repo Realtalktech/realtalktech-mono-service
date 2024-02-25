@@ -16,8 +16,7 @@ def get_user_profile_by_username(user_id, requested_username):
     if not user_id:
         raise Unauthorized("error: User is not authorized") # 401 Unauthorized
     
-    requested_user = User()
-    requested_user_id = requested_user.convert_username_to_id(requested_username)
+    requested_user_id = User().requested_user.convert_username_to_id(requested_username)
 
     if requested_user_id is None:
         raise BadRequest(f"Username {requested_username} not found")
@@ -25,9 +24,9 @@ def get_user_profile_by_username(user_id, requested_username):
     is_profile_owner = (user_id == requested_user_id)
 
     if is_profile_owner:
-        return requested_user.get_user_private_profile(requested_user_id)
+        return User().get_user_private_profile(requested_user_id)
     else:
-        return requested_user.get_user_public_profile(requested_user_id, user_id)
+        return User().get_user_public_profile(requested_user_id, user_id)
 
 @user_bp.route('/editProfile', methods=['PUT'])
 @token_required
