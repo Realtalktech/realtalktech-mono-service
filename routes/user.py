@@ -25,9 +25,9 @@ def get_user_profile_by_username(user_id, requested_username):
     is_profile_owner = (user_id == requested_user_id)
 
     if is_profile_owner:
-        return requested_user.get_user_private_profile()
+        return requested_user.get_user_private_profile(requested_user_id)
     else:
-        return requested_user.get_user_public_profile()
+        return requested_user.get_user_public_profile(requested_user_id, user_id)
 
 @user_bp.route('/editProfile', methods=['PUT'])
 @token_required
