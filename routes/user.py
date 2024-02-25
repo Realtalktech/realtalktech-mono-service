@@ -16,7 +16,7 @@ def get_user_profile_by_username(user_id, requested_username):
     if not user_id:
         raise Unauthorized("error: User is not authorized") # 401 Unauthorized
     
-    requested_user_id = User().requested_user.convert_username_to_id(requested_username)
+    requested_user_id = User().convert_username_to_id(requested_username)
 
     if requested_user_id is None:
         raise BadRequest(f"Username {requested_username} not found")
