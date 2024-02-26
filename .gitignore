@@ -3,6 +3,7 @@ env/
 *.pyc
 dbScripts/connect/unsafeConnect.sh
 dbScripts/data/vendor_logos/
+tests/logs/
 dbScripts/populate/populateProdVendors.py
 dbScripts/unsafeRefresh.sh
 .DS_Store

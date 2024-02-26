@@ -16,11 +16,9 @@ class DevelopmentConfig(Config):
     DB_USER = 'dev_user'
     DB_PASSWORD = 'dev_password'
     DB_NAME = 'dev_db'
-
+    
 class TestingConfig(Config):
-    DB_HOST = 'localhost'
-    DB_USER = 'user'
-    DB_PASSWORD = 'password'
-    DB_NAME = 'test_db'
+    DATABASE_URI = 'sqlite:///tests/sqlite/test_database.db'
     LOG_PATH = 'tests/logs'
+
 

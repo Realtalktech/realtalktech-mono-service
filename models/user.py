@@ -16,12 +16,12 @@ class User:
     def __init__(self):
         self.db_manager = DBManager()
         self.conn = self.db_manager.get_db_connection()
-        self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
+        self.cursor = self.conn.cursor()
         self.logger = logging.getLogger(__name__)
     
     def __fetch_login_credentials_by_username(self, username:str) -> Optional[Dict[str, Optional[str]]]:
         # Database lookup to find a user by username
-        self.cursor.execute(f"SELECT id, password FROM User WHERE username = %s", (username))
+        self.cursor.execute("SELECT id, password FROM User WHERE username = %s", (username))
         user_data = self.cursor.fetchone()
         if user_data is None:
             return None

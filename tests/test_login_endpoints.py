@@ -27,30 +27,25 @@ def test_client():
 
 # @patch('app.auth.token_required', return_value=lambda x:x)
 def test_signup_success(test_client):
-    with patch('utils.db_manager.DBManager.get_db_connection') as mock_get_db_connection:
-        mock_conn = MagicMock()
-        mock_cursor = MagicMock()
-        mock_conn.cursor.return_value = mock_cursor
-        mock_get_db_connection.return_value = mock_conn
-        json = {
-            'fullname': 'Test User1',
-            'username': 'testuser1',
-            'email': 'testuser1@gmail.com',
-            'password': 'password',
-            'techstack': [1,2,3,4,5],
-            'currentCompany': 'Test Labs',
-            'industryInvolvement': [1,2,3,4,5],
-            'workCategories': [1,2,3],
-            'linkedinUrl': 'https://linkedin.com/testuser',
-            'bio': 'I am a test user.',
-            'interestAreas': [1,2,3]
-        }
-        with patch('auth.token_auth.Authorizer.generate_token') as mock_token:
-            mock_token.return_value = {'MockToken': 'MockToken'}
-            response = test_client.put('/signup', json=json)
-            print(response.data)
-            assert response.data == b'{"message":"Signup successful","token":{"MockToken":"MockToken"}}\n'
-            assert response.status_code == 201
+    signup_data = {
+        'fullname': 'Test User1',
+        'username': 'testuser1',
+        'email': 'testuser1@gmail.com',
+        'password': 'password',
+        'techstack': [1, 2, 3, 4, 5],
+        'currentCompany': 'Test Labs',
+        'industryInvolvement': [1, 2, 3, 4, 5],
+        'workCategories': [1, 2, 3],
+        'linkedinUrl': 'https://linkedin.com/testuser',
+        'bio': 'I am a test user.',
+        'interestAreas': [1, 2, 3]
+    }
+    with patch('auth.token_auth.Authorizer.generate_token', return_value={'MockToken': 'MockToken'}):
+        response = test_client.put('/signup', json=signup_data)
+        response_data = response.get_json()
+        assert response_data == {"message": "Signup successful", "token": {"MockToken": "MockToken"}}
+        assert response.status_code == 201
+
 
 def test_signup_failure_email_no_stub(test_client):
     with patch('utils.db_manager.DBManager.get_db_connection') as mock_get_db_connection:

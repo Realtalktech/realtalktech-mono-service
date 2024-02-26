@@ -40,9 +40,9 @@ def create_app(config_class=ProductionConfig):
         return response
 
     @app.errorhandler(InternalServerError)
-    def handle_unauthorized(e):
+    def handle_internal_server_error(e):
         response = e.get_response()
-        response.data = jsonify({"error": "Unauthorized", "message": str(e)}).data
+        response.data = jsonify({"error": "Internal Server Error", "message": str(e)}).data
         response.content_type = "application/json"
         return response
 
