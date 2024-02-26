@@ -20,7 +20,7 @@ const fetchUser = (username, token = DEFAULT_TOKEN) => {
     console.log("ERR-fetchUser", err)
   })
 }
-fetchUser('elongates')
+fetchUser('AP100')
 
 const endorseUser = (body, token = DEFAULT_TOKEN) => {
   const url = `http://ec2-3-95-180-146.compute-1.amazonaws.com/endorse`

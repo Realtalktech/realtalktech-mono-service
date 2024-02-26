@@ -425,7 +425,7 @@ class User:
         try:
             user_details = self.__get_user_details(user_id, True)
             tech_stack = self.__get_user_tech_stack(user_id)
-            vendors_with_endorsements = self.__get_user_techstack_endorsements(user_id, tech_stack, requester_id=user_id)
+            vendors_with_endorsements = self.__get_user_techstack_endorsements(user_id, user_id, tech_stack)
             response = {
                 'userDetails': user_details,
                 'vendors': vendors_with_endorsements
