@@ -3,7 +3,7 @@ from flask import jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
 from email_validator import validate_email, EmailNotValidError
-from typing import Optional, Dict, List, Tuple, Union
+from typing import Optional, Dict, List, Tuple
 from datetime import datetime
 import pymysql
 import pymysql.cursors
@@ -11,7 +11,6 @@ import re
 from utils import DBManager
 from auth import Authorizer
 import logging
-
 
 class User:
     def __init__(self):
@@ -24,7 +23,7 @@ class User:
         # Database lookup to find a user by username
         self.cursor.execute(f"SELECT id, password FROM User WHERE username = %s", (username))
         user_data = self.cursor.fetchone()
-        if not user_data:
+        if user_data is None:
             return None
         else:
             return {'user_id': user_data.get('id'), 'password': user_data.get('password')}
@@ -32,13 +31,11 @@ class User:
     def __fetch_account_creation_time(self, user_id:int) -> Optional[str]:
         self.cursor.execute("""SELECT creation_time FROM User WHERE id=%s""",(user_id))
         creation_time:datetime = self.cursor.fetchone().get('creation_time')
-        creation_time = creation_time.isoformat()
         return creation_time
     
     def __fetch_account_update_time(self, user_id:int) -> Optional[str]:
         self.cursor.execute("""SELECT update_time FROM User WHERE id=%s""",(user_id))
-        update_time:datetime = self.cursor.fetchone().get('update_time')
-        update_time = update_time.isoformat()
+        update_time = self.cursor.fetchone().get('update_time')
         return update_time
 
     def __is_email(self, entered_username:str) -> bool:
@@ -223,7 +220,7 @@ class User:
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
-        tech_stack = data.get('techStack', [])  # List of vendor ids from "setup your profile"
+        tech_stack = data.get('techstack', [])  # List of vendor ids from "setup your profile"
         current_company = data.get('currentCompany')
         industry_involvement = data.get('industryInvolvement', []) # List of "what industry are you in?" ids
         categories_of_work = data.get('workCategories', []) # List of "what do you do?" ids
@@ -367,7 +364,7 @@ class User:
             if user_data is None:
                 raise Unauthorized("Invalid Username")
 
-            if not check_password_hash(entered_password, user_data.get('password')):
+            if not check_password_hash(user_data.get('password'), entered_password):
                 raise Unauthorized("Incorrect Password")
             
             # Authorized, generate token
@@ -392,7 +389,7 @@ class User:
                     'userDetails': user_details,
                     "token": token
                 }
-            )
+            ), 200
 
         except pymysql.MySQLError as e:
             self.conn.rollback()

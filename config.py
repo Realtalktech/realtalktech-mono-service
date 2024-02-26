@@ -8,6 +8,7 @@ class ProductionConfig(Config):
     DB_USER = 'admin'
     DB_PASSWORD = 'ReallyRealAboutTech123!'
     DB_NAME = 'RealTalkTechDB'
+    LOG_PATH = '/var/log/flask_app'
 
 class DevelopmentConfig(Config):
     DEBUG = True
@@ -21,3 +22,5 @@ class TestingConfig(Config):
     DB_USER = 'user'
     DB_PASSWORD = 'password'
     DB_NAME = 'test_db'
+    LOG_PATH = 'tests/logs'
+

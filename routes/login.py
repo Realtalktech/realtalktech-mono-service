@@ -1,8 +1,6 @@
 from flask import Blueprint, jsonify, request, make_response
 import pymysql
 import pymysql.cursors
-import re
-from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import BadRequest
 from auth import Authorizer
 from models import User
@@ -15,8 +13,7 @@ db_manager = DBManager()
 def signup():
     # Extract data
     data = request.json
-    user = User()
-    return user.signup(data)
+    return User().signup(data)
 
 @login_bp.route('/login', methods=['POST'])
 def login():
@@ -28,8 +25,7 @@ def login():
     if not username or not password:
         raise BadRequest("Username/Email and password are required")
     
-    user = User()
-    return user.authenticate_returning_user(username, password)
+    return User().authenticate_returning_user(username, password)
 
 @login_bp.route('/logout', methods=['POST'])
 def logout():

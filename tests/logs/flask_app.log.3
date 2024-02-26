@@ -1,0 +1,84 @@
+[2024-02-26 00:01:44,879] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py:828} ERROR - Exception on /login [POST]
+Traceback (most recent call last):
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 1463, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 872, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 870, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 855, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/routes/login.py", line 28, in login
+    return User().authenticate_returning_user(username, password)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/models/user.py", line 378, in authenticate_returning_user
+    user_details = self.__get_user_details(user_id, True)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/models/user.py", line 179, in __get_user_details
+    'accountUpdateTime': self.__fetch_account_update_time(user_id)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/models/user.py", line 41, in __fetch_account_update_time
+    update_time = update_time.isoformat()
+                  ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'builtin_function_or_method' object has no attribute 'isoformat'
+[2024-02-26 00:02:10,683] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py:828} ERROR - Exception on /login [POST]
+Traceback (most recent call last):
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 1463, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 872, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 870, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 855, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/routes/login.py", line 28, in login
+    return User().authenticate_returning_user(username, password)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/models/user.py", line 377, in authenticate_returning_user
+    tech_stack = self.__get_user_tech_stack(user_id)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/models/user.py", line 66, in __get_user_tech_stack
+    (skill['vendor_id'])
+     ~~~~~^^^^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+[2024-02-26 00:03:25,837] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py:828} ERROR - Exception on /login [POST]
+Traceback (most recent call last):
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 1463, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 872, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 870, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 855, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/routes/login.py", line 28, in login
+    return User().authenticate_returning_user(username, password)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/models/user.py", line 378, in authenticate_returning_user
+    tech_stack = self.__get_user_tech_stack(user_id)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/models/user.py", line 67, in __get_user_tech_stack
+    (skill['vendor_id'])
+     ~~~~~^^^^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'

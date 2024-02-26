@@ -35,6 +35,7 @@ CREATE TABLE DiscussCategory (
 CREATE TABLE DiscoverCategory (
     id INT AUTO_INCREMENT PRIMARY KEY,
     category_name VARCHAR(255) UNIQUE NOT NULL,
+    icon TEXT NOT NULL,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
@@ -93,13 +94,6 @@ CREATE TABLE PostDiscussCategory (
     PRIMARY KEY (post_id, category_id)
 );
 
-CREATE TABLE PublicVendor (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    vendor_name VARCHAR(255) UNIQUE NOT NULL,
-    creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
-    update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
-);
-
 CREATE TABLE DiscoverVendor (
     id INT AUTO_INCREMENT PRIMARY KEY,
     vendor_name VARCHAR(255) UNIQUE NOT NULL,
@@ -111,6 +105,15 @@ CREATE TABLE DiscoverVendor (
     vendor_logo_url VARCHAR(255),
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
+);
+
+CREATE TABLE PublicVendor (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    discover_vendor_id INT NULL,  -- Nullable foreign key referencing DiscoverVendor
+    vendor_name VARCHAR(255) UNIQUE NOT NULL,
+    creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
+    FOREIGN KEY (discover_vendor_id) REFERENCES DiscoverVendor(id)  -- Foreign key constraint
 );
 
 CREATE TABLE UserPublicVendorEndorsement (
@@ -180,6 +183,7 @@ CREATE TABLE PostUpvote (
     id INT AUTO_INCREMENT PRIMARY KEY,
     post_id INT,
     user_id INT,
+    is_downvote BOOLEAN NOT NULL,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     FOREIGN KEY (post_id) REFERENCES Post(id),
@@ -190,6 +194,7 @@ CREATE TABLE CommentUpvote (
     id INT AUTO_INCREMENT PRIMARY KEY,
     comment_id INT,
     user_id INT,
+    is_downvote BOOLEAN NOT NULL,
     creation_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     update_time DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     FOREIGN KEY (comment_id) REFERENCES Comment(id),

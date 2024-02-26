@@ -3,8 +3,8 @@ import logging
 from logging.handlers import RotatingFileHandler
 import os
 
-def setup_global_logging():
-    log_directory = '/var/log/flask_app'  # Adjust the path as necessary
+def setup_global_logging(log_path):
+    log_directory = log_path  # Adjust the path as necessary
     if not os.path.exists(log_directory):
         os.makedirs(log_directory)
 
