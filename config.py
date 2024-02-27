@@ -1,3 +1,5 @@
+import os
+
 class Config(object):
     # Common Configurations like SECRET_KEY
     DEBUG = False
@@ -21,7 +23,8 @@ class DevelopmentConfig(Config):
     DB_NAME = 'dev_db'
 
 class TestingConfig(Config):
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'  # For in-memory SQLite DB
+    # file_path = os.path.abspath()
+    SQLALCHEMY_DATABASE_URI = 'sqlite:////Users/raghavmaini/Desktop/rttMVP/rttDataService/tests/sqlite/test_database.db'
     LOG_PATH = 'tests/logs'
 
 

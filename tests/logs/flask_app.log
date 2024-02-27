@@ -1,35 +1,43 @@
-[2024-02-26 15:20:36,935] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py:828} ERROR - Exception on /signup [PUT]
-Traceback (most recent call last):
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py", line 469, in signup
-    user_id = self.__create_user_and_fetch_id(full_name, username,
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py", line 257, in __create_user_and_fetch_id
-    self.cursor.execute("""
-    ^^^^^^^^^^^
-AttributeError: 'User' object has no attribute 'cursor'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 1463, in wsgi_app
-    response = self.full_dispatch_request()
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 872, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask_cors/extension.py", line 176, in wrapped_function
-    return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 870, in full_dispatch_request
-    rv = self.dispatch_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 855, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/routes/login.py", line 16, in signup
-    return User().signup(data)
-           ^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py", line 491, in signup
-    self.conn.commit()
-    ^^^^^^^^^
-AttributeError: 'User' object has no attribute 'conn'
+[2024-02-26 23:52:53,624] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:430} ERROR - Query.get() got an unexpected keyword argument 'vendor_name'
+[2024-02-26 23:56:02,159] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:430} ERROR - Query.filter_by() takes 1 positional argument but 2 were given
+[2024-02-27 00:03:07,371] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:03:07,534] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:03:07,600] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:03:07,734] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:03:07,751] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:04:15,068] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:04:15,231] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:04:15,303] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:04:15,454] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:04:15,458] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:25:26,081] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:25:26,153] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:25:26,310] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:25:26,314] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:25:50,224] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:25:50,384] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:25:50,449] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:25:50,585] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:25:50,589] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:26:11,615] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:28:54,625] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:29:05,277] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:29:05,437] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:29:05,510] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:29:05,654] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:29:05,658] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:29:56,774] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:29:56,936] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:29:57,008] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
+[2024-02-27 00:29:57,150] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:29:57,154] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:31:24,872] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:31:24,889] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:31:58,136] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:31:58,141] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:43:33,614] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:43:33,619] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:44:11,707] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Incorrect Password
+[2024-02-27 00:44:11,953] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:44:11,957] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
+[2024-02-27 00:44:36,541] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Incorrect Password
