@@ -3,7 +3,7 @@ import pymysql
 import pymysql.cursors
 from utils.db_manager import DBManager
 from werkzeug.exceptions import BadRequest, Unauthorized
-from models import User
+from utils import User
 from utils import token_required
 
 user_bp = Blueprint('user_bp', __name__)

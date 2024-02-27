@@ -1,4 +1,13 @@
-[2024-02-26 00:12:14,943] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py:828} ERROR - Exception on /login [POST]
+[2024-02-26 15:17:21,611] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py:828} ERROR - Exception on /login [POST]
+Traceback (most recent call last):
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such table: User
+
+The above exception was the direct cause of the following exception:
+
 Traceback (most recent call last):
   File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 1463, in wsgi_app
     response = self.full_dispatch_request()
@@ -18,47 +27,55 @@ Traceback (most recent call last):
   File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/routes/login.py", line 28, in login
     return User().authenticate_returning_user(username, password)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/models/user.py", line 377, in authenticate_returning_user
-    user_details = self.__get_user_details(user_id, True)
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/models/user.py", line 177, in __get_user_details
-    'accountCreationTime': self.__fetch_account_creation_time(user_id),
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/models/user.py", line 34, in __fetch_account_creation_time
-    creation_time = self.cursor.fetchone().get('creation_time').isoformat()
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'str' object has no attribute 'isoformat'
-[2024-02-26 00:12:30,448] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py:828} ERROR - Exception on /login [POST]
-Traceback (most recent call last):
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 1463, in wsgi_app
-    response = self.full_dispatch_request()
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 872, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask_cors/extension.py", line 176, in wrapped_function
-    return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 870, in full_dispatch_request
-    rv = self.dispatch_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 855, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/routes/login.py", line 28, in login
-    return User().authenticate_returning_user(username, password)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/models/user.py", line 377, in authenticate_returning_user
-    user_details = self.__get_user_details(user_id, True)
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/models/user.py", line 177, in __get_user_details
-    'accountCreationTime': self.__fetch_account_creation_time(user_id),
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/models/user.py", line 34, in __fetch_account_creation_time
-    creation_time:datetime = self.cursor.fetchone().get('creation_time').isoformat()
-                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'str' object has no attribute 'isoformat'
-[2024-02-26 13:30:38,638] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py:828} ERROR - Exception on /signup [PUT]
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py", line 369, in authenticate_returning_user
+    user_data = self.__fetch_login_credentials_by_username(entered_username)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py", line 25, in __fetch_login_credentials_by_username
+    user:model = model.query.filter_by(username=username).first()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2748, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2847, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2308, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2190, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
+    return meth(
+           ^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 517, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1639, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2344, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: User
+[SQL: SELECT "User".id AS "User_id", "User".full_name AS "User_full_name", "User".username AS "User_username", "User".current_company AS "User_current_company", "User".email AS "User_email", "User".linkedin_url AS "User_linkedin_url", "User".bio AS "User_bio", "User".password AS "User_password", "User".creation_time AS "User_creation_time", "User".update_time AS "User_update_time" 
+FROM "User" 
+WHERE "User".username = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('testuser', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2024-02-26 15:18:56,782] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py:828} ERROR - Exception on /signup [PUT]
 Traceback (most recent call last):
   File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 1463, in wsgi_app
     response = self.full_dispatch_request()
@@ -78,34 +95,10 @@ Traceback (most recent call last):
   File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/routes/login.py", line 16, in signup
     return User().signup(data)
            ^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/models/user.py", line 18, in __init__
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py", line 19, in __init__
     self.conn = self.db_manager.get_db_connection()
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/db_manager.py", line 9, in get_db_connection
     if 'sqlite' in current_app.config['DATABASE_URI']:
                    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
 KeyError: 'DATABASE_URI'
-[2024-02-26 13:31:49,932] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py:828} ERROR - Exception on /signup [PUT]
-Traceback (most recent call last):
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 1463, in wsgi_app
-    response = self.full_dispatch_request()
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 872, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask_cors/extension.py", line 176, in wrapped_function
-    return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 870, in full_dispatch_request
-    rv = self.dispatch_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 855, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/routes/login.py", line 16, in signup
-    return User().signup(data)
-           ^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/models/user.py", line 19, in __init__
-    self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: 'cursor' is an invalid keyword argument for cursor()

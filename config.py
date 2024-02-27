@@ -8,6 +8,9 @@ class ProductionConfig(Config):
     DB_USER = 'admin'
     DB_PASSWORD = 'ReallyRealAboutTech123!'
     DB_NAME = 'RealTalkTechDB'
+    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}'
+    DEBUG = True
+
     LOG_PATH = '/var/log/flask_app'
 
 class DevelopmentConfig(Config):
@@ -16,9 +19,9 @@ class DevelopmentConfig(Config):
     DB_USER = 'dev_user'
     DB_PASSWORD = 'dev_password'
     DB_NAME = 'dev_db'
-    
+
 class TestingConfig(Config):
-    DATABASE_URI = 'sqlite:///tests/sqlite/test_database.db'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'  # For in-memory SQLite DB
     LOG_PATH = 'tests/logs'
 
 

@@ -1,8 +1,8 @@
 from flask import Flask, jsonify
 from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
 from flask_cors import CORS
+from models import db
 from config import ProductionConfig, TestingConfig
-import os
 
 from utils.log_config import setup_global_logging
 setup_global_logging(TestingConfig.LOG_PATH) 
@@ -24,6 +24,8 @@ def create_app(config_class=ProductionConfig):
     app.register_blueprint(vendor_bp)
     app.register_blueprint(post_bp)
     app.register_blueprint(login_bp)
+
+    db.init_app(app)
 
     @app.errorhandler(BadRequest)
     def handle_bad_request(e):
@@ -48,7 +50,7 @@ def create_app(config_class=ProductionConfig):
 
     return app
 
-app = create_app(config_class=ProductionConfig)
+app = create_app(config_class=TestingConfig)
 
 
 

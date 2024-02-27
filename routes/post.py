@@ -3,7 +3,7 @@ import pymysql
 import pymysql.cursors
 from utils import DBManager, token_required
 from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
-from models import Post
+from utils import Post
 
 post_bp = Blueprint('post_bp', __name__)
 db_manager = DBManager()

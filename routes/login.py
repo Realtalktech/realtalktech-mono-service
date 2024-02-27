@@ -3,7 +3,7 @@ import pymysql
 import pymysql.cursors
 from werkzeug.exceptions import BadRequest
 from auth import Authorizer
-from models import User
+from utils import User
 from utils import DBManager
 
 login_bp = Blueprint('login_bp', __name__)
