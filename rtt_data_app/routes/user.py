@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
-from utils.db_manager import DBManager
+from rtt_data_app.utils.db_manager import DBManager
 from werkzeug.exceptions import BadRequest, Unauthorized
-from utils import User
-from utils import token_required
+from rtt_data_app.utils import User
+from rtt_data_app.utils import token_required
 
 user_bp = Blueprint('user_bp', __name__)
 db_manager = DBManager()

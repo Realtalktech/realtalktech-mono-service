@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
-from utils import DBManager, token_required
+from rtt_data_app.utils import DBManager, token_required
 from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
-from utils import Post
+from rtt_data_app.utils import Post
 
 post_bp = Blueprint('post_bp', __name__)
 db_manager = DBManager()
@@ -28,7 +28,12 @@ def make_post(user_id):
         if is_anonymous is None: missing_fields += 'anonymity status '
         raise BadRequest(f"Missing required post information: {missing_fields}")
 
-    post_id = Post().create_post_and_fetch_id(user_id, title, body, categories, is_anonymous, vendors)
+    post_id = Post().create_post_and_fetch_id(author_id=user_id, 
+                                              title=title, 
+                                              body=body, 
+                                              category_ids=categories, 
+                                              is_anonymous=is_anonymous, 
+                                              tagged_vendor_ids=vendors)
     return jsonify({"message": "Post created successfully", "post_id": post_id}), 201
 
 @post_bp.route('/editPost', methods=['PUT'])

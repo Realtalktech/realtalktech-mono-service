@@ -1,43 +1,122 @@
-[2024-02-26 23:52:53,624] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:430} ERROR - Query.get() got an unexpected keyword argument 'vendor_name'
-[2024-02-26 23:56:02,159] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:430} ERROR - Query.filter_by() takes 1 positional argument but 2 were given
-[2024-02-27 00:03:07,371] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:03:07,534] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:03:07,600] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:03:07,734] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:03:07,751] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:04:15,068] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:04:15,231] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:04:15,303] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:04:15,454] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:04:15,458] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:25:26,081] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:25:26,153] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:25:26,310] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:25:26,314] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:25:50,224] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:25:50,384] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:25:50,449] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:25:50,585] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:25:50,589] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:26:11,615] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:28:54,625] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:29:05,277] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:29:05,437] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:29:05,510] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:29:05,654] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:29:05,658] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:29:56,774] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:29:56,936] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:29:57,008] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 'Query' object has no attribute 'id'
-[2024-02-27 00:29:57,150] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:29:57,154] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:31:24,872] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:31:24,889] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:31:58,136] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:31:58,141] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:43:33,614] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:43:33,619] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:44:11,707] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Incorrect Password
-[2024-02-27 00:44:11,953] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:44:11,957] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Invalid Username
-[2024-02-27 00:44:36,541] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/utils/user.py:346} ERROR - 401 Unauthorized: Incorrect Password
+[2024-02-27 20:52:18,368] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py:828} ERROR - Exception on /signup [PUT]
+Traceback (most recent call last):
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.IntegrityError: UNIQUE constraint failed: User.username
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py", line 406, in signup
+    user_id = self.__create_user_and_fetch_id(full_name, username,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py", line 198, in __create_user_and_fetch_id
+    db.session.commit()
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/scoping.py", line 598, in commit
+    return self._proxied.commit()
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1969, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1256, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1231, in _prepare_impl
+    self.session.flush()
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 4312, in flush
+    self._flush(objects)
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 4447, in _flush
+    with util.safe_reraise():
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 4408, in _flush
+    flush_context.execute()
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py", line 1227, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
+    return meth(
+           ^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 517, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1639, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2344, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: User.username
+[SQL: INSERT INTO "User" (full_name, username, current_company, email, linkedin_url, bio, password, creation_time, update_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('Test User1', 'testuser1', 'Test Labs', 'testuser1@hehehe.com', 'https://linkedin.com/testuser', 'I am a test user.', 'scrypt:32768:8:1$OBXmq9vSH7yT00Yb$71983499d5aa616b60796ebd64da6f9a41b74269a0f3b54a1740202d2ac54328222619f7cbebbb59969d1efbba212c6bf642401b66c3f7866a9e59bea460a4dc', '2024-02-28 01:52:18.366824', '2024-02-28 01:52:18.366828')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py", line 425, in signup
+    raise InternalServerError(str(e))
+werkzeug.exceptions.InternalServerError: 500 Internal Server Error: (sqlite3.IntegrityError) UNIQUE constraint failed: User.username
+[SQL: INSERT INTO "User" (full_name, username, current_company, email, linkedin_url, bio, password, creation_time, update_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('Test User1', 'testuser1', 'Test Labs', 'testuser1@hehehe.com', 'https://linkedin.com/testuser', 'I am a test user.', 'scrypt:32768:8:1$OBXmq9vSH7yT00Yb$71983499d5aa616b60796ebd64da6f9a41b74269a0f3b54a1740202d2ac54328222619f7cbebbb59969d1efbba212c6bf642401b66c3f7866a9e59bea460a4dc', '2024-02-28 01:52:18.366824', '2024-02-28 01:52:18.366828')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 1463, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 872, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 870, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 855, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/login.py", line 16, in signup
+    return User().signup(data)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py", line 427, in signup
+    db.session.commit()
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/scoping.py", line 598, in commit
+    return self._proxied.commit()
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1969, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 103, in _go
+    self._raise_for_prerequisite_state(fn.__name__, current_state)
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 929, in _raise_for_prerequisite_state
+    raise sa_exc.PendingRollbackError(
+sqlalchemy.exc.PendingRollbackError: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (sqlite3.IntegrityError) UNIQUE constraint failed: User.username
+[SQL: INSERT INTO "User" (full_name, username, current_company, email, linkedin_url, bio, password, creation_time, update_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('Test User1', 'testuser1', 'Test Labs', 'testuser1@hehehe.com', 'https://linkedin.com/testuser', 'I am a test user.', 'scrypt:32768:8:1$OBXmq9vSH7yT00Yb$71983499d5aa616b60796ebd64da6f9a41b74269a0f3b54a1740202d2ac54328222619f7cbebbb59969d1efbba212c6bf642401b66c3f7866a9e59bea460a4dc', '2024-02-28 01:52:18.366824', '2024-02-28 01:52:18.366828')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj) (Background on this error at: https://sqlalche.me/e/20/7s2a)

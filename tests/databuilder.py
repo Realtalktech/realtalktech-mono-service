@@ -373,8 +373,6 @@ class DataInserter:
                 else:
                     print("Could not find interest_area named:", area)
 
-
-    
     def insert_post_1(self):
         """Inserts a post from Elon Gates, tags Salesforce, links category as engineering comments from Bill and Mary, Elon likes Bill's comment"""
         # Insert post
@@ -434,7 +432,6 @@ class DataInserter:
 
         # Link to engineering
         self.link_category_with_post(post_id, 2)
-
 
     def insert_post_3(self):
         """Inserts an anonymous post by Elon Gates, links category as engineering, no tags, with comments"""

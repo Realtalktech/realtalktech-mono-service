@@ -2,9 +2,9 @@ from flask import Blueprint, jsonify, request, make_response
 import pymysql
 import pymysql.cursors
 from werkzeug.exceptions import BadRequest
-from auth import Authorizer
-from utils import User
-from utils import DBManager
+from rtt_data_app.auth import Authorizer
+from rtt_data_app.utils import User
+from rtt_data_app.utils import DBManager
 
 login_bp = Blueprint('login_bp', __name__)
 db_manager = DBManager()

@@ -1,18 +1,13 @@
 from flask import Flask, jsonify
 from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
 from flask_cors import CORS
-from models import db
+from rtt_data_app.models import db
 from config import ProductionConfig, TestingConfig
 
-from utils.log_config import setup_global_logging
+from rtt_data_app.utils.log_config import setup_global_logging
 setup_global_logging(TestingConfig.LOG_PATH) 
 
-from routes.feed import feed_bp
-from routes.comment import comment_bp
-from routes.vendor import vendor_bp
-from routes.login import login_bp
-from routes.user import user_bp
-from routes.post import post_bp
+from rtt_data_app.routes import feed_bp, comment_bp, vendor_bp, login_bp, user_bp, post_bp
 
 def create_app(config_class=ProductionConfig):
     app = Flask(__name__)
@@ -51,10 +46,6 @@ def create_app(config_class=ProductionConfig):
     return app
 
 app = create_app(config_class=TestingConfig)
-
-
-
-
 
 if __name__ == '__main__':
     # update_trie() # Initial Trie population

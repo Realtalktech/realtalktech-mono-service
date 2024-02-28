@@ -1,6 +1,6 @@
 # utils/user.py
 from flask import jsonify
-from app import db
+from rtt_data_app.app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
 from email_validator import validate_email, EmailNotValidError
@@ -9,17 +9,10 @@ from datetime import datetime
 import pymysql
 import pymysql.cursors
 import re
-from utils import DBManager
-from models.user import User as model
-from models.user_discuss_category import UserDiscussCategory
-from models.discuss_category import DiscussCategory
-from models.interest_area import InterestArea
-from models.user_interest_area import UserInterestArea
-from models.user_public_vendor import UserPublicVendor
-from models.public_vendor import PublicVendor
-from models.user_industry import UserIndustry
-from models.industry import Industry
-from auth import Authorizer
+from rtt_data_app.utils import DBManager
+from rtt_data_app.models.user import User as model
+from rtt_data_app.models import UserDiscussCategory, DiscussCategory, InterestArea, UserInterestArea, UserPublicVendor, PublicVendor, UserIndustry, Industry
+from rtt_data_app.auth import Authorizer
 from sqlalchemy import exc
 import logging
 
@@ -62,7 +55,7 @@ class User:
 
     def __get_user_tech_stack(self, user_id:int) -> List[Dict[str, int | str]]:
         # Database lookup to find tech_stack (UserPublicVendor)
-
+        
         # Query UserPublicVendor to get all vendor_ids associated with the user
         user_vendors = db.session.query(UserPublicVendor.vendor_id).filter_by(user_id=user_id).all()
         vendor_ids = [vendor.vendor_id for vendor in user_vendors]

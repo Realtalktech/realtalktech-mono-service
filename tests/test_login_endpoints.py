@@ -1,16 +1,9 @@
-import os
-import sys
-topdir = os.path.join(os.path.dirname(__file__), "..")
-sys.path.append(topdir)
-from app import app, create_app, db
+from rtt_data_app import create_app, db
 from tests.databuilder import Databuilder, DataInserter
 from config import TestingConfig
-# from utils import db_manager, DBManager
 import pytest
-import sqlite3
 from unittest.mock import patch, MagicMock
-from werkzeug.security import generate_password_hash
-import datetime
+from tests.commons import LoginResponse
 
 @pytest.fixture(scope='module')
 def test_client():
@@ -26,8 +19,13 @@ def test_client():
     with app.test_client() as testing_client:
         yield testing_client
 
+@pytest.fixture()
+def generate_mock_token():
+    with patch('rtt_data_app.auth.token_auth.Authorizer.generate_token', return_value={'MockToken': 'MockToken'}):
+        yield
+
 # @patch('app.auth.token_required', return_value=lambda x:x)
-def test_signup_success(test_client):
+def test_signup_success(test_client, generate_mock_token):
     signup_data = {
         'fullname': 'Test User1',
         'username': 'testuser1',
@@ -41,17 +39,16 @@ def test_signup_success(test_client):
         'bio': 'I am a test user.',
         'interestAreas': [1, 2, 3]
     }
-    with patch('auth.token_auth.Authorizer.generate_token', return_value={'MockToken': 'MockToken'}):
-        response = test_client.put('/signup', json=signup_data)
-        response_data = response.get_json()
-        assert response_data == {"message": "Signup successful", "token": {"MockToken": "MockToken"}}
-        assert response.status_code == 201
+    response = test_client.put('/signup', json=signup_data)
+    response_data = response.get_json()
+    assert response_data == LoginResponse.SIGNUP_SUCCESS
+    assert response.status_code == 201
 
-def test_signup_failure_email_no_stub(test_client):
+def test_signup_failure_spammy_email(test_client):
     json = {
         'fullname': 'Test User1',
         'username': 'testuser1',
-        'email': 'testuser1',
+        'email': 'testuser1@localhost.com',
         'password': 'password',
         'techstack': [1,2,3,4,5],
         'currentCompany': 'Test Labs',
@@ -62,7 +59,8 @@ def test_signup_failure_email_no_stub(test_client):
         'interestAreas': [1,2,3]
     }
     response = test_client.put('/signup', json=json)
-    assert response.data == b'{"error":"Bad request","message":"400 Bad Request: The email address is not valid. It must have exactly one @-sign."}\n'
+    response_data = response.get_json()
+    assert response_data == LoginResponse.LOCALHOST_EMAIL_RESPONSE
     assert response.status_code == 400 # Bad request 
 
 def test_signup_failure_missing_fullname(test_client):
@@ -79,7 +77,8 @@ def test_signup_failure_missing_fullname(test_client):
         'interestAreas': [1,2,3]
     }
     response = test_client.put('/signup', json=json)
-    assert response.data == b'{"error":"Bad request","message":"400 Bad Request: Missing required fields: fullname"}\n'
+    response_data = response.get_json()
+    assert response_data == LoginResponse.missing_fields_builder(full_name=True)
     assert response.status_code == 400 # Bad request 
 
 def test_signup_failure_missing_username(test_client):
@@ -96,7 +95,8 @@ def test_signup_failure_missing_username(test_client):
         'interestAreas': [1,2,3]
     }
     response = test_client.put('/signup', json=json)
-    assert response.data == b'{"error":"Bad request","message":"400 Bad Request: Missing required fields: username"}\n'
+    response_data = response.get_json()
+    assert response_data == LoginResponse.missing_fields_builder(username=True)
     assert response.status_code == 400 # Bad request
 
 def test_signup_failure_missing_password(test_client):
@@ -113,11 +113,12 @@ def test_signup_failure_missing_password(test_client):
         'interestAreas': [1,2,3]
     }
     response = test_client.put('/signup', json=json)
-    assert response.data == b'{"error":"Bad request","message":"400 Bad Request: Missing required fields: password"}\n'
+    response_data = response.get_json()
+    assert response_data == LoginResponse.missing_fields_builder(password=True)
     assert response.status_code == 400 # Bad request
 
 def test_signup_failure_missing_current_company(test_client):
-    with patch('utils.db_manager.DBManager.get_db_connection') as mock_get_db_connection:
+    with patch('rtt_data_app.utils.db_manager.DBManager.get_db_connection') as mock_get_db_connection:
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value = mock_cursor
@@ -135,77 +136,36 @@ def test_signup_failure_missing_current_company(test_client):
             'interestAreas': [1,2,3]
         }
         response = test_client.put('/signup', json=json)
-        assert response.data == b'{"error":"Bad request","message":"400 Bad Request: Missing required fields: currentCompany"}\n'
+        response_data = response.get_json()
+        assert response_data == LoginResponse.missing_fields_builder(current_company=True)
         assert response.status_code == 400 # Bad request
 
-def test_login_with_username_success(test_client):
-    with patch('utils.db_manager.DBManager.get_db_connection') as mock_get_db_connection:
+def test_login_with_username_success(test_client, generate_mock_token):
         login_json = {
             'username': 'elongates',
             'password': 'password'
         }
-        with patch('auth.token_auth.Authorizer.generate_token') as mock_token:
-            mock_token.return_value = {'MockToken': 'MockToken'}
-            login_response = test_client.post('/login', json=login_json)
-            login_response_data = login_response.get_json()
-            assert login_response.status_code == 200
-            # Remove times for proper asserts
-            login_response_data['userDetails'].pop('accountCreationTime', None)
-            login_response_data['userDetails'].pop('accountUpdateTime', None)
+        login_response = test_client.post('/login', json=login_json)
+        login_response_data = login_response.get_json()
+        assert login_response.status_code == 200
+        # Remove times for proper asserts
+        login_response_data['userDetails'].pop('accountCreationTime', None)
+        login_response_data['userDetails'].pop('accountUpdateTime', None)
 
-            assert login_response_data == {
-                "message":"Login successful",
-                "token":{"MockToken":"MockToken"},
-                'userDetails': {
-                    'bio': None,
-                    'currentCompany': 'SuperchargedSoftware',
-                    'email': 'elongates@example.com',
-                    'fullName': 'Elon Gates',
-                    'id': 1,
-                    'industryInvolvement': [
-                        {'id': 1, 'name': 'AdTech'}, 
-                        {'id': 2, 'name': 'Angel or VC Firm'}, 
-                        {'id': 3, 'name': 'AI'}, 
-                        {'id': 4, 'name': 'Automation'}, 
-                        {'id': 5, 'name': 'Big Data'}, 
-                        {'id': 6, 'name': 'Biotech'}, 
-                        {'id': 7, 'name': 'Blockchain'}, 
-                        {'id': 8, 'name': 'Business Intelligence'}, 
-                        {'id': 9, 'name': 'Cannabis'}, 
-                        {'id': 10, 'name': 'Cloud'}, 
-                        {'id': 11, 'name': 'Consulting'}
-                    ], 
-                    'interest_areas': [
-                        {'id': 1, 'name': 'Sales Tools'}, 
-                        {'id': 2, 'name': 'Marketing'}, 
-                        {'id': 3, 'name': 'Analytics Tools & Software'}, 
-                        {'id': 4, 'name': 'CAD & PLM'}, 
-                        {'id': 5, 'name': 'Collaboration & Productivity'}, 
-                        {'id': 6, 'name': 'Commerce'}, 
-                        {'id': 7, 'name': 'Customer Service'}
-                    ], 
-                    'linkedinUrl': None, 
-                    'occupationalAreas': [
-                        {'id': 1, 'name': 'AI'}, 
-                        {'id': 2, 'name': 'Engineering'}, 
-                        {'id': 3, 'name': 'Operations'}
-                    ], 
-                    'techstack': [], 
-                    'username': 'elongates'
-                    }
-                }
+        assert login_response_data == LoginResponse.ELON_LOGIN_RESPONSE
 
 def test_login_with_username_fail_wrong_password(test_client):
-    with patch('utils.db_manager.DBManager.get_db_connection') as mock_get_db_connection:
+    with patch('rtt_data_app.utils.db_manager.DBManager.get_db_connection') as mock_get_db_connection:
         login_json = {
             'username': 'elongates',
             'password': 'ihatetesla'
         }
-        with patch('auth.token_auth.Authorizer.generate_token') as mock_token:
+        with patch('rtt_data_app.auth.token_auth.Authorizer.generate_token') as mock_token:
             mock_token.return_value = {'MockToken': 'MockToken'}
             login_response = test_client.post('/login', json=login_json)
+            login_response_data = login_response.get_json()
             assert login_response.status_code == 401
-            assert login_response.data == b'{"error":"Unauthorized","message":"401 Unauthorized: Incorrect Password"}\n'
+            assert login_response_data == LoginResponse.INCORRECT_PASSWORD_RESPONSE
 
 def test_login_with_username_fail_nonexistent_user(test_client):
     login_json = {
@@ -216,82 +176,37 @@ def test_login_with_username_fail_nonexistent_user(test_client):
     assert login_response.status_code == 401
     assert login_response.data == b'{"error":"Unauthorized","message":"401 Unauthorized: Invalid Username"}\n'
 
-def test_login_with_email_success(test_client):
+def test_login_with_email_success(test_client, generate_mock_token):
     login_json = {
         'username': 'elongates@example.com',
         'password': 'password'
     }
-    with patch('auth.token_auth.Authorizer.generate_token') as mock_token:
-        mock_token.return_value = {'MockToken': 'MockToken'}
-        login_response = test_client.post('/login', json=login_json)
-        print(login_response.data)
-        assert login_response.status_code == 200
-        login_response_data = login_response.get_json()
-        # Remove times for proper asserts
-        login_response_data['userDetails'].pop('accountCreationTime', None)
-        login_response_data['userDetails'].pop('accountUpdateTime', None)
+    login_response = test_client.post('/login', json=login_json)
+    assert login_response.status_code == 200
+    login_response_data = login_response.get_json()
+    # Remove times for proper asserts
+    login_response_data['userDetails'].pop('accountCreationTime', None)
+    login_response_data['userDetails'].pop('accountUpdateTime', None)
 
-        assert login_response_data == {
-            "message":"Login successful",
-            "token":{"MockToken":"MockToken"},
-            'userDetails': {
-                'bio': None,
-                'currentCompany': 'SuperchargedSoftware',
-                'email': 'elongates@example.com',
-                'fullName': 'Elon Gates',
-                'id': 1,
-                'industryInvolvement': [
-                    {'id': 1, 'name': 'AdTech'}, 
-                    {'id': 2, 'name': 'Angel or VC Firm'}, 
-                    {'id': 3, 'name': 'AI'}, 
-                    {'id': 4, 'name': 'Automation'}, 
-                    {'id': 5, 'name': 'Big Data'}, 
-                    {'id': 6, 'name': 'Biotech'}, 
-                    {'id': 7, 'name': 'Blockchain'}, 
-                    {'id': 8, 'name': 'Business Intelligence'}, 
-                    {'id': 9, 'name': 'Cannabis'}, 
-                    {'id': 10, 'name': 'Cloud'}, 
-                    {'id': 11, 'name': 'Consulting'}
-                ], 
-                'interest_areas': [
-                    {'id': 1, 'name': 'Sales Tools'}, 
-                    {'id': 2, 'name': 'Marketing'}, 
-                    {'id': 3, 'name': 'Analytics Tools & Software'}, 
-                    {'id': 4, 'name': 'CAD & PLM'}, 
-                    {'id': 5, 'name': 'Collaboration & Productivity'}, 
-                    {'id': 6, 'name': 'Commerce'}, 
-                    {'id': 7, 'name': 'Customer Service'}
-                ], 
-                'linkedinUrl': None, 
-                'occupationalAreas': [
-                    {'id': 1, 'name': 'AI'}, 
-                    {'id': 2, 'name': 'Engineering'}, 
-                    {'id': 3, 'name': 'Operations'}
-                ], 
-                'techstack': [], 
-                'username': 'elongates'
-                }
-            }
+    assert login_response_data == LoginResponse.ELON_LOGIN_RESPONSE
         
 def test_login_with_email_fail_wrong_password(test_client):
     login_json = {
         'username': 'elongates@example.com',
         'password': 'password1'
     }
-    with patch('auth.token_auth.Authorizer.generate_token') as mock_token:
-        mock_token.return_value = {'MockToken': 'MockToken'}
-        login_response = test_client.post('/login', json=login_json)
-        assert login_response.status_code == 401
-        assert login_response.data == b'{"error":"Unauthorized","message":"401 Unauthorized: Incorrect Password"}\n'
+    login_response = test_client.post('/login', json=login_json)
+    login_response_data = login_response.get_json()
+    assert login_response.status_code == 401
+    assert login_response_data == LoginResponse.INCORRECT_PASSWORD_RESPONSE
 
-def test_login_with_email_fail_nonexistent_user(test_client):
+def test_login_with_email_fail_nonexistent_user(test_client, generate_mock_token):
     login_json = {
         'username': 'joe@biden.com',
         'password': 'sleepysleepy'
     }
     
-    with patch('auth.token_auth.Authorizer.generate_token') as mock_token:
-        mock_token.return_value = {'MockToken': 'MockToken'}
-        login_response = test_client.post('/login', json=login_json)
-        assert login_response.status_code == 401
-        assert login_response.data == b'{"error":"Unauthorized","message":"401 Unauthorized: Invalid Email"}\n'
+    login_response = test_client.post('/login', json=login_json)
+    login_response_data = login_response.get_json()
+    assert login_response.status_code == 401
+    assert login_response_data == LoginResponse.INVALID_EMAIL_RESPONSE

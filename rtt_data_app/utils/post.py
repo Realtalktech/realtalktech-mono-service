@@ -1,17 +1,24 @@
-# models/user.py
+# utils/post.py
 from typing import Optional, Tuple, List
+from rtt_data_app.app import db
+from rtt_data_app.models import Post as PostModel
+from rtt_data_app.models import PostDiscoverVendor, PostDiscussCategory
+from sqlalchemy import exc
 from werkzeug.exceptions import InternalServerError
 import pymysql
 import pymysql.cursors
-from utils import DBManager
+from rtt_data_app.utils import DBManager
 import logging
 logger = logging.getLogger(__name__)
 
 class Post:
     def __init__(self):
-        self.db_manager = DBManager()
-        self.conn = self.db_manager.get_db_connection()
-        self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
+        # self.db_manager = DBManager()
+        self.db_manager = None
+        # self.conn = self.db_manager.get_db_connection()
+        self.conn = None
+        # self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
+        self.cursor = None
 
     def __get_category_ids_from_post_id(self, post_id:int) -> List[int]:
         """Returns a list of category ids associated with a post"""
@@ -86,39 +93,32 @@ class Post:
             tagged_vendor_ids:List[int]
     )->int:
         try:
-            # Insert post into database
-            self.cursor.execute("""
-                INSERT INTO Post (user_id, title, body, is_anonymous) 
-                VALUES (%s, %s, %s, %s)
-            """, (author_id, title, body, is_anonymous))
-            post_id = self.cursor.lastrowid
+            # Create and insert post into database
+            new_post = PostModel(user_id=author_id, title=title, body=body, is_anonymous=is_anonymous)
+            db.session.add(new_post)
+            db.session.flush()  # This is to get the post_id without committing the transaction
 
             # Link post to categories
             for category_id in category_ids:
-                self.cursor.execute("""
-                    INSERT INTO PostDiscussCategory (post_id, category_id) 
-                    VALUES (%s, %s)
-                """, (post_id, category_id))
+                new_post_category = PostDiscussCategory(post_id=new_post.id, category_id=category_id)
+                db.session.add(new_post_category)
             
             # Link post to vendors
             for tagged_vendor_id in tagged_vendor_ids:
-                self.cursor.execute("""
-                    INSERT INTO PostDiscoverVendor(post_id, vendor_id) 
-                    VALUES (%s, %s)
-                """, (post_id, tagged_vendor_id))
+                new_post_vendor = PostDiscoverVendor(post_id=new_post.id, vendor_id=tagged_vendor_id)
+                db.session.add(new_post_vendor)
             
-            return post_id
-            
-        except pymysql.MySQLError as e:
-            self.conn.rollback()
+            db.session.commit()  # Commit all changes
+            return new_post.id  # Return the ID of the new post
+                
+        except exc.SQLAlchemyError as e:
+            db.session.rollback()
             logger.error(str(e))
-            raise InternalServerError(str(e))
-    
+            raise InternalServerError(f"Database error: {str(e)}")
+
         finally:
-            self.conn.commit()
-            self.cursor.close()
-            self.conn.close()
-    
+            db.session.close()
+        
     def edit_post(self,
                 author_id:int,
                 post_id:int,
