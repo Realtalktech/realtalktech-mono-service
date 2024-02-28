@@ -16,3 +16,5 @@ class DiscoverVendor(db.Model):
     vendor_logo_url = db.Column(db.String(255))
     creation_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    posts = db.relationship('Post', secondary='PostDiscoverVendor', back_populates='vendors')

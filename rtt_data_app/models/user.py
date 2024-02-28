@@ -14,3 +14,5 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     creation_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    post_votes = db.relationship('PostUpvote', back_populates='user')

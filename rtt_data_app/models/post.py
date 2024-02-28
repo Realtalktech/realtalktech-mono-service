@@ -13,4 +13,7 @@ class Post(db.Model):
     creation_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    votes = db.relationship('PostUpvote', back_populates='post')
     user = db.relationship('User', backref=backref('posts', lazy=True))
+    categories = db.relationship('DiscussCategory', secondary='PostDiscussCategory', back_populates='posts')
+    vendors = db.relationship('DiscoverVendor', secondary='PostDiscoverVendor', back_populates='posts')

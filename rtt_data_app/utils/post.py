@@ -2,9 +2,9 @@
 from typing import Optional, Tuple, List
 from rtt_data_app.app import db
 from rtt_data_app.models import Post as PostModel
-from rtt_data_app.models import PostDiscoverVendor, PostDiscussCategory
-from sqlalchemy import exc
-from werkzeug.exceptions import InternalServerError
+from rtt_data_app.models import PostDiscoverVendor, PostDiscussCategory, DiscussCategory, DiscoverVendor, PostUpvote
+from sqlalchemy import exc, func
+from werkzeug.exceptions import InternalServerError, BadRequest
 import pymysql
 import pymysql.cursors
 from rtt_data_app.utils import DBManager
@@ -13,75 +13,27 @@ logger = logging.getLogger(__name__)
 
 class Post:
     def __init__(self):
-        # self.db_manager = DBManager()
-        self.db_manager = None
-        # self.conn = self.db_manager.get_db_connection()
-        self.conn = None
-        # self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
-        self.cursor = None
-
-    def __get_category_ids_from_post_id(self, post_id:int) -> List[int]:
-        """Returns a list of category ids associated with a post"""
-        self.cursor.execute("""SELECT category_id FROM PostDiscussCategory WHERE post_id = %s""", (post_id))
-        category_ids = self.cursor.fetchall()
-        category_ids = [item['category_id'] for item in category_ids]
-        return category_ids
-
-    def __get_vendor_ids_from_post_id(self, post_id:int) -> List[int]:
-        """Returns a list of vendor ids associated with a post"""
-        self.cursor.execute("""SELECT vendor_id FROM PostDiscussVendor WHERE post_id = %s""", (post_id))
-        vendor_ids = self.cursor.fetchall()
-        vendor_ids = [item['vendor_id'] for item in vendor_ids]
-        return vendor_ids
+        pass
     
-    def __check_user_vote_from_id(self, post_id:int, user_id:int) -> Tuple[Optional[bool], Optional[int]]:
-        # Return true for upvote, false for downvote, none for none
-        self.cursor.execute("""
-            SELECT id, is_downvote FROM PostUpvote 
-            WHERE user_id = %s AND post_id = %s
-        """, (user_id, post_id))
-        vote = self.cursor.fetchone()
-        if not vote:
-            return None, None
-        elif vote.get['is_downvote'] is True:
-            return False, vote.get['id']
-        else:
-            return True, vote.get['id']
-    
-    def __delete_vote_from_id(self, vote_id:int) -> None:
-        self.cursor.execute("""
-            DELETE FROM PostUpvote 
-            WHERE id = %s
-        """, (vote_id,))
-    
-    def __insert_vote_from_id(self, post_id:int, user_id:int, is_downvote:bool) -> None:
-        self.cursor.execute("""
-            INSERT INTO PostUpvote (post_id, user_id, is_downvote)
-            VALUES (%s, %s, %s)
-        """, (post_id, user_id, is_downvote))        
-
     def toggle_post_vote(self, post_id:int, user_id:int, is_downvote:bool) -> None:
+        # Start a transaction
         try:
-            user_vote, vote_id = self.__check_user_vote_from_id(post_id, user_id)
-            if user_vote is None:
-                self.__insert_vote_from_id(post_id, user_id, is_downvote)
-            elif user_vote is True:
-                if is_downvote:
-                # User has upvoted, delete vote object (if is_downvote)
-                    self.__delete_vote_from_id(vote_id)
-                # Do nothing otherwise
+            # Attempt to find an existing vote
+            vote = PostUpvote.query.filter_by(post_id=post_id, user_id=user_id).first()
+            if vote:
+                # If an existing vote is found, remove it if it's different from the new vote
+                if vote.is_downvote != is_downvote:
+                    db.session.delete(vote)
             else:
-                if not is_downvote:
-                # User has downvoted, delete vote object (if not is_downvote)
-                    self.__delete_vote_from_id(post_id, vote_id)
-                # Do nothing otherwise
-        except pymysql.MySQLError as e:
+                # If no existing vote, create a new one
+                new_vote = PostUpvote(post_id=post_id, user_id=user_id, is_downvote=is_downvote)
+                db.session.add(new_vote)
+        except exc.SQLAlchemyError as e:
+            db.session.rollback()
             logger.error(str(e))
-            raise InternalServerError(str(e))
+            raise InternalServerError(f"Database error: {str(e)}")
         finally:
-            self.conn.commit()
-            self.conn.close()
-            self.cursor.close()
+            db.session.commit()
 
     def create_post_and_fetch_id(
             self,
@@ -119,66 +71,30 @@ class Post:
         finally:
             db.session.close()
         
-    def edit_post(self,
-                author_id:int,
-                post_id:int,
-                new_title:str = None,
-                new_body:str = None,
-                new_category_ids:List[int] = None,
-                new_vendor_ids:List[int] = None) -> None:
-        
+    def edit_post(self, author_id, post_id, new_title=None, new_body=None, new_category_ids=None, new_vendor_ids=None):
         try:
-            # Edit post information
+            post = PostModel.query.filter_by(id=post_id, user_id=author_id).first()
+            if not post:
+                raise BadRequest("Post not found or you do not have permission to edit this post")
+
             if new_title:
-                self.cursor.execute("""
-                    UPDATE Post SET title = COALESCE(%s, title),
-                                    update_time = CURRENT_TIMESTAMP(3)
-                    WHERE id = %s AND user_id = %s
-                """, (new_title, post_id, author_id))
-                self.title = new_title
-
-            if new_body:
-                self.cursor.execute("""
-                    UPDATE Post SET body = COALESCE(%s, body),
-                                    update_time = CURRENT_TIMESTAMP(3)
-                    WHERE id = %s AND user_id = %s
-                """, (new_body, self.post_id, self.author_id))
+                post.title = new_title
             
-            if new_category_ids:
-                old_category_ids = self.__get_category_ids_from_post_id(post_id)
-                # Add new categories
-                for category_id in new_category_ids - old_category_ids:
-                        self.cursor.execute("""
-                            INSERT INTO PostDiscussCategory (post_id, category_id) 
-                            VALUES (%s, %s)
-                        """, (self.post_id, category_id))
-                
-                # Delete old categories (TODO: Efficiency)
-                for category_id in old_category_ids - new_category_ids:
-                        self.cursor.execute("""
-                            DELETE FROM PostDiscussCategory 
-                            WHERE post_id = %s AND category_id = %s
-                        """, (self.post_id, category_id))
+            if new_body:
+                post.body = new_body
+            
+            post.update_time = func.now()
 
-            if new_vendor_ids:
-                # Add new vendors (TODO: Efficiency)
-                old_tagged_vendor_ids = self.__get_vendor_ids_from_post_id(post_id)
-                for vendor_id in new_vendor_ids - old_tagged_vendor_ids:
-                        self.cursor.execute("""
-                            INSERT INTO PostDiscoverVendor (post_id, vendor_id) 
-                            VALUES (%s, %s)
-                        """, (post_id, vendor_id))
-                
-                # Delete old vendors (TODO: Efficiency)
-                for vendor_id in old_tagged_vendor_ids - new_vendor_ids:
-                        self.cursor.execute("""
-                            DELETE FROM PostDiscoverVendor
-                            WHERE post_id = %s AND vendor_id = %s
-                        """, (post_id, vendor_id))
-        except pymysql.MySQLError as e:
+            # Update categories
+            if new_category_ids is not None:
+                post.categories = DiscussCategory.query.filter(DiscussCategory.id.in_(new_category_ids)).all()
+
+            # Update vendors
+            if new_vendor_ids is not None:
+                post.vendors = DiscoverVendor.query.filter(DiscoverVendor.id.in_(new_vendor_ids)).all()
+
+            db.session.commit()
+        except exc.SQLAlchemyError as e:
+            db.session.rollback()
             logger.error(str(e))
             raise InternalServerError(str(e))
-        finally:
-            self.conn.commit()
-            self.cursor.close()
-            self.conn.close()

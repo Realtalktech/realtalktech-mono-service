@@ -279,15 +279,19 @@ class DataInserter:
             "Robotic Process Automation", "Artificial Intelligence"
         ]
 
+        self.vendors = ["Salesforce", "Snowflake", "Databricks", "Datadog", "Roblox", "Apple", "AWS", "GCP", "Azure", "HTC"]
+
         try:
             self.insert_discuss_categories()
             self.insert_interest_areas()
             self.insert_industries()
+            self.insert_vendors()
             self.insert_test_users()
             self.insert_post_1()
             self.insert_post_2()
             self.insert_post_3()
             self.insert_post_4()
+            self.insert_post_5()
 
         finally:
             conn.commit()
@@ -316,6 +320,14 @@ class DataInserter:
             self.cursor.execute(
                 """INSERT INTO Industry (industry_name) VALUES (?)""",
                 (industry,)
+            )
+    
+    def insert_vendors(self):
+        """Insert vendors into DiscoverVendor table"""
+        for vendor in self.vendors:
+            self.cursor.execute(
+                """INSERT INTO DiscoverVendor (vendor_name, vendor_type, description)
+                VALUES(?, ?, ?)""", (vendor, vendor, vendor)
             )
 
     def insert_test_users(self):
@@ -455,6 +467,28 @@ class DataInserter:
         self.cursor.execute(
             """INSERT INTO Post (user_id, is_anonymous, title, body) VALUES (?, ?, ?, ?)""",
             (self.test_user_ids[0], 0, "Zendesk Sell's Impact", "Our sales team loves Zendesk Sell!")
+        )
+        self.cursor.execute("SELECT last_insert_rowid()")
+        post_id = self.cursor.fetchone()[0]
+
+        # Tag Zendesk Sell in post
+        self.cursor.execute(
+            """INSERT INTO PostDiscoverVendor (post_id, vendor_id) VALUES (?, ?)""",
+            (post_id, 42)
+        )
+
+        # Comments and likes
+        self.insert_comment_and_like(post_id, self.test_user_ids[3], "It's a superb tool!", self.test_user_ids[0])
+
+        # Link to engineering
+        self.link_category_with_post(post_id, 2)
+
+    def insert_post_5(self):
+        """Inserts a post from Bill Musk about Zendesk Sell, links category as engineering, with comments and likes"""
+        # Insert post about Zendesk Sell
+        self.cursor.execute(
+            """INSERT INTO Post (user_id, is_anonymous, title, body) VALUES (?, ?, ?, ?)""",
+            (self.test_user_ids[1], 0, "Zendesk Sell's Impact", "Our sales team loves Zendesk Sell!")
         )
         self.cursor.execute("SELECT last_insert_rowid()")
         post_id = self.cursor.fetchone()[0]

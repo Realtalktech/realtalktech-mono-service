@@ -11,3 +11,5 @@ class DiscussCategory(db.Model):
     description = db.Column(db.Text)
     creation_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    posts = db.relationship('Post', secondary='PostDiscussCategory', back_populates='categories')

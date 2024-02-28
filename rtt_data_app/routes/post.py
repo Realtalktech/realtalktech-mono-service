@@ -22,11 +22,14 @@ def make_post(user_id):
     vendors = data.get('vendors', []) # List of vendor ids
 
     if not (title and body) or (is_anonymous is None):
-        missing_fields = ''
-        if not title: missing_fields += 'title '
-        if not body: missing_fields += 'body '
-        if is_anonymous is None: missing_fields += 'anonymity status '
-        raise BadRequest(f"Missing required post information: {missing_fields}")
+        missing_fields = []
+        if not title: missing_fields.append('title')
+        if not body: missing_fields.append('body')
+        if is_anonymous is None: missing_fields.append('anonymity status')
+        if len(missing_fields) > 0:
+            missing_fields_str = missing_fields_str = ', '.join(missing_fields)  # Convert the list to a comma-separated string
+            error_message = f"Missing required fields: {missing_fields_str}"
+        raise BadRequest(error_message)
 
     post_id = Post().create_post_and_fetch_id(author_id=user_id, 
                                               title=title, 
@@ -46,8 +49,8 @@ def edit_post(user_id):
     post_id = data.get('postId')
     new_title = data.get('title')
     new_body = data.get('body')
-    new_categories = set(data.get('categories', []))  # List of new category names
-    new_vendors = set(data.get('vendors', [])) # List of new vendor names
+    new_categories = set(data.get('categories', []))  # List of new category ids
+    new_vendors = set(data.get('vendors', [])) # List of new vendor ids
 
     if not post_id:
         raise BadRequest("Post ID is required")
@@ -67,13 +70,13 @@ def upvote_post(user_id):
     
     data:dict = request.json
     post_id = data.get('postId')
-    is_downvote = data.get('isDownvote', False) # False for upvote
+    is_downvote = data.get('isDownvote')
 
     if not post_id:
         raise BadRequest("error: postId is required")
-    if not is_downvote:
+    if is_downvote is None:
         raise BadRequest("error: vote intention is required")
     
     Post().toggle_post_vote(post_id, user_id, is_downvote)
 
-    return jsonify({"message": "Post upvoted successfully"}), 200
+    return jsonify({"message": "Post vote toggled successfully"}), 200

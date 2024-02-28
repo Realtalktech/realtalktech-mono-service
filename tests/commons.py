@@ -1,3 +1,6 @@
+class MockInputs:
+    MOCK_HEADER = {'Authorization': 'Bearer Mock Token'}
+
 
 class LoginResponse:
     SIGNUP_SUCCESS = {
@@ -88,3 +91,64 @@ class LoginResponse:
             "error": "Bad request",
             "message": "400 Bad Request: " + error_message
         }
+
+
+class PostResponse:
+    VOTE_POST_SUCCESS_RESPONSE = {
+        "message": "Post vote toggled successfully"
+    }
+
+    VOTE_POST_FAIL_MISSING_ID = {
+        "error": "Bad request",
+        "message": "400 Bad Request: error: postId is required"
+    }
+
+    VOTE_POST_FAIL_MISSING_INTENTION = {
+        "error": "Bad request",
+        "message": "400 Bad Request: error: vote intention is required"
+    }
+
+
+    EDIT_UNOWNED_POST_RESPONSE = {
+    "error": "Bad request",
+    'message': '400 Bad Request: Post not found or you do not have permission to edit this post'
+    }
+
+    MISSING_POST_ID_RESPONSE = {
+        "error": "Bad request",
+        "message": "400 Bad Request: Post ID is required"
+    }
+
+    def __init__(self):
+       self.EXPECTED_POST_ID = 6
+        
+    def create_post_response(self):
+        response = {
+            'message': 'Post created successfully',
+            'post_id': self.EXPECTED_POST_ID
+        }
+        self.EXPECTED_POST_ID += 1
+        return response
+
+    def missing_fields_response_builder(self,
+            title = False,
+            body = False,
+            is_anonymous = False
+    ):
+        missing_fields = []
+        if title: missing_fields.append('title')
+        if body: missing_fields.append('body')
+        if is_anonymous: missing_fields.append('anonymity status')
+        if len(missing_fields) > 0:
+            missing_fields_str = missing_fields_str = ', '.join(missing_fields)  # Convert the list to a comma-separated string
+            error_message = f"Missing required fields: {missing_fields_str}"
+        return {
+            "error": "Bad request",
+            "message": "400 Bad Request: " + error_message
+        }
+
+    def edit_post_response(self):
+        return {
+            "message": "Post updated successfully"
+        }
+    
