@@ -1,20 +1,17 @@
 # utils/post.py
-from typing import Optional, Tuple, List
+from typing import List
 from rtt_data_app.app import db
 from rtt_data_app.models import Post as PostModel
 from rtt_data_app.models import PostDiscoverVendor, PostDiscussCategory, DiscussCategory, DiscoverVendor, PostUpvote
 from sqlalchemy import exc, func
 from werkzeug.exceptions import InternalServerError, BadRequest
-import pymysql
-import pymysql.cursors
-from rtt_data_app.utils import DBManager
 import logging
 logger = logging.getLogger(__name__)
 
 class Post:
     def __init__(self):
         pass
-    
+
     def toggle_post_vote(self, post_id:int, user_id:int, is_downvote:bool) -> None:
         # Start a transaction
         try:
@@ -67,9 +64,6 @@ class Post:
             db.session.rollback()
             logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
-
-        finally:
-            db.session.close()
         
     def edit_post(self, author_id, post_id, new_title=None, new_body=None, new_category_ids=None, new_vendor_ids=None):
         try:

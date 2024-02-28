@@ -1,2 +1,75 @@
-[2024-02-28 00:15:18,370] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/post.py:130} ERROR - One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[PostUpvote(PostUpvote)]'. Original exception was: Error creating backref 'votes' on relationship 'PostUpvote.post': property of that name exists on mapper 'Mapper[Post(Post)]'
-[2024-02-28 00:15:18,372] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/post.py:130} ERROR - One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[PostUpvote(PostUpvote)]'. Original exception was: Error creating backref 'votes' on relationship 'PostUpvote.post': property of that name exists on mapper 'Mapper[Post(Post)]'
+[2024-02-28 16:55:12,014] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py:828} ERROR - Exception on /editProfile [PUT]
+Traceback (most recent call last):
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 1463, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 872, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 870, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 855, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/auth/decorators.py", line 24, in decorated_function
+    return f(user_id, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/user.py", line 44, in edit_profile
+    user.edit_profile(
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py", line 462, in edit_profile
+    user.user_vendor_associations.extend(vendor.id)
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/collections.py", line 1216, in extend
+    for value in list(iterable):
+                 ^^^^^^^^^^^^^^
+TypeError: 'int' object is not iterable
+[2024-02-28 16:55:37,158] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 16:55:37,165] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py:828} ERROR - Exception on /editProfile [PUT]
+Traceback (most recent call last):
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 1463, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 872, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 870, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 855, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/auth/decorators.py", line 24, in decorated_function
+    return f(user_id, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/user.py", line 44, in edit_profile
+    user.edit_profile(
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py", line 462, in edit_profile
+    user.user_vendor_associations.extend(vendor.id)
+  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/collections.py", line 1216, in extend
+    for value in list(iterable):
+                 ^^^^^^^^^^^^^^
+TypeError: 'int' object is not iterable
+[2024-02-28 16:58:08,854] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 16:59:05,326] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 17:01:14,470] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 17:01:30,964] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 17:02:09,534] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 17:03:01,376] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 17:03:01,383] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:477} ERROR - Instance '<PublicVendor at 0x107b10210>' is not persistent within this Session
+[2024-02-28 17:04:50,799] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 17:06:04,861] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 17:10:05,003] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 17:10:42,453] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 17:10:57,515] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 17:12:33,529] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 17:12:59,276] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 17:15:46,888] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 17:16:03,315] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 17:16:50,781] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found
+[2024-02-28 17:17:05,738] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:420} ERROR - User with username nonexistentUser not found

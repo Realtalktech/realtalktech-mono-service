@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
-from rtt_data_app.utils import DBManager, token_required
+from rtt_data_app.utils import DBManager 
+from rtt_data_app.auth import token_required
 from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
 from rtt_data_app.utils import Post
 

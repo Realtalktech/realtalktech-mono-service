@@ -6,13 +6,13 @@ from tests.databuilder import Databuilder, DataInserter
 from config import TestingConfig
 from functools import wraps
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from tests.commons import MockInputs, PostResponse
 
 responder = PostResponse()
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def test_client():
     """Fixture to set up Flask app for testing"""
     # Setup Flask app for testing
@@ -22,16 +22,15 @@ def test_client():
     with app.app_context():
         Databuilder.init_test_database()
         inserter = DataInserter()
-    
-    # Create a test client for Flask application
-    with app.test_client() as testing_client:
-        yield testing_client
+        # Create a test client for Flask application
+        with app.test_client() as testing_client:
+            yield testing_client
 
 # Automatically bypasses token check as user #1 (elongates)
 @pytest.fixture(autouse=True)
 def bypass_token_required():
     """Fixture to bypass the token_required decorator."""
-    with patch('rtt_data_app.utils.decorators.process_token', return_value = 1):
+    with patch('rtt_data_app.auth.decorators.process_token', return_value = 1):
         yield
 
 def test_create_public_post_success(test_client):

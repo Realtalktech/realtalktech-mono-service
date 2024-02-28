@@ -19,5 +19,6 @@ from .user_discuss_category import UserDiscussCategory
 from .user_industry import UserIndustry
 from .user_interest_area import UserInterestArea
 from .user_public_vendor import UserPublicVendor
+from .user_public_vendor_endorsement import UserPublicVendorEndorsement
 from .user import User
 from .vendor_discover_category import VendorDiscoverCategory

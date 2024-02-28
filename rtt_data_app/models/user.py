@@ -16,3 +16,4 @@ class User(db.Model):
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     post_votes = db.relationship('PostUpvote', back_populates='user')
+    user_vendor_associations = db.relationship('UserPublicVendor', back_populates='user')

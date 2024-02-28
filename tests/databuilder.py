@@ -323,12 +323,17 @@ class DataInserter:
             )
     
     def insert_vendors(self):
-        """Insert vendors into DiscoverVendor table"""
+        """Insert vendors into DiscoverVendor and PublicVendor tables"""
         for vendor in self.vendors:
             self.cursor.execute(
                 """INSERT INTO DiscoverVendor (vendor_name, vendor_type, description)
                 VALUES(?, ?, ?)""", (vendor, vendor, vendor)
             )
+            self.cursor.execute(
+                """INSERT INTO PublicVendor (vendor_name)
+                VALUES(?)""", (vendor,)
+            )
+
 
     def insert_test_users(self):
         """Inserts four test users"""

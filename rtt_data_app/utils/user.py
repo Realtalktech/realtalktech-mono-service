@@ -11,9 +11,11 @@ import pymysql.cursors
 import re
 from rtt_data_app.utils import DBManager
 from rtt_data_app.models.user import User as model
-from rtt_data_app.models import UserDiscussCategory, DiscussCategory, InterestArea, UserInterestArea, UserPublicVendor, PublicVendor, UserIndustry, Industry
+from rtt_data_app.models import UserDiscussCategory, DiscussCategory, InterestArea
+from rtt_data_app.models import UserInterestArea, UserPublicVendor, PublicVendor
+from rtt_data_app.models import UserIndustry, Industry, UserPublicVendorEndorsement
 from rtt_data_app.auth import Authorizer
-from sqlalchemy import exc
+from sqlalchemy import exc, func
 import logging
 
 class User:
@@ -32,16 +34,6 @@ class User:
             return None
         else:
             return {'user_id': user.id, 'password': user.password}
-
-    def __fetch_account_creation_time(self, user_id:int) -> Optional[str]:
-        self.cursor.execute("""SELECT creation_time FROM User WHERE id=%s""",(user_id))
-        creation_time:datetime = self.cursor.fetchone().get('creation_time')
-        return creation_time
-    
-    def __fetch_account_update_time(self, user_id:int) -> Optional[str]:
-        self.cursor.execute("""SELECT update_time FROM User WHERE id=%s""",(user_id))
-        update_time = self.cursor.fetchone().get('update_time')
-        return update_time
 
     def __is_email(self, entered_username:str) -> bool:
         return re.match(r"[^@]+@[^@]+\.[^@]+", entered_username)
@@ -116,7 +108,7 @@ class User:
         if is_owner:
             user_details = {
                 'id': user.id,
-                'fullName': user.full_name,
+                'fullname': user.full_name,
                 'username': user.username,
                 'currentCompany': user.current_company,
                 'email': user.email,
@@ -128,7 +120,7 @@ class User:
             
         else:
             user_details = {
-                'fullName': user.full_name,
+                'fullname': user.full_name,
                 'username': user.username,
                 'currentCompany': user.current_company,
                 'linkedinUrl': user.linkedin_url,
@@ -242,8 +234,8 @@ class User:
             for item in tech_stack:
                 all_endorsements = self.__get_all_endorsements_from_id(item['id'], user_id)
                 vendors_with_endorsements.append({
-                    'vendorId': item['id'],
-                    'vendorName': item['name'],
+                    'id': item['id'],
+                    'name': item['name'],
                     'totalEndorsements': self.__get_total_endorsements_from_id(item['id'], user_id),
                     'userEndorsements': all_endorsements
                 })
@@ -251,46 +243,41 @@ class User:
             for item in tech_stack:
                 endorsement = self.__check_endorsement_from_id(item['id'], user_id, requester_id)
                 vendors_with_endorsements.append({
-                    'vendorId': item['id'],
-                    'vendorName': item['name'],
+                    'id': item['id'],
+                    'name': item['name'],
                     'totalEndorsements': self.__get_total_endorsements_from_id(item['id'], user_id),
                     'endorsedByRequester': endorsement
                 })
-            return vendors_with_endorsements
+        return vendors_with_endorsements
 
     def __check_endorsement_from_id(self, vendor_id:int, user_id:int, requester_id:int):
-        # Check for endorsement
-        self.cursor.execute("""
-            SELECT COUNT(*) AS endorsement_count
-            FROM UserPublicVendorEndorsement
-            WHERE endorser_user_id = %s AND endorsee_user_id = %s AND vendor_id = %s
-        """, (requester_id, user_id, vendor_id))
-        endorsement = self.cursor.fetchone().get('endorsement_count') > 0
-        return endorsement
+        """Check if requester has endorsed user for a particular vendor"""
+        # Using count() is more efficient than loading objects when you only need the count
+        count = UserPublicVendorEndorsement.query.filter_by(
+            endorser_user_id=requester_id,
+            endorsee_user_id=user_id,
+            vendor_id=vendor_id
+        ).count()
+        return count > 0
 
     def __get_all_endorsements_from_id(self, vendor_id:int, user_id:int) -> List[Dict[str, int | str]]:
-        # Get all users who have endorsed (user_id) in a particular skill (vendor)
-        users_with_endorsement = []
-        self.cursor.execute(
-            """SELECT endorser_user_id FROM UserPublicVendorEndorsement WHERE endorsee_user_id = %s AND vendor_id = %s""",
-                            (user_id, vendor_id))
-        endorsing_users = self.cursor.fetchall()
-        for user in endorsing_users:
-            self.cursor.execute("""SELECT username FROM User WHERE id = %s""", (user.get('endorser_user_id')))
-            username = self.cursor.fetchone().get('username')
-            user_obj = {
-                'id': user.get('endorser_user_id'),
-                'username': username
-            }
-            users_with_endorsement.append(user_obj)
+        """Get all users who have endorsed (user_id) in a particular skill (vendor)"""
+        endorsements = UserPublicVendorEndorsement.query.filter_by(
+            endorsee_user_id=user_id,
+            vendor_id=vendor_id
+        ).all()
+
+        users_with_endorsement = [{
+            'id': endorsement.endorser.id,
+            'username': endorsement.endorser.username
+        } for endorsement in endorsements]
         return users_with_endorsement
 
     def __get_total_endorsements_from_id(self, vendor_id:int, user_id:int) -> int:
-           self.cursor.execute(
-               """SELECT COUNT(*) FROM UserPublicVendorEndorsement WHERE vendor_id = %s AND endorsee_user_id = %s""",
-               (vendor_id, user_id))
-           total_count = self.cursor.fetchone().get('COUNT(*)')
-           return total_count
+        return UserPublicVendorEndorsement.query.filter_by(
+            vendor_id=vendor_id,
+            endorsee_user_id=user_id
+        ).count()
 
     def authenticate_returning_user(self, entered_username:str, entered_password:str):
         if self.__is_email(entered_username):
@@ -325,7 +312,7 @@ class User:
             user_details['occupationalAreas'] = subscribed_discuss_categories
             user_details['industryInvolvement'] = industry_involvement
             user_details['techstack'] = tech_stack
-            user_details['interest_areas'] = interest_areas
+            user_details['interestAreas'] = interest_areas
 
             return jsonify(
                 {
@@ -353,13 +340,12 @@ class User:
                 'vendors': vendors_with_endorsements
             }
             return jsonify(response)
-        except pymysql.MySQLError as e:
-            self.conn.rollback()
+        except exc.SQLAlchemyError as e:
             self.logger.error(str(e))
-            raise InternalServerError(f"Database error: {str(e)}")
+            raise InternalServerError(str(e))
         finally:
-            self.cursor.close()
-            self.conn.close()
+            db.session.commit()
+            db.session.close()
     
     def get_user_private_profile(self, user_id:int):
         try:
@@ -371,13 +357,12 @@ class User:
                 'vendors': vendors_with_endorsements
             }
             return jsonify(response)
-        except pymysql.MySQLError as e:
-            self.conn.rollback()
+        except exc.SQLAlchemyError as e:
             self.logger.error(str(e))
-            raise InternalServerError(f"Database error: {str(e)}")
+            raise InternalServerError(str(e))
         finally:
-            self.cursor.close()
-            self.conn.close()
+            db.session.commit()
+            db.session.close()
 
     def signup(self, data:dict):
         # Extract data from request
@@ -420,7 +405,7 @@ class User:
                 ), 201
             return response
 
-        except Exception as e:
+        except exc.SQLAlchemyError as e:
             self.logger.error(str(e))
             raise InternalServerError(str(e))
         finally:
@@ -428,80 +413,69 @@ class User:
             db.session.close()
         
     def convert_username_to_id(self,username:str)->int:
+        user = model.query.filter_by(username=username).first()
         try:
-            self.cursor.execute("""SELECT id FROM User WHERE username = %s""", username)
-            user_obj = self.cursor.fetchone()
-            return user_obj.get('id')
-        except pymysql.MySQLError as e:
-            self.logger.error(str(e))
-            raise InternalServerError(str(e))
+            return user.id
+        except AttributeError as e:
+            self.logger.error(f"User with username {username} not found")
+            raise BadRequest(f"User with username {username} not found")
         finally:
-            self.cursor.close()
-            self.conn.close()
+            db.session.close()
 
-    def edit_profile(self, user_id:int, 
-                         new_full_name:str = None, 
-                         new_email:str = None, 
-                         new_bio:str = None, 
-                         new_linkedin:str = None, 
-                         new_tech_stack_names:list = None,
-                         new_company:str = None):
+    def edit_profile(self, user_id: int, 
+                    new_full_name: str = None, 
+                    new_email: str = None, 
+                    new_bio: str = None, 
+                    new_linkedin: str = None, 
+                    new_tech_stack_names: list = None,
+                    new_company: str = None):
         try:
+            user = model.query.filter_by(id=user_id).one()
+
             if new_full_name:
-                self.cursor.execute("""UPDATE User SET full_name = %s WHERE id = %s""",(new_full_name, user_id))
+                user.full_name = new_full_name
             if new_email:
-                self.cursor.execute("""UPDATE User SET email = %s WHERE id = %s""",(new_email, user_id))
-            if new_tech_stack_names:
-                user_tech_stack = self.get_user_tech_stack(user_id)
-                tech_stack_vendor_names = [item['name'] for item in user_tech_stack]
-
-                # In with the new
-                for tech in new_tech_stack_names - user_tech_stack:
-                    self.cursor.execute("SELECT id FROM PublicVendor WHERE vendor_name = %s", (tech,))
-                    vendor = self.cursor.fetchone()
-                    # If the vendor does not exist, create a new entry in PublicVendor
-                    if not vendor:
-                        self.cursor.execute("INSERT INTO PublicVendor (vendor_name) VALUES (%s)", (tech,))
-                        self.conn.commit()  # Commit the new vendor to the database
-                        vendor_id = self.cursor.lastrowid  # Retrieve the ID of the newly inserted vendor
-                    else:
-                        vendor_id = vendor['id']  # Use the existing ID if the vendor is already in the database
-
-                    # Add the new tech to the user's tech stack
-                    self.cursor.execute("""
-                        INSERT INTO UserPublicVendor (user_id, vendor_id) 
-                        VALUES (%s, %s)
-                    """, (user_id, vendor_id))
-                    self.conn.commit()  # Commit the new user-tech association to the database
-
-                # Out with the old   
-                for tech in tech_stack_vendor_names - new_tech_stack_names:
-                    self.cursor.execute("SELECT id FROM PublicVendor WHERE vendor_name = %s", (tech,))
-                    vendor = self.cursor.fetchone()
-                    self.cursor.execute("DELETE FROM UserPublicVendor WHERE user_id = %s AND vendor_id = %s", (user_id, vendor['id']))
-            
-            self.cursor.execute("""UPDATE User SET update_time = CURRENT_TIMESTAMP(3) WHERE id = %s""",(user_id))
-
+                user.email = new_email
             if new_bio:
-                self.cursor.execute("""UPDATE User SET bio = %s WHERE id = %s""", (new_bio, user_id))
-            
+                user.bio = new_bio
             if new_linkedin:
-                self.cursor.execute("""UPDATE User SET linkedin_url = %s WHERE id = %s""", (new_linkedin, user_id))
-            
+                user.linkedin_url = new_linkedin
             if new_company:
-                self.cursor.execute("""UPDATE User SET current_company = %s WHERE id = %s""", (new_company, user_id))
-            
-            self.cursor.execute("""UPDATE User SET update_time = CURRENT_TIMESTAMP(3) WHERE id = %s""",(user_id))
+                user.current_company = new_company
 
-        except pymysql.MySQLError as e:
-            self.conn.rollback()
+            user.update_time = func.now()
+
+            db.session.commit()
+            
+            if new_tech_stack_names is not None:
+                # Get current user's tech stack names
+                current_tech_stack = self.__get_user_tech_stack(user.id)
+                current_tech_stack = [name['name'] for name in current_tech_stack]
+                
+                # Find vendors to add
+                for tech_name in set(new_tech_stack_names) - set(current_tech_stack):
+                    vendor = PublicVendor.query.filter_by(vendor_name=tech_name).first()
+
+                    if not vendor:
+                        vendor = PublicVendor(vendor_name=tech_name)
+                        db.session.add(vendor)
+                        vendor = PublicVendor.query.filter_by(vendor_name=tech_name).first()
+                    
+                    tech_stack_addition = UserPublicVendor(user_id=user.id, vendor_id=vendor.id)
+                    db.session.add(tech_stack_addition)
+                
+                # Find vendors to remove
+                for tech_name in set(current_tech_stack) - set(new_tech_stack_names):
+                    vendor = PublicVendor.query.filter_by(vendor_name=tech_name).first()
+                    if vendor:
+                        UserPublicVendor.query.filter_by(user_id=user.id, vendor_id=vendor.id).delete()
+                        # Remove all endorsements associated with the removed tech stack vendor
+                        # UserPublicVendorEndorsement.query.filter_by(endorsee_user_id=user_id, vendor_id=vendor.id).delete()
+
+        except exc.SQLAlchemyError as e:
+            db.session.rollback()
             self.logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
-        
-        finally:
-            self.conn.commit()
-            self.cursor.close()
-            self.conn.close()
 
     def edit_password(self, user_id:int, old_password:str, new_password:str):
         try:

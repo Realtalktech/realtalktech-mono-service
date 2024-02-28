@@ -2,9 +2,9 @@ from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
 from rtt_data_app.utils.db_manager import DBManager
-from werkzeug.exceptions import BadRequest, Unauthorized
+from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
 from rtt_data_app.utils import User
-from rtt_data_app.utils import token_required
+from rtt_data_app.auth import token_required
 
 user_bp = Blueprint('user_bp', __name__)
 db_manager = DBManager()
@@ -16,10 +16,8 @@ def get_user_profile_by_username(user_id, requested_username):
     if not user_id:
         raise Unauthorized("error: User is not authorized") # 401 Unauthorized
     
+    # will raise bad request if user is not found
     requested_user_id = User().convert_username_to_id(requested_username)
-
-    if requested_user_id is None:
-        raise BadRequest(f"Username {requested_username} not found")
 
     is_profile_owner = (user_id == requested_user_id)
 
@@ -41,10 +39,17 @@ def edit_profile(user_id):
     new_tech_stack = data.get('techstack', [])  # List of new vendor names
     new_bio = data.get('bio')
     new_linkedin = data.get('linkedin')
-    new_company = data.get('new_company')
+    new_company = data.get('currentCompany')
     user = User()
-    user.edit_profile(user_id, new_fullname, new_email, 
-                          new_tech_stack, new_bio, new_linkedin, new_company)
+    user.edit_profile(
+        user_id=user_id,
+        new_full_name=new_fullname,
+        new_tech_stack_names=new_tech_stack,
+        new_bio=new_bio,
+        new_email=new_email,
+        new_linkedin=new_linkedin,
+        new_company=new_company
+    )
 
     return jsonify({"message": "Profile updated successfully"}), 200
 
