@@ -20,11 +20,6 @@ import logging
 
 class User:
     def __init__(self):
-        self.db_manager = DBManager()
-        self.conn = None
-        self.cursor = None
-        # self.conn = self.db_manager.get_db_connection()
-        # self.cursor = self.conn.cursor()
         self.logger = logging.getLogger(__name__)
     
     def __fetch_login_credentials_by_username(self, username:str) -> Optional[Dict[str, Optional[str]]]:
@@ -477,39 +472,94 @@ class User:
             self.logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
 
-    def edit_password(self, user_id:int, old_password:str, new_password:str):
+    def edit_password(self, user_id: int, old_password: str, new_password: str):
         try:
-            # Fetch the current user's password
-            self.cursor.execute("SELECT password FROM User WHERE id = %s", (user_id,))
-            user_record = self.cursor.fetchone()
+            # Fetch the current user
+            user = model.query.filter_by(id=user_id).first()
 
-            if user_record and check_password_hash(user_record['password'], old_password):
+            if user and check_password_hash(user.password, old_password):
                 # If the old password is correct, update with the new hashed password
-                hashed_new_password = generate_password_hash(new_password)
-                self.cursor.execute("UPDATE User SET password = %s WHERE id = %s", (hashed_new_password, user_id))
-                self.conn.commit()
+                user.password = generate_password_hash(new_password)
+                db.session.commit()
             else:
+                # Raise an exception if the old password is incorrect
                 raise BadRequest("error: Old Password is Incorrect")
-        except pymysql.MySQLError as e:
-            self.logger.error(str(e))
-            raise InternalServerError(str(e))
-        finally:
-            self.conn.commit()
-            self.cursor.close()
-            self.conn.close()        
+        except exc.SQLAlchemyError as e:
+            # Log and raise an internal server error
+            self.logger.error(f"SQLAlchemy Error: {e}")
+            db.session.rollback()  # Rollback the session in case of error
+            raise InternalServerError("An error occurred while updating the password.")      
 
     def endorse_user(self, user_id:int, endorsee_user_id:int, vendor_id:int):
         try:
-            # Insert Endorsement     
-            self.cursor.execute(
-                """INSERT INTO UserPublicVendorEndorsement (endorser_user_id, endorsee_user_id, vendor_id) VALUES (%s, %s, %s)""",
-                (user_id, endorsee_user_id, vendor_id)
-            )
-        except pymysql.MySQLError as e:
+            temp = model.query.filter_by(id=endorsee_user_id).first()
+            temp.id
+        except AttributeError as e:
             self.logger.error(str(e))
-            self.conn.rollback()
-            raise InternalServerError(str(e))
-        finally:
-            self.conn.commit()
-            self.conn.close()
-            self.cursor.close()
+            raise BadRequest("Endorsee does not exist!")
+        
+        try:
+            vendor = UserPublicVendor.query.filter_by(user_id=endorsee_user_id, vendor_id=vendor_id).first()
+            vendorid = vendor.vendor_id
+        except AttributeError as e:
+            self.logger.error(str(e))
+            raise BadRequest("User does not have vendor in their techstack")
+
+        try:
+            endorsement = UserPublicVendorEndorsement(
+                endorser_user_id=user_id,
+                endorsee_user_id=endorsee_user_id,
+                vendor_id=vendor_id
+            )
+            db.session.add(endorsement)
+            db.session.commit()
+        except exc.SQLAlchemyError as e:
+            db.session.rollback()  # Rollback the transaction if there's an error
+            self.logger.error(f"SQLAlchemy Error: {e}")
+            raise InternalServerError("An error occurred while adding the endorsement.")
+    
+    def get_onboarding_information(self):
+        try:
+            # Query all interest areas
+            interest_areas = InterestArea.query.with_entities(InterestArea.id, InterestArea.interest_area_name).all()
+            interest_areas_list = [{'id': area.id, 'interest_area_name': area.interest_area_name} for area in interest_areas]
+            
+            # Query all industries
+            industries = Industry.query.with_entities(Industry.id, Industry.industry_name).all()
+            industries_list = [{'id': industry.id, 'industry_name': industry.industry_name} for industry in industries]
+            
+            # Query all discussion categories
+            subscription_areas = DiscussCategory.query.with_entities(DiscussCategory.id, DiscussCategory.category_name).all()
+            subscription_areas_list = [{'id': category.id, 'category_name': category.category_name} for category in subscription_areas]
+            
+            # Query all public vendors (tech stack)
+            tech_stack = PublicVendor.query.with_entities(PublicVendor.id, PublicVendor.vendor_name).all()
+            tech_stack_list = [{'id': vendor.id, 'vendor_name': vendor.vendor_name} for vendor in tech_stack]
+
+            # Combine the data into a JSON response
+            return jsonify({
+                'interestAreas': interest_areas_list,
+                'industries': industries_list,
+                'subscriptionAreas': subscription_areas_list,
+                'techstack': tech_stack_list
+            })
+        except exc.SQLAlchemyError as e:
+            self.logger.error(str(e))
+            raise InternalServerError("Error fetching onboarding.")
+    
+    def check_username_availability(self, username):
+        try:
+            user = model.query.filter_by(username=username).first()
+        except exc.SQLAlchemyError as e:
+            self.logger(str(e))
+            raise InternalServerError("An error occured while checking for username availability")
+        if user is None:
+            return jsonify({
+                'message': "Username is available",
+                'available': True
+            })
+        else:
+            return jsonify({
+                'message': "Username is unavailable",
+                'available': False
+            })

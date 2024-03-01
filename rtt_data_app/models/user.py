@@ -17,3 +17,5 @@ class User(db.Model):
 
     post_votes = db.relationship('PostUpvote', back_populates='user')
     user_vendor_associations = db.relationship('UserPublicVendor', back_populates='user')
+    comments = db.relationship('Comment', back_populates='user', lazy='dynamic')
+

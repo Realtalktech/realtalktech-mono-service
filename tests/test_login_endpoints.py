@@ -4,6 +4,7 @@ from config import TestingConfig
 import pytest
 from unittest.mock import patch, MagicMock
 from tests.commons import LoginResponse
+import json
 
 
 mock_user = LoginResponse.MockUser()
@@ -135,3 +136,28 @@ def test_login_with_email_fail_nonexistent_user(test_client, generate_mock_token
     login_response_data = login_response.get_json()
     assert login_response.status_code == 401
     assert login_response_data == LoginResponse.INVALID_EMAIL_RESPONSE
+
+def test_get_onboarding_success(test_client):
+    response = test_client.get('/onboard')
+    data = response.get_json()
+    print(json.dumps(data, indent=2))
+    assert response.status_code == 200
+    assert data == LoginResponse.ONBOARDING_RESPONSE
+
+def test_get_username_availability_success_username_is_available(test_client):
+    response = test_client.get('/validUsername/availableusername')
+    data = response.get_json()
+    assert response.status_code == 200
+    assert data == {
+        'message': "Username is available",
+        'available': True
+    }
+
+def test_get_username_availability_sucess_username_is_not_available(test_client):
+    response = test_client.get('/validUsername/elongates')
+    data = response.get_json()
+    assert response.status_code == 200
+    assert data == {
+        'message': "Username is unavailable",
+        'available': False
+    }

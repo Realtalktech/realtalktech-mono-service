@@ -1,171 +1,126 @@
 from flask import Blueprint, jsonify, request
+from rtt_data_app.app import db
+from rtt_data_app.models import DiscoverCategory, DiscoverVendor, VendorDiscoverCategory
 import pymysql
 import pymysql.cursors
 from rtt_data_app.utils import DBManager
 from rtt_data_app.auth import token_required
 from rtt_data_app.utils.deprecated.responseFormatter import convert_keys_to_camel_case
+from werkzeug.exceptions import NotFound, InternalServerError
+import logging
+from sqlalchemy import exc, func
 
 vendor_bp = Blueprint('vendor_bp', __name__)
 db_manager = DBManager()
 
-@vendor_bp.route('/discover/categories', methods=['GET'])
+logger = logging.getLogger(__name__)
+
+@vendor_bp.route('/discover/groups', methods=['GET'])
 @token_required
 def get_discover(user_id):
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+    
+    discover_categories = DiscoverCategory.query.all()
+    response = []
 
-    conn = db_manager.get_db_connection()
-    cursor = conn.cursor()
+    for category in discover_categories:
+        obj = {
+            'id': category.id,
+            'name': category.category_name,
+            'icon': category.icon
+        }
+        response.append(obj)
 
-    query = """
-    SELECT id, category_name, icon
-    FROM DiscoverCategory
-    """
-    cursor.execute(query)
+    return jsonify(response)
 
-    discover_categories = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-
-    discover_categories = [convert_keys_to_camel_case(category) for category in discover_categories]
-
-
-    return jsonify(discover_categories)
-
-@vendor_bp.route('/discover/categories/<discover_category_id>', methods=['GET'])
+@vendor_bp.route('/group/<int:discover_category_id>', methods=['GET'])
 @token_required
 def get_vendors_in_category(user_id, discover_category_id):
-    """TODO: Vendor bodies within a particular category"""
+    """Get vendor bodies within a particular category"""
     if not user_id:
-        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+        return jsonify({"error": "User not authenticated"}), 401
     
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
 
-    conn = db_manager.get_db_connection()
-    cursor = conn.cursor()
+    try:
+        group = DiscoverCategory.query.filter_by(id=discover_category_id).first()
+        id = group.id
+        
+    except AttributeError as e:
+        logger.error(str(e))
+        raise NotFound("Discover group not found")
 
-    query = f"""
-    SELECT dv.id, dv.vendor_name, dv.vendor_type, dv.description, dv.vendor_homepage_url, dv.vendor_logo_url
-    FROM DiscoverVendor AS dv
-    INNER JOIN VendorDiscoverCategory AS dvc ON dv.id = dvc.vendor_id
-    WHERE dvc.category_id = %s
-    ORDER BY dv.id DESC, dv.creation_time DESC
-    LIMIT %s OFFSET %s
-    """
-    cursor.execute(query, (discover_category_id, count, (page - 1) * count))
-    vendors = cursor.fetchall()
-    cursor.close()
-    conn.close()
+    try:
+        # Perform the query using SQLAlchemy
+        vendors_query = db.session.query(
+            DiscoverVendor.id,
+            DiscoverVendor.vendor_name,
+            DiscoverVendor.vendor_type,
+            DiscoverVendor.description,
+            DiscoverVendor.vendor_homepage_url,
+            DiscoverVendor.vendor_logo_url
+        ).join(
+            VendorDiscoverCategory,
+            DiscoverVendor.id == VendorDiscoverCategory.vendor_id
+        ).filter(
+            VendorDiscoverCategory.category_id == discover_category_id
+        ).order_by(
+            DiscoverVendor.id.desc(),
+            DiscoverVendor.creation_time.desc()
+        ).paginate(page=page, per_page=count, error_out=False)
 
-    vendors = [convert_keys_to_camel_case(vendor) for vendor in vendors]
+        vendors = [
+            {
+                "id": vendor.id,
+                "vendorName": vendor.vendor_name,
+                "vendorType": vendor.vendor_type,
+                "description": vendor.description,
+                "vendorHomepageUrl": vendor.vendor_homepage_url,
+                "vendorLogoUrl": vendor.vendor_logo_url
+            } for vendor in vendors_query.items
+        ]
 
-    metadata = {
-        'discoverCategoryId': discover_category_id,
-        'page': page,
-        'count': count
-    }
+        metadata = {
+            'discoverCategoryId': discover_category_id,
+            'page': page,
+            'count': count,
+            'totalPages': vendors_query.pages,
+            'totalItems': vendors_query.total
+        }
 
-    return jsonify({"metadata": metadata, "vendors": vendors})
+        return jsonify({"metadata": metadata, "vendors": vendors})
+    
+
+    except exc.SQLAlchemyError as e:
+        logger.error(str(e))
+        raise InternalServerError("An error occured while fetching discover groups.")
 
 
-@vendor_bp.route('/discover/items/<vendor_id>', methods=['GET'])
+@vendor_bp.route('/vendors/<vendor_id>', methods=['GET'])
 @token_required
 def get_vendor(user_id, vendor_id):
     """Get details for a particular vendor"""
-    if not user_id:
-        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+    try:
+        if not user_id:
+            return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+        
+        vendor:DiscoverVendor = DiscoverVendor.query.filter_by(id=vendor_id).first()
+        response = {
+            'id': vendor.id,
+            'name': vendor.vendor_name,
+            'description': vendor.description,
+            'hq': vendor.vendor_hq,
+            'totalEmployees': vendor.total_employees,
+            'homepageUrl': vendor.vendor_homepage_url,
+            'logoUrl': vendor.vendor_logo_url,
+        }
+        return response
+    except AttributeError as e:
+        logger.error(str(e))
+        raise NotFound("Vendor not found")
+    except exc.SQLAlchemyError as e:
+        logger.error(str(e))
+        raise InternalServerError("An error occured while fetching a vendor.")
 
-    conn = db_manager.get_db_connection()
-    cursor = conn.cursor()
-
-    query = """
-    SELECT id, vendor_name, vendor_type, description, vendor_hq, total_employees, vendor_homepage_url, vendor_logo_url
-    FROM DiscoverVendor
-    WHERE id = %s
-    """
-    cursor.execute(query, (vendor_id,))
-
-    vendor = cursor.fetchone()
-
-    cursor.close()
-    conn.close()
-
-    vendor = convert_keys_to_camel_case(vendor)
-    
-    if vendor:
-        return jsonify(vendor)
-    else:
-        return jsonify({"error": "Vendor not found"}), 404
-    
-# @vendor_bp.route('/addVendor', methods=['POST'])
-# def add_vendor():
-#     try:
-#         data = request.json
-#         vendor_name = data.get('vendor_name')
-#         description = data.get('description')
-#         vendor_url = data.get('vendor_url')
-
-#         if not vendor_name:
-#             return jsonify({"error": "Vendor name is required"}), 400
-
-#         conn = db_manager.get_db_connection()
-#         cursor = conn.cursor()
-
-#         # Insert new vendor into the Vendor table
-#         cursor.execute("""
-#             INSERT INTO PublicVendor (vendor_name, description, vendor_url)
-#             VALUES (%s, %s, %s)
-#         """, (vendor_name, description, vendor_url))
-#         vendor_id = cursor.lastrowid
-
-#         conn.commit()
-
-#     except pymysql.MySQLError as e:
-#         conn.rollback()
-#         return jsonify({"error": str(e)}), 500
-#     finally:
-#         cursor.close()
-#         conn.close()
-
-#     return jsonify({"message": "Vendor added successfully", "vendor_id": vendor_id}), 201
-
-# @vendor_bp.route('/updateVendor', methods=['PUT'])
-# def update_vendor():
-#     try:
-#         data = request.json
-#         vendor_id = data.get('vendor_id')
-#         new_vendor_name = data.get('vendor_name')
-#         new_description = data.get('description')
-#         new_vendor_url = data.get('vendor_url')
-
-#         if not vendor_id:
-#             return jsonify({"error": "Vendor ID is required"}), 400
-
-#         conn = db_manager.get_db_connection()
-#         cursor = conn.cursor()
-
-#         # Update vendor details in the Vendor table
-#         cursor.execute("""
-#             UPDATE Vendor 
-#             SET vendor_name = COALESCE(%s, vendor_name), 
-#                 description = COALESCE(%s, description),
-#                 vendor_url = COALESCE(%s, vendor_url)
-#             WHERE id = %s
-#         """, (new_vendor_name, new_description, new_vendor_url, vendor_id))
-
-#         # Check if the update operation was successful
-#         if cursor.rowcount == 0:
-#             return jsonify({"error": "Vendor not found or no new data provided"}), 404
-
-#         conn.commit()
-
-#     except pymysql.MySQLError as e:
-#         conn.rollback()
-#         return jsonify({"error": str(e)}), 500
-#     finally:
-#         cursor.close()
-#         conn.close()
-
-#     return jsonify({"message": "Vendor updated successfully"}), 200

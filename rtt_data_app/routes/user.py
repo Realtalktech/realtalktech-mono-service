@@ -63,14 +63,17 @@ def endorse_user(user_id):
     endorsee_user_id= data.get('endorseeUserId')
     vendor_id = data.get('vendorId')
 
-    if not(endorsee_user_id and vendor_id):
-        raise BadRequest("Endorsee User Id, Vendor Id is required")
+    if not endorsee_user_id:
+        raise BadRequest("Endorsee User Id is required")
     
+    if not vendor_id:
+        raise BadRequest("Vendor Id is required")
+
     user = User()
     user.endorse_user(user_id, endorsee_user_id, vendor_id)
     return jsonify({"message": "Profile endorsed successfully"}), 200
 
-@user_bp.route('/editPassword', methods=['POST'])
+@user_bp.route('/editPassword', methods=['PUT'])
 @token_required 
 def edit_password(user_id):
     # Get JSON data from request
@@ -78,8 +81,11 @@ def edit_password(user_id):
     old_password = data.get('oldPassword')
     new_password = data.get('newPassword')
 
-    if not old_password or not new_password:
-        raise BadRequest("error: Missing old or new password")
+    if not old_password:
+        raise BadRequest("error: Missing old password")
+    
+    if not new_password:
+        raise BadRequest("error: Missing new password")
     
     user = User()
     user.edit_password(user_id, old_password, new_password)

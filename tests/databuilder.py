@@ -278,11 +278,15 @@ class DataInserter:
             "Customer Management", "Revenue Operations", "Payments", "Accounting", "Learning Management System",
             "Robotic Process Automation", "Artificial Intelligence"
         ]
+        self.discover_categories = ["Sales Tools", "Marketing","Analytics Tools & Software", "CAD & PLM", "Collaboration & Productivity", "Commerce", 
+                               "Content Management","Customer Service","Data Privacy","Design","Development","Digital Advertising Tech","ERP",
+                               "Governance, Risk & Compliance","Hosting","HR","IT Infrastructure","IT Management","Security","Supply Chains & Logistics","Vertical Industry"]
 
         self.vendors = ["Salesforce", "Snowflake", "Databricks", "Datadog", "Roblox", "Apple", "AWS", "GCP", "Azure", "HTC"]
 
         try:
             self.insert_discuss_categories()
+            self.insert_discover_categories()
             self.insert_interest_areas()
             self.insert_industries()
             self.insert_vendors()
@@ -297,6 +301,12 @@ class DataInserter:
             conn.commit()
             self.cursor.close()
             conn.close()
+    
+    def insert_discover_categories(self):
+        # Insert Categories
+        for category in self.discover_categories:
+                icon = ""
+                self.cursor.execute("INSERT INTO DiscoverCategory (category_name, icon) VALUES (?,?)", (category,icon))
 
     def insert_discuss_categories(self):
         """Insert discuss categories into the DiscussCategory table"""
@@ -323,17 +333,20 @@ class DataInserter:
             )
     
     def insert_vendors(self):
-        """Insert vendors into DiscoverVendor and PublicVendor tables"""
+        """Insert vendors into DiscoverVendor and PublicVendor tables, under category "Sales" (id = 1)"""
         for vendor in self.vendors:
             self.cursor.execute(
                 """INSERT INTO DiscoverVendor (vendor_name, vendor_type, description)
                 VALUES(?, ?, ?)""", (vendor, vendor, vendor)
             )
+            vendor_id = self.cursor.lastrowid
+            self.cursor.execute(
+                """INSERT INTO VendorDiscoverCategory(vendor_id, category_id) VALUES(?,?)""",(vendor_id,1)
+            )
             self.cursor.execute(
                 """INSERT INTO PublicVendor (vendor_name)
                 VALUES(?)""", (vendor,)
             )
-
 
     def insert_test_users(self):
         """Inserts four test users"""

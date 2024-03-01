@@ -12,3 +12,6 @@ class CommentUpvote(db.Model):
     is_downvote = db.Column(db.Boolean, nullable=False)
     creation_time = db.Column(db.DateTime(3), server_default=db.func.current_timestamp())
     update_time = db.Column(db.DateTime(3), server_default=db.func.current_timestamp())
+
+    comment = db.relationship('Comment', back_populates='upvotes')
+    user = db.relationship('User', backref='upvotes')

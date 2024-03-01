@@ -12,3 +12,6 @@ class Comment(db.Model):
     comment_text = db.Column(db.Text, nullable=False)
     creation_time = db.Column(db.DateTime(3), server_default=db.func.current_timestamp())
     update_time = db.Column(db.DateTime(3), server_default=db.func.current_timestamp())
+
+    user = db.relationship('User', back_populates='comments')
+    upvotes = db.relationship('CommentUpvote', back_populates='comment', lazy='dynamic')

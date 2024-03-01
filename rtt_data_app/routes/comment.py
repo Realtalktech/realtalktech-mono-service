@@ -1,9 +1,13 @@
 from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
+from rtt_data_app.app import db
+from rtt_data_app.models import Comment, CommentTag, CommentUpvote, User
 from rtt_data_app.utils import DBManager
 from rtt_data_app.auth import token_required
 from rtt_data_app.utils.deprecated.responseFormatter import convert_keys_to_camel_case
+from sqlalchemy import func, exc
+from werkzeug.exceptions import BadRequest
 
 comment_bp = Blueprint('comment_bp', __name__)
 db_manager = DBManager()
@@ -11,68 +15,60 @@ db_manager = DBManager()
 @comment_bp.route('/getCommentsForPost', methods=['GET'])
 @token_required
 def get_comments(user_id):
+    data = request.json
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
-    post_id = request.args.get('postId', type=int)
-    page = request.args.get('page', 1, type=int)
-    count = request.args.get('count', 10, type=int)
+    post_id = data.get('postId')
+    page = data.get('page', 1)
+    count = data.get('count', 10)
 
-    conn = db_manager.get_db_connection()
-    cursor = conn.cursor()
+    if not post_id:
+        raise BadRequest("postId is required")
 
-    # Query to fetch comments and their upvote count
-    query = """
-        SELECT 
-            c.id, 
-            c.user_id, 
-            u.username, 
-            c.comment_text, 
-            c.creation_time, 
-            c.update_time,
-            (SELECT COUNT(*) FROM CommentUpvote WHERE comment_id = c.id AND is_downvote = FALSE) as total_upvotes,
-            (SELECT COUNT(*) FROM CommentUpvote WHERE comment_id = c.id AND is_downvote = TRUE) as total_downvotes,
-            (
-                SELECT CASE 
-                    WHEN COUNT(*) > 0 AND is_downvote = FALSE THEN TRUE
-                    WHEN COUNT(*) > 0 AND is_downvote = TRUE THEN FALSE
-                    ELSE NULL 
-                END
-                FROM CommentUpvote 
-                WHERE comment_id = c.id AND user_id = %s
-            ) as user_vote
-        FROM Comment AS c
-        JOIN User AS u ON c.user_id = u.id
-        WHERE c.post_id = %s
-        ORDER BY c.id DESC
-        LIMIT %s OFFSET %s
-    """
-    cursor.execute(query, (user_id, post_id, count, (page - 1) * count))
-    comment_bodies = cursor.fetchall()
+    # Query to fetch comments and their upvote/downvote counts, and user vote
+    comments_query = db.session.query(
+        Comment.id.label("Comment_id"),
+        User.id.label("user_id"),
+        User.username.label("User_username"),
+        Comment.comment_text.label("Comment_comment_text"),
+        Comment.creation_time.label("Comment_creation_time"),
+        Comment.update_time.label("Comment_update_time"),
+        func.coalesce(func.sum(func.cast(CommentUpvote.is_downvote == False, db.Integer)), 0).label('total_upvotes'),
+        func.coalesce(func.sum(func.cast(CommentUpvote.is_downvote == True, db.Integer)), 0).label('total_downvotes'),
+        (func.sum(db.case((CommentUpvote.user_id == user_id, CommentUpvote.is_downvote == False), else_=0)) > 0).label('user_upvote'),
+        (func.sum(db.case((CommentUpvote.user_id == user_id, CommentUpvote.is_downvote == True), else_=0)) > 0).label('user_downvote')
+    ).select_from(Comment).join(User, Comment.user_id == User.id).outerjoin(CommentUpvote, Comment.id == CommentUpvote.comment_id).filter(
+        Comment.post_id == post_id
+    ).group_by(
+        Comment.id, User.id
+    ).order_by(
+        Comment.id.desc()
+    ).limit(count).offset((page - 1) * count)
 
-    for comment in comment_bodies:
-        # Get username for response body
-        cursor.execute("""SELECT username FROM User WHERE id = %s""", (comment['user_id']))
-        username = cursor.fetchone()['username']
-        comment_user_id = comment.pop('user_id')
-
-        # Process user information
-        comment['user'] = {"id": comment_user_id, "username": username}
-
+    # Prepare the comments for the response
+    comments_list = []
+    for comment in comments_query:
+        # Convert SQLAlchemy result to dictionary
+        comment_dict = {
+            'id': comment.Comment_id,
+            'username': comment.User_username,
+            'commentText': comment.Comment_comment_text,
+            'creationTime': comment.Comment_creation_time.isoformat(),
+            'updateTime': comment.Comment_update_time.isoformat(),
+            'totalUpvotes': comment.total_upvotes,
+            'totalDownvotes': comment.total_downvotes,
+            'userVote': comment.user_upvote
+        }
+        
         # Get tags associated with comment
-        cursor.execute(
-            """SELECT tagged_user_id FROM CommentTag WHERE comment_id = %s""",
-            (comment['id'])
-        )
-        tagged_ids = cursor.fetchall()
-        comment['tagged_usernames'] = []
-        for item in tagged_ids:
-            tagged_user_id = item['tagged_user_id']
-            cursor.execute("""SELECT username FROM User WHERE id = %s""", (tagged_user_id))
-            tagged_username = cursor.fetchone()['username']
-            comment['tagged_usernames'].append(tagged_username)
-
-    cursor.close()
-    conn.close()
+        tagged_users = db.session.query(User.username).join(
+            CommentTag, CommentTag.tagged_user_id == User.id
+        ).filter(CommentTag.comment_id == comment.Comment_id).all()
+        
+        comment_dict['taggedUsernames'] = [tag.username for tag in tagged_users]
+        
+        # Convert keys from snake_case to camelCase if needed
+        comments_list.append(convert_keys_to_camel_case(comment_dict))
 
     # Prepare metadata
     metadata = {
@@ -82,10 +78,7 @@ def get_comments(user_id):
         'count': count
     }
 
-    # Format response
-    comment_bodies = [convert_keys_to_camel_case(comment) for comment in comment_bodies]
-
-    return jsonify({"metadata": metadata, "comments": comment_bodies})
+    return jsonify({"metadata": metadata, "comments": comments_list})
 
 
 @comment_bp.route('/makeComment', methods=['POST'])

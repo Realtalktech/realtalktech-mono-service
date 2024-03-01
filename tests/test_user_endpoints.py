@@ -1,11 +1,12 @@
 from functools import wraps
 import json
+from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.exceptions import BadRequest
 from unittest.mock import patch
 from rtt_data_app.app import app, create_app, db
 from rtt_data_app.models import User, PublicVendor, UserPublicVendor, UserPublicVendorEndorsement
 from tests.databuilder import Databuilder, DataInserter
 from config import TestingConfig
-from functools import wraps
 import pytest
 from unittest.mock import patch
 
@@ -27,8 +28,8 @@ def test_client():
         with app.test_client() as testing_client:
             yield testing_client
 
-# Automatically bypasses token check, authorizing inputted user_id
-@pytest.fixture(autouse=True)
+# Automatically bypasses token check, authorizing inputed user_id
+@pytest.fixture()
 def bypass_token_required(request):
     """Fixture to bypass the token_required decorator."""
     token_return_value = getattr(request, 'param', 1)
@@ -36,7 +37,7 @@ def bypass_token_required(request):
         yield
 
 @pytest.mark.parametrize('bypass_token_required', [1], indirect=True) # Make request from user_id = 1
-def test_get_user_public_profile_success(test_client):
+def test_get_user_public_profile_success(test_client, bypass_token_required):
     # Setup mock data
     username,full_name,email,current_company, password, id_stub = mock_user.get_raw_insert_data()
     user = User(username = username, 
@@ -65,6 +66,8 @@ def test_get_user_public_profile_success(test_client):
     response = test_client.get(f'/user/mockuser{id_stub}', headers=MockInputs.MOCK_HEADER)
     data = response.get_json()
 
+    print(json.dumps(data, indent=2))
+
 
     # Assertions
     assert response.status_code == 200
@@ -79,7 +82,7 @@ def test_get_user_public_profile_success(test_client):
 
 # Make request from user_id = 6 (expected from mock user creation albeit hacky)
 @pytest.mark.parametrize('bypass_token_required', [6], indirect=True) 
-def test_get_user_private_profile_success(test_client):
+def test_get_user_private_profile_success(test_client, bypass_token_required):
     # Setup mock data
     username,full_name,email,current_company, password, id_stub = mock_user.get_raw_insert_data()
 
@@ -109,6 +112,9 @@ def test_get_user_private_profile_success(test_client):
     response = test_client.get(f'/user/{user.username}', headers=MockInputs.MOCK_HEADER)
     data = response.get_json()
 
+    print(json.dumps(data, indent=2))
+
+
     # Assertions
     assert response.status_code == 200
     assert data['userDetails']['username'] == f'mockuser{id_stub}'
@@ -124,7 +130,7 @@ def test_get_user_private_profile_success(test_client):
     assert all(vendor['totalEndorsements'] == 0 for vendor in data['vendors'] if vendor['id'] in {3})
     assert all(len(vendor['userEndorsements']) == 0 for vendor in data['vendors'] if vendor['id'] in {3})
 
-def test_get_user_profile_fail_nonexistent_user(test_client):
+def test_get_user_profile_fail_nonexistent_user(test_client, bypass_token_required):
     # Perform the request
     response = test_client.get(f'/user/nonexistentUser', headers=MockInputs.MOCK_HEADER)
     data = response.get_json()
@@ -137,7 +143,7 @@ def test_get_user_profile_fail_nonexistent_user(test_client):
 
 # Make request from user_id = 7 (expected from mock user creation albeit hacky)
 @pytest.mark.parametrize('bypass_token_required', [7], indirect=True) 
-def test_edit_profile_net_new_vendors_success(test_client):
+def test_edit_profile_net_new_vendors_success(test_client, bypass_token_required):
     # Create a new mock user
     username, fullname, email, current_company, password, id_stub = mock_user.get_raw_insert_data()
     new_user = User(username=f"mockuser{id_stub}", full_name=fullname, email=email, current_company=current_company, password=password)
@@ -193,4 +199,220 @@ def test_edit_profile_net_new_vendors_success(test_client):
     removed_endorsements = UserPublicVendorEndorsement.query.filter_by(endorsee_user_id=new_user.id, vendor_id=removed_vendor.id).all()
     assert len(removed_endorsements) == 1  # Confirm endorsements for removed tech still exist
 
+######## -------- Trying Out Some New Fixtures Below -------- ########
+@pytest.fixture(scope='function')
+def authorize_as_new_user():
+    """Fixture to create a new user and make requests on their behalf."""
+    user = User(username='testuser', 
+                email='test@example.com', 
+                full_name='Test User',
+                current_company='Test Labs',
+                password=generate_password_hash('password'))
+    db.session.add(user)
+    db.session.commit()
+    db.session.refresh(user)
+    token_return_value = user.id
+    with patch('rtt_data_app.auth.decorators.process_token', return_value = token_return_value):
+        yield user
+    db.session.delete(user)
+    db.session.commit()
 
+def test_edit_password_success(test_client, authorize_as_new_user):
+    response = test_client.put(
+        '/editPassword',
+        json = {
+            'oldPassword': 'password',
+            'newPassword': 'newpassword'
+        },
+        headers=MockInputs.MOCK_HEADER
+    )
+    data = response.get_json()
+    assert response.status_code == 200
+    assert data == {
+        "message": "Password updated successfully"
+    }
+    updated_user = User.query.filter_by(id=authorize_as_new_user.id).one()
+    assert check_password_hash(updated_user.password, 'newpassword')
+
+def test_edit_password_fail_missing_old_password(test_client, authorize_as_new_user):
+    response = test_client.put(
+        '/editPassword',
+        json = {
+            'newPassword': 'newpassword'
+        },
+        headers=MockInputs.MOCK_HEADER
+    )
+    data = response.get_json()
+    assert response.status_code == BadRequest.code
+    assert data == {
+        "error": "Bad request",
+        "message": "400 Bad Request: error: Missing old password"
+    }
+
+def test_edit_password_fail_missing_new_password(test_client, authorize_as_new_user):
+    response = test_client.put(
+        '/editPassword',
+        json = {
+            'oldPassword': 'password'
+        },
+        headers=MockInputs.MOCK_HEADER
+    )
+    data = response.get_json()
+    assert response.status_code == BadRequest.code
+    assert data == {
+        "error": "Bad request",
+        "message": "400 Bad Request: error: Missing new password"
+    }
+
+def test_edit_password_fail_incorrect_old_password(test_client, authorize_as_new_user):
+    response = test_client.put(
+        '/editPassword',
+        json = {
+            'oldPassword': 'newPassword',
+            'newPassword': 'password'
+        },
+        headers=MockInputs.MOCK_HEADER
+    )
+    data = response.get_json()
+    assert response.status_code == BadRequest.code
+    assert data == {
+        "error": "Bad request",
+        "message": "400 Bad Request: error: Old Password is Incorrect"
+    } 
+
+def insert_new_user_with_tech_stack(test_client):
+    """Insert a new user with an endorsable tech stack"""
+    # Using test_client to stay within context
+    user = User(username='testendorsee', 
+                email='testendorsee@example.com', 
+                full_name='Test Endorsee',
+                current_company='Test Labs',
+                password=generate_password_hash('password'))
+    db.session.add(user)
+    db.session.commit()
+    # Add vendors 1-3 to user profile
+    techstack = [UserPublicVendor(vendor_id=i) for i in range(1,3)]
+    user.user_vendor_associations.extend(techstack)
+    db.session.commit()
+    db.session.refresh(user)
+    return user
+
+def test_endorse_user_success(test_client, authorize_as_new_user):
+    endorser_user = authorize_as_new_user
+    endorsee_user = insert_new_user_with_tech_stack(test_client)
+    # Endorsee 'endorsee_user' in vendor 1
+    request = {
+        'endorseeUserId': endorsee_user.id,
+        'vendorId': 1
+    }
+    response = test_client.put(
+        '/endorse',
+        json=request,
+        headers=MockInputs.MOCK_HEADER
+    )
+    data = response.get_json()
+    
+    assert data == {
+        "message": "Profile endorsed successfully"
+    }
+
+    # Confirm endorsement propagated through DBs
+    endorsement_obj = UserPublicVendorEndorsement.query.filter_by(endorser_user_id=endorser_user.id, endorsee_user_id=endorsee_user.id, vendor_id=1).first()
+    assert endorsement_obj.vendor_id == 1
+    assert type(endorsement_obj.endorser) == User
+    assert type(endorsement_obj.endorsee) == User
+    assert endorser_user.given_endorsements[0].endorsee_user_id == endorsee_user.id
+    assert endorsee_user.received_endorsements[0].endorser_user_id == endorser_user.id
+    assert response.status_code == 200
+    registered_public_vendors = UserPublicVendor.query.filter_by(user_id=endorsee_user.id).all()
+    db.session.delete(endorsement_obj)
+    for obj in registered_public_vendors:
+        db.session.delete(obj)
+    db.session.commit()
+    db.session.delete(endorsee_user)
+    db.session.commit()
+
+def test_endorse_user_fail_missing_endorsee_id(test_client, authorize_as_new_user):
+    request = {
+        'vendorId': 1
+    }
+    response = test_client.put(
+        '/endorse',
+        json=request,
+        headers=MockInputs.MOCK_HEADER
+    )
+    data = response.get_json()
+    print(json.dumps(data, indent=2))
+    
+    assert data == {
+        "error": "Bad request",
+        "message": "400 Bad Request: Endorsee User Id is required"
+    }
+    assert response.status_code == BadRequest.code
+
+def test_endorse_user_fail_missing_vendor_id(test_client, authorize_as_new_user):
+    request = {
+        'endorseeUserId': 1
+    }
+    response = test_client.put(
+        '/endorse',
+        json=request,
+        headers=MockInputs.MOCK_HEADER
+    )
+    data = response.get_json()
+    print(json.dumps(data, indent=2))
+    
+    assert data == {
+        "error": "Bad request",
+        "message": "400 Bad Request: Vendor Id is required"
+    }
+    assert response.status_code == BadRequest.code
+
+def test_endorse_user_fail_nonexistent_endorseee(test_client, authorize_as_new_user):
+    request = {
+        'endorseeUserId': 9000,
+        'vendorId': 1
+    }
+    response = test_client.put(
+        '/endorse',
+        json=request,
+        headers=MockInputs.MOCK_HEADER
+    )
+    data = response.get_json()
+    print(json.dumps(data, indent=2))
+    
+    assert data == {
+        "error": "Bad request",
+        "message": "400 Bad Request: Endorsee does not exist!"
+    }
+    assert response.status_code == BadRequest.code
+
+def test_endorse_user_fail_unregistered_vendor(test_client, authorize_as_new_user):
+    endorser_user = authorize_as_new_user
+    endorsee_user = insert_new_user_with_tech_stack(test_client)
+    # Endorsee 'endorsee_user' in vendor 4 (they only have vendors 1 - 3)
+    request = {
+        'endorseeUserId': endorsee_user.id,
+        'vendorId': 4
+    }
+    response = test_client.put(
+        '/endorse',
+        json=request,
+        headers=MockInputs.MOCK_HEADER
+    )
+    data = response.get_json()
+    print(json.dumps(data, indent=2))
+    
+    assert data == {
+        "error": "Bad request",
+        "message": "400 Bad Request: User does not have vendor in their techstack"
+    }
+    assert response.status_code == BadRequest.code
+
+    # Cleanup
+    registered_public_vendors = UserPublicVendor.query.filter_by(user_id=endorsee_user.id).all()
+    for obj in registered_public_vendors:
+        db.session.delete(obj)
+    db.session.commit()
+    db.session.delete(endorsee_user)
+    db.session.commit()

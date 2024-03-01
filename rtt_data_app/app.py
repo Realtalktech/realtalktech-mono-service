@@ -1,5 +1,5 @@
 from flask import Flask, jsonify
-from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
+from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError, NotFound
 from flask_cors import CORS
 from rtt_data_app.models import db
 from config import ProductionConfig, TestingConfig
@@ -40,6 +40,13 @@ def create_app(config_class=ProductionConfig):
     def handle_internal_server_error(e):
         response = e.get_response()
         response.data = jsonify({"error": "Internal Server Error", "message": str(e)}).data
+        response.content_type = "application/json"
+        return response
+    
+    @app.errorhandler(NotFound)
+    def handle_not_found_error(e):
+        response = e.get_response()
+        response.data = jsonify({"error": "Not Found Error", "message": str(e)}).data
         response.content_type = "application/json"
         return response
 
