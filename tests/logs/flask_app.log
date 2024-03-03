@@ -1,73 +1,61 @@
-[2024-02-29 19:46:58,380] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py:828} ERROR - Exception on /getCommentsForPost [GET]
-Traceback (most recent call last):
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
-    self.dialect.do_execute(
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
-    cursor.execute(statement, parameters)
-sqlite3.OperationalError: wrong number of arguments to function sum()
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 1463, in wsgi_app
-    response = self.full_dispatch_request()
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 872, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask_cors/extension.py", line 176, in wrapped_function
-    return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 870, in full_dispatch_request
-    rv = self.dispatch_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/flask/app.py", line 855, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/auth/decorators.py", line 24, in decorated_function
-    return f(user_id, *args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py", line 50, in get_comments
-    for comment in comments_query:
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2833, in __iter__
-    result = self._iter()
-             ^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2847, in _iter
-    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
-                                                  ^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2308, in execute
-    return self._execute_internal(
-           ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2190, in _execute_internal
-    result: Result[Any] = compile_state_cls.orm_execute_statement(
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
-    result = conn.execute(
-             ^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
-    return meth(
-           ^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 517, in _execute_on_connection
-    return connection._execute_clauseelement(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1639, in _execute_clauseelement
-    ret = self._execute_context(
-          ^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
-    return self._exec_single_context(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
-    self._handle_dbapi_exception(
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2344, in _handle_dbapi_exception
-    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
-    self.dialect.do_execute(
-  File "/Users/raghavmaini/Desktop/rttMVP/rttDataService/env/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
-    cursor.execute(statement, parameters)
-sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) wrong number of arguments to function sum()
-[SQL: SELECT "Comment".id AS "Comment_id", "User".id AS user_id, "User".username AS "User_username", "Comment".comment_text AS "Comment_comment_text", "Comment".creation_time AS "Comment_creation_time", "Comment".update_time AS "Comment_update_time", coalesce(sum("CommentUpvote".is_downvote = 0, ?), ?) AS total_upvotes, coalesce(sum("CommentUpvote".is_downvote = 1, ?), ?) AS total_downvotes, sum(CASE WHEN ("CommentUpvote".user_id = ?) THEN "CommentUpvote".is_downvote = 0 ELSE ? END) > ? AS user_upvote, sum(CASE WHEN ("CommentUpvote".user_id = ?) THEN "CommentUpvote".is_downvote = 1 ELSE ? END) > ? AS user_downvote 
-FROM "Comment" JOIN "User" ON "Comment".user_id = "User".id LEFT OUTER JOIN "CommentUpvote" ON "Comment".id = "CommentUpvote".comment_id 
-WHERE "Comment".post_id = ? GROUP BY "Comment".id, "User".id ORDER BY "Comment".id DESC
- LIMIT ? OFFSET ?]
-[parameters: (<class 'sqlalchemy.sql.sqltypes.Integer'>, 0, <class 'sqlalchemy.sql.sqltypes.Integer'>, 0, 5, 0, 0, 5, 0, 0, 1, 10, 0)]
-(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2024-03-02 20:35:57,532] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:505} ERROR - 'NoneType' object has no attribute 'vendor_id'
+[2024-03-02 20:35:58,114] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:52} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:35:58,260] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:121} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:35:59,205] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 20:35:59,274] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 20:38:52,248] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:415} ERROR - User with username nonexistentUser not found
+[2024-03-02 20:38:53,245] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:498} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:38:53,377] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:505} ERROR - 'NoneType' object has no attribute 'vendor_id'
+[2024-03-02 20:38:53,931] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:52} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:38:54,074] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:121} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:38:55,014] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 20:38:55,082] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 20:41:52,217] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:415} ERROR - User with username nonexistentUser not found
+[2024-03-02 20:41:53,201] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:498} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:41:53,334] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:505} ERROR - 'NoneType' object has no attribute 'vendor_id'
+[2024-03-02 20:41:53,888] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:52} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:41:54,030] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:121} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:41:54,979] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 20:41:55,047] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 20:42:39,219] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:415} ERROR - User with username nonexistentUser not found
+[2024-03-02 20:42:40,197] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:498} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:42:40,330] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:505} ERROR - 'NoneType' object has no attribute 'vendor_id'
+[2024-03-02 20:42:40,880] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:52} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:42:41,018] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:121} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:42:41,961] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 20:42:42,028] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 20:45:49,056] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:415} ERROR - User with username nonexistentUser not found
+[2024-03-02 20:45:50,078] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:498} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:45:50,215] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:505} ERROR - 'NoneType' object has no attribute 'vendor_id'
+[2024-03-02 20:45:50,825] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:52} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:45:50,969] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:121} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:45:51,962] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 20:45:52,033] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 20:46:44,444] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:415} ERROR - User with username nonexistentUser not found
+[2024-03-02 20:46:45,443] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:498} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:46:45,574] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:505} ERROR - 'NoneType' object has no attribute 'vendor_id'
+[2024-03-02 20:46:46,140] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:52} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:46:46,281] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:121} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:46:47,217] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 20:46:47,286] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 20:54:55,880] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:415} ERROR - User with username nonexistentUser not found
+[2024-03-02 20:54:56,913] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:498} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:54:57,050] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:505} ERROR - 'NoneType' object has no attribute 'vendor_id'
+[2024-03-02 20:54:57,618] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:52} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:54:57,758] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:121} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:54:58,697] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 20:54:58,764] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 20:56:33,044] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:415} ERROR - User with username nonexistentUser not found
+[2024-03-02 20:56:34,043] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:498} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:56:34,176] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:505} ERROR - 'NoneType' object has no attribute 'vendor_id'
+[2024-03-02 20:56:34,729] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:52} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:56:34,869] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:121} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 20:56:35,817] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 20:56:35,883] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 21:00:02,947] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:415} ERROR - User with username nonexistentUser not found
+[2024-03-02 21:00:03,950] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:498} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 21:00:04,088] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:505} ERROR - 'NoneType' object has no attribute 'vendor_id'
+[2024-03-02 21:00:04,651] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:52} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 21:00:04,791] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:121} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-02 21:00:05,737] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment
+[2024-03-02 21:00:05,808] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:110} ERROR - Missing required information to create comment

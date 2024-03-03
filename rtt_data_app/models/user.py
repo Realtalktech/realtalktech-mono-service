@@ -16,6 +16,7 @@ class User(db.Model):
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     post_votes = db.relationship('PostUpvote', back_populates='user')
+    subscribed_discuss_categories = db.relationship('UserDiscussCategory', back_populates='user')
     user_vendor_associations = db.relationship('UserPublicVendor', back_populates='user')
     comments = db.relationship('Comment', back_populates='user', lazy='dynamic')
 

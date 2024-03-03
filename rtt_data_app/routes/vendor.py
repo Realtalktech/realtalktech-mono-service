@@ -6,7 +6,7 @@ import pymysql.cursors
 from rtt_data_app.utils import DBManager
 from rtt_data_app.auth import token_required
 from rtt_data_app.utils.deprecated.responseFormatter import convert_keys_to_camel_case
-from werkzeug.exceptions import NotFound, InternalServerError
+from werkzeug.exceptions import NotFound, InternalServerError, Unauthorized
 import logging
 from sqlalchemy import exc, func
 
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 @token_required
 def get_discover(user_id):
     if not user_id:
-        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+        raise Unauthorized
     
     discover_categories = DiscoverCategory.query.all()
     response = []
@@ -39,7 +39,7 @@ def get_discover(user_id):
 def get_vendors_in_category(user_id, discover_category_id):
     """Get vendor bodies within a particular category"""
     if not user_id:
-        return jsonify({"error": "User not authenticated"}), 401
+        raise Unauthorized
     
     page = request.args.get('page', 1, type=int)
     count = request.args.get('count', 10, type=int)
@@ -104,7 +104,7 @@ def get_vendor(user_id, vendor_id):
     """Get details for a particular vendor"""
     try:
         if not user_id:
-            return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+            raise Unauthorized
         
         vendor:DiscoverVendor = DiscoverVendor.query.filter_by(id=vendor_id).first()
         response = {

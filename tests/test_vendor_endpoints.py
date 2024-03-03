@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash
 from unittest.mock import patch
 from rtt_data_app.app import app, create_app, db
 from rtt_data_app.models import User
-from tests.databuilder import Databuilder, DataInserter
+from tests.databuilder import DataBuilder, DataInserter, UserFactory
 from config import TestingConfig
 import pytest
 from unittest.mock import patch
@@ -18,23 +18,16 @@ def test_client():
 
     # Initialize testing DB
     with app.app_context():
-        Databuilder.init_test_database()
-        inserter = DataInserter()
+        DataBuilder.init_test_database()
+        DataInserter().init_test_database()
         # Create a test client for Flask application
         with app.test_client() as testing_client:
             yield testing_client
 
 @pytest.fixture(scope='function', autouse=True)
-def authorize_as_new_user():
+def authorize_as_new_user(test_client):
     """Fixture to create a new user and make requests on their behalf."""
-    user = User(username='testuser', 
-                email='test@example.com', 
-                full_name='Test User',
-                current_company='Test Labs',
-                password=generate_password_hash('password'))
-    db.session.add(user)
-    db.session.commit()
-    db.session.refresh(user)
+    user:User = next(UserFactory.create_and_teardown_users(test_client, db))[0]
     token_return_value = user.id
     with patch('rtt_data_app.auth.decorators.process_token', return_value = token_return_value):
         yield user

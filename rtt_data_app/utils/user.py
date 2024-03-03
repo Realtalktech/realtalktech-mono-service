@@ -43,11 +43,11 @@ class User:
     def __get_user_tech_stack(self, user_id:int) -> List[Dict[str, int | str]]:
         # Database lookup to find tech_stack (UserPublicVendor)
         
-        # Query UserPublicVendor to get all vendor_ids associated with the user
+        # Query UserPublicVendor to get all vendor_ids associated with user
         user_vendors = db.session.query(UserPublicVendor.vendor_id).filter_by(user_id=user_id).all()
         vendor_ids = [vendor.vendor_id for vendor in user_vendors]
 
-        # Now, get the vendor names based on the vendor_ids
+        # Get vendor_names based on vendor_ids
         if vendor_ids:  # Check if the list is not empty
             vendors = db.session.query(PublicVendor.id, PublicVendor.vendor_name).filter(PublicVendor.id.in_(vendor_ids)).all()
             tech_stack = [{'id': vendor.id, 'name': vendor.vendor_name} for vendor in vendors]
@@ -57,11 +57,11 @@ class User:
         return tech_stack
 
     def __get_user_industry_involvement(self, user_id:int)  -> List[Dict[str, int | str]]:
-        # Query UserIndustry to get all industry_ids associated with the user
+        # Query UserIndustry to get all industry_ids associated with user
         user_industries = db.session.query(UserIndustry.industry_id).filter_by(user_id=user_id).all()
         industry_ids = [industry.industry_id for industry in user_industries]
 
-        # Now, get the industry names based on the industry_ids
+        # Get industry names based on the industry_ids
         if industry_ids:  # Check if the list is not empty
             industries = db.session.query(Industry.id, Industry.industry_name).filter(Industry.id.in_(industry_ids)).all()
             industry_involvement = [{'id': industry.id, 'name': industry.industry_name} for industry in industries]

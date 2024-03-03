@@ -12,7 +12,8 @@ db_manager = DBManager()
 @token_required
 def make_post(user_id):
     if not user_id:
-        raise Unauthorized("error: User not authenticated")    
+        raise Unauthorized()
+    
     data = request.json
     title = data.get('title')
     body = data.get('body')
@@ -42,7 +43,7 @@ def make_post(user_id):
 @token_required
 def edit_post(user_id):
     if not user_id:
-        raise Unauthorized("error: User not authenticated")  # 401 Unauthorized
+        raise Unauthorized()  # 401 Unauthorized
     
     data:dict = request.json
     post_id = data.get('postId')
@@ -65,7 +66,7 @@ def edit_post(user_id):
 @token_required
 def upvote_post(user_id):
     if not user_id:
-        raise Unauthorized("error: User not authenticated")
+        raise Unauthorized()
     
     data:dict = request.json
     post_id = data.get('postId')

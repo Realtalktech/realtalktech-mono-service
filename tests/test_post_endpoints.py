@@ -2,7 +2,7 @@ from functools import wraps
 from unittest.mock import patch
 from rtt_data_app.app import app, create_app, db
 from rtt_data_app.models import Post, PostUpvote
-from tests.databuilder import Databuilder, DataInserter
+from tests.databuilder import DataBuilder, DataInserter
 from config import TestingConfig
 from functools import wraps
 import pytest
@@ -20,7 +20,7 @@ def test_client():
 
     # Initialize testing DB
     with app.app_context():
-        Databuilder.init_test_database()
+        DataBuilder.init_test_database()
         inserter = DataInserter()
         # Create a test client for Flask application
         with app.test_client() as testing_client:

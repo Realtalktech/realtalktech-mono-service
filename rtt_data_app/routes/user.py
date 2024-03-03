@@ -14,7 +14,7 @@ db_manager = DBManager()
 def get_user_profile_by_username(user_id, requested_username):
     """Get a user's public profile"""
     if not user_id:
-        raise Unauthorized("error: User is not authorized") # 401 Unauthorized
+        raise Unauthorized
     
     # will raise bad request if user is not found
     requested_user_id = User().convert_username_to_id(requested_username)
@@ -30,7 +30,7 @@ def get_user_profile_by_username(user_id, requested_username):
 @token_required
 def edit_profile(user_id):
     if not user_id:
-        raise Unauthorized("error: User is not authorized") # 401 Unauthorized
+        raise Unauthorized
     
     data:dict = request.json
 
@@ -57,7 +57,7 @@ def edit_profile(user_id):
 @token_required
 def endorse_user(user_id):
     if not user_id:
-        return jsonify({"error": "User not authenticated"}), 401  # 401 Unauthorized
+        raise Unauthorized
 
     data = request.json
     endorsee_user_id= data.get('endorseeUserId')

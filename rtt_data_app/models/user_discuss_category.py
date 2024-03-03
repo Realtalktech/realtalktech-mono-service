@@ -10,3 +10,5 @@ class UserDiscussCategory(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey('DiscussCategory.id'), primary_key=True)
     creation_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = db.relationship('User', back_populates='subscribed_discuss_categories')

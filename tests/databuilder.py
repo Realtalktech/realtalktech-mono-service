@@ -1,7 +1,13 @@
 import sqlite3
 from werkzeug.security import generate_password_hash
+from flask_sqlalchemy import SQLAlchemy
+from typing import Dict
+from rtt_data_app.models.user import User
+from rtt_data_app.models import PublicVendor, UserPublicVendor, UserPublicVendorEndorsement, UserDiscussCategory, DiscussCategory, PostUpvote
+from rtt_data_app.models import DiscoverVendor, Post, Comment, CommentUpvote
+from sqlalchemy import func
 
-class Databuilder:
+class DataBuilder:
     def __init__():
         pass
 
@@ -12,11 +18,11 @@ class Databuilder:
             # Enforce the length of VARCHAR 
             # Support DATETIME(3)
             # Support AUTO_INCREMENT
-        # Simplify these to TEXT and DATETIME, and just INTEGER PRIMARY KEY respectively for SQLite.
         # SQLite 'INTEGER PRIMARY KEY' auto-increments
 
         # Recreate the tables for the test database
-        # Note: Removed AUTO_INCREMENT, changed DATETIME(3) to DATETIME, and VARCHAR to TEXT for compatibility
+        # Note: Removed AUTO_INCREMENT, changed DATETIME(3) to DATETIME
+
         connection = sqlite3.connect('tests/sqlite/test_database.db')
         cursor = connection.cursor()
         cursor.executescript('''
@@ -252,50 +258,50 @@ class Databuilder:
 
 class DataInserter:
     def __init__(self):
+        pass
+
+    def init_test_database(self):
+        """Inserts discuss categories, industries, interest_areas, discover_categories """
         # Establish database connection and call methods to insert data
         conn = sqlite3.connect('tests/sqlite/test_database.db')
         self.cursor = conn.cursor()
         self.test_user_ids = []
-        self.discuss_categories = [
-            "AI", "Engineering", "Operations", "Marketing", "Sales", "Customer Success",
-            "Data", "Product", "HR & Talent", "Finance", "Leadership/Exec", "Founder",
-            "Community"
-        ]
-        self.industries = [
-            "AdTech", "Angel or VC Firm", "AI", "Automation", "Big Data", "Biotech", "Blockchain",
-            "Business Intelligence", "Cannabis", "Cloud", "Consulting", "Web/Internet", "Crypto",
-            "Cybersecurity", "Data Privacy", "Database", "eCommerce", "Edtech", "FinTech", "Gaming",
-            "Healthtech", "HR Tech", "IaaS", "Insurance", "IoT", "Legal Tech", "Logistics", "Machine Learning",
-            "Manufacturing", "MarTech", "Metaverse", "Mobile", "Music", "Natural Language Processing",
-            "NFT", "Payments", "Pharmaceutical", "Procurement", "Professional Services", "Real Estate", "Sales",
-            "Software", "Sports", "Travel", "Web3", "Other"
-        ]
-        self.interest_areas = [
-            "Sales Tools", "Marketing", "Analytics Tools & Software", "CAD & PLM", "Collaboration & Productivity",
-            "Commerce", "Customer Service", "Data Privacy", "Design", "Development", "Digital Advertising",
-            "ERP", "Governance, Risk & Compliance", "Hosting", "HR", "IT Infrastructure", "IT Management",
-            "Office", "Security", "Supply Chain & Logistics", "Vertical Industry", "Collaboration",
-            "Customer Management", "Revenue Operations", "Payments", "Accounting", "Learning Management System",
-            "Robotic Process Automation", "Artificial Intelligence"
-        ]
-        self.discover_categories = ["Sales Tools", "Marketing","Analytics Tools & Software", "CAD & PLM", "Collaboration & Productivity", "Commerce", 
-                               "Content Management","Customer Service","Data Privacy","Design","Development","Digital Advertising Tech","ERP",
-                               "Governance, Risk & Compliance","Hosting","HR","IT Infrastructure","IT Management","Security","Supply Chains & Logistics","Vertical Industry"]
+        self.discuss_categories = ["AI", "Engineering", "Operations", "Marketing"]
+        self.industries = ["AdTech", "Angel or VC Firm", "AI", "Automation"]
+        self.interest_areas = ["Sales Tools", "Marketing", "Analytics Tools & Software"]
+        self.discover_categories = ["Sales Tools", "Marketing","Collaboration & Productivity", "Commerce"]
 
-        self.vendors = ["Salesforce", "Snowflake", "Databricks", "Datadog", "Roblox", "Apple", "AWS", "GCP", "Azure", "HTC"]
-
+        self.vendors = ["Salesforce", "Snowflake", "Databricks", "Datadog"]
         try:
             self.insert_discuss_categories()
             self.insert_discover_categories()
             self.insert_interest_areas()
             self.insert_industries()
             self.insert_vendors()
+
+        finally:
+            conn.commit()
+            self.cursor.close()
+            conn.close()
+    
+    def init_sample_posts(self):
+        conn = sqlite3.connect('tests/sqlite/test_database.db')
+        self.cursor = conn.cursor()
+        self.test_user_ids = []
+        self.discuss_categories = ["AI", "Engineering", "Operations", "Marketing"]
+        self.industries = ["AdTech", "Angel or VC Firm", "AI", "Automation"]
+        self.interest_areas = ["Sales Tools", "Marketing", "Analytics Tools & Software"]
+        self.discover_categories = ["Sales Tools", "Marketing","Collaboration & Productivity", "Commerce"]
+
+        self.vendors = ["Salesforce", "Snowflake", "Databricks", "Datadog"]
+        try:
             self.insert_test_users()
             self.insert_post_1()
             self.insert_post_2()
             self.insert_post_3()
             self.insert_post_4()
-            self.insert_post_5()
+        except Exception as e:
+            print(str(e))
 
         finally:
             conn.commit()
@@ -544,3 +550,84 @@ class DataInserter:
     
     def link_category_with_post(self, post_id, category_id):
         self.cursor.execute("""INSERT INTO PostDiscussCategory (post_id, category_id) VALUES (?, ?)""", (post_id, category_id))
+
+
+class UserFactory:
+
+    def get_id_stub(user:User) -> int:
+        id_stub = user.username[-1]
+        return id_stub
+
+    def get_login_response(user:User) -> Dict:
+        return{
+                "message":"Login successful",
+                "token":{"MockToken":"MockToken"},
+                'userDetails': {
+                    'bio': user.bio,
+                    'currentCompany': user.current_company,
+                    'email': user.email,
+                    'fullname': user.full_name,
+                    'username': user.username,
+                    'id': user.id,
+                    'industryInvolvement': [], 
+                    'interestAreas': [], 
+                    'linkedinUrl': None, 
+                    'occupationalAreas': [], 
+                    'techstack': []
+                    }
+                }
+
+
+    def create_and_teardown_users(test_client, db:SQLAlchemy, num_users=1):
+        users = []
+        # Get the last inserted ID in the User table
+        last_id = db.session.query(func.max(User.id)).scalar()
+        if last_id is None: last_id = 0
+
+        for idx in range(last_id, last_id + num_users):
+            stub = idx
+            user = User(
+                username=f'testuser{stub}', 
+                email=f'test{stub}@example.com', 
+                full_name=f'Test User {stub}',
+                current_company='Test Labs',
+                user_vendor_associations = [],
+                subscribed_discuss_categories = [],
+                password=generate_password_hash('password')
+                )
+            db.session.add(user)
+            users.append(user)
+        db.session.commit()
+        yield users
+        for user in users:
+            db.session.delete(user)
+        db.session.commit()
+    
+    def create_and_teardown_techstack(test_client, user:User, db:SQLAlchemy, num_vendors:int):
+        """Associate mock vendors with a user techstack. Connects vendor ids in range(1,num_vendors) to user"""
+        print("WHAT THE FUCK")
+        db.session.add("Something nonsensical")
+        db.session.commit()
+        max_vendors = len(DataInserter().vendors)
+
+        if num_vendors > max_vendors: 
+            raise ValueError(f"Error in create_and_teardown_techstack. num_vendors({num_vendors}) exceeds total available({max_vendors})")
+        
+        vendors = [PublicVendor(id=i) for i in range(1, num_vendors + 1)]
+        user_vendor_associations = [UserPublicVendor(user_id=user.id, vendor_id=vendor.id) for vendor in vendors]
+        print("Adding techstack")
+        db.session.add_all(user_vendor_associations)
+        db.session.commit()
+        yield user_vendor_associations
+        print("Deleting techstack")
+        for vendor in user_vendor_associations:
+            db.session.delete(vendor)
+        db.session.commit()
+    
+    def endorse_mock_user(test_client, db:SQLAlchemy, endorsing_user:User, endorsee_user:User, vendor_id:int):
+        endorsement = UserPublicVendorEndorsement(endorser_user_id=endorsing_user.id, endorsee_user_id=endorsee_user.id, vendor_id=vendor_id)
+        db.session.add(endorsement)
+        db.session.commit()
+        yield endorsement
+        db.session.delete(endorsement)
+        db.session.commit()
