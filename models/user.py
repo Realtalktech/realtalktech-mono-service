@@ -162,13 +162,30 @@ class User:
                          interest_areas = False,
                          industry_involvement = False
                         ):
-        
         fields_str = ','.join(needed_info)
-
-        # Database lookup to find a user by username
         cursor.execute(f"SELECT {fields_str} FROM User WHERE username = %s", (username))
+        return cls.find_by(cursor, subscribed_categories, tech_stack, interest_areas, industry_involvement)
+    
+    @classmethod
+    def find_by_email(cls, cursor, email,
+            needed_info = [],
+            subscribed_categories = False,
+            tech_stack = False,
+            interest_areas = False,
+            industry_involvement = False
+        ):
+        fields_str = ','.join(needed_info)
+        cursor.execute(f"SELECT {fields_str} FROM User WHERE email = %s", (email))
+        return cls.find_by(cursor, subscribed_categories, tech_stack, interest_areas, industry_involvement)
+
+    @classmethod
+    def find_by(cls, cursor,
+            subscribed_categories = False,
+            tech_stack = False,
+            interest_areas = False,
+            industry_involvement = False
+        ):
         user_data = cursor.fetchone()
-        
         if user_data:
             # Create User instance with only the available info
             user = cls(
@@ -178,7 +195,7 @@ class User:
                 email = user_data.get('email'),
                 linkedin_url = user_data.get('linkedin_url'),
                 bio = user_data.get('bio'),
-                username = username,
+                username = user_data.get('username'),
                 password=user_data.get('password')
             )
             if subscribed_categories:
@@ -283,7 +300,7 @@ class User:
         return industry_involement_names, industry_involvement_ids
 
     @classmethod
-    def check_endorsement_from_id(vendor_id, user_id, endorsee_id, cursor):
+    def check_endorsement_from_id(cls, vendor_id, user_id, endorsee_id, cursor):
         # Check for endorsement
         cursor.execute("""
             SELECT COUNT(*) AS endorsement_count
@@ -292,8 +309,21 @@ class User:
         """, (user_id, vendor_id, endorsee_id))
         endorsement = cursor.fetchone()['endorsement_count'] > 0
         return endorsement
+    
+    @classmethod
+    def get_endorsements_count(cls, vendor_id, endorsee_id, cursor):
+        print("ENDORSEGETW", vendor_id, endorsee_id)
+        # Check for endorsement
+        cursor.execute("""
+            SELECT COUNT(*) AS endorsement_count
+            FROM UserPublicVendorEndorsement
+            WHERE vendor_id = %s AND endorsee_user_id = %s
+        """, (vendor_id, endorsee_id))
+        endorsementCount = cursor.fetchone()['endorsement_count']
+        return endorsementCount
 
     def receive_endorsement(self, vendor_id, endorser_id, cursor):
+        print("ENDORSEINSERTW", vendor_id, endorser_id)
         cursor.execute(
             """INSERT INTO UserPublicVendorEndorsement (endorser_user_id, endorsee_user_id, vendor_id) VALUES (%s, %s, %s)""",
             (endorser_id, self.id, vendor_id)
@@ -328,29 +358,39 @@ class User:
             self.get_tech_stack(cursor, self.id)
 
             # In with the new
-            for tech in new_tech_stack - self.tech_stack_vendor_names:
-                self.cursor.execute("SELECT id FROM PublicVendor WHERE vendor_name = %s", (tech,))
-                vendor = self.cursor.fetchone()
+            # techAdd = set()
+            # # for tech in new_tech_stack:
+            # #     techAdd.add(tech)
+            # # for tech in self.tech_stack_vendor_names:
+            # #     techAdd.add(tech)
+            # techAdd.update(new_tech_stack)
+            # techAdd.update(self.tech_stack_vendor_names)
+            # for tech in new_tech_stack - self.tech_stack_vendor_names:
+            for tech in list(set(new_tech_stack) - set(self.tech_stack_vendor_names)):
+                # self.cursor.execute("SELECT id FROM PublicVendor WHERE vendor_name = %s", (tech,))
+                cursor.execute("SELECT id FROM PublicVendor WHERE vendor_name = %s", (tech,))
+                vendor = cursor.fetchone()
 
                 # If the vendor does not exist, create a new entry in PublicVendor
                 if not vendor:
-                    self.cursor.execute("INSERT INTO PublicVendor (vendor_name) VALUES (%s)", (tech,))
-                    self.conn.commit()  # Commit the new vendor to the database
-                    vendor_id = self.cursor.lastrowid  # Retrieve the ID of the newly inserted vendor
+                    cursor.execute("INSERT INTO PublicVendor (vendor_name) VALUES (%s)", (tech,))
+                    # self.conn.commit()  # Commit the new vendor to the database
+                    vendor_id = cursor.lastrowid  # Retrieve the ID of the newly inserted vendor
                 else:
                     vendor_id = vendor['id']  # Use the existing ID if the vendor is already in the database
 
                 # Add the new tech to the user's tech stack
-                self.cursor.execute("""
+                cursor.execute("""
                     INSERT INTO UserPublicVendor (user_id, vendor_id) 
                     VALUES (%s, %s)
                 """, (self.id, vendor_id))
-                self.conn.commit()  # Commit the new user-tech association to the database
+                # self.conn.commit()  # Commit the new user-tech association to the database
 
             # Out with the old   
-            for tech in self.tech_stack_vendor_names - new_tech_stack:
+            # for tech in self.tech_stack_vendor_names - new_tech_stack:
+            for tech in list(set(self.tech_stack_vendor_names) - set(new_tech_stack)):
                 vendor_id = self.tech_stack_vendor_ids[self.tech_stack_vendor_names.index(tech)]
-                self.cursor.execute("DELETE FROM UserPublicVendor WHERE user_id = %s AND vendor_id = %s", (self.id, vendor_id))
+                cursor.execute("DELETE FROM UserPublicVendor WHERE user_id = %s AND vendor_id = %s", (self.id, vendor_id))
 
         if new_bio:
             cursor.execute("""UPDATE User SET bio = %s WHERE id = %s""", (new_bio, self.id))

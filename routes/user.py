@@ -43,8 +43,79 @@ def fetch_onboarding_information(user: User):
         "subscribedCategories": subscribed_discussion_categories
     }
 
+@user_bp.route('/user/<requested_username>/check', methods=['GET'])
+def check_username(requested_username):
+    """Get a user's public profile"""
+    conn = db_manager.get_db_connection()
+    cursor = conn.cursor()
+
+    owner_check_user = User.find_by_username(
+        cursor,
+        username=requested_username,
+        needed_info=['username'])
+
+    has_username = (owner_check_user != None and owner_check_user.username == requested_username)
+
+    if has_username:
+        response = {
+            'username': requested_username
+        }
+    else:
+        response = {
+            'username': ''
+        }
+    
+    cursor.close()
+    conn.close()
+
+    return jsonify(response)
+
+@user_bp.route('/user/check', methods=['GET'])
+def check():
+    """Get a user's public profile"""
+    conn = db_manager.get_db_connection()
+    cursor = conn.cursor()
+
+    email = request.args.get('email', type=str)
+    username = request.args.get('username', type=str)
+
+    if email != None and email != '':
+        found_user = User.find_by_email(
+            cursor,
+            email=email,
+            needed_info=['email'])
+        has_email = (found_user != None and found_user.email == email)
+        if has_email:
+            cursor.close()
+            conn.close()
+            return jsonify({'available': False})
+        # if has_username:
+        #     response = {
+        #         'username': requested_username
+        #     }
+        # else:
+        #     response = {
+        #         'username': ''
+        #     }
+    if username != None and username != '':
+        found_user = User.find_by_username(
+            cursor,
+            username=username,
+            needed_info=['username'])
+        has_username = (found_user != None and found_user.username == username)
+        if has_username:
+            cursor.close()
+            conn.close()
+            return jsonify({'available': False})
+
+    cursor.close()
+    conn.close()
+    return jsonify({'available': True})
+
 @user_bp.route('/user/<requested_username>', methods=['GET'])
+# @user_bp.route('/user/<requested_username>/<user_id>', methods=['GET'])
 @token_required
+# def get_user_profile_by_username(user_id, requested_username):
 def get_user_profile_by_username(user_id, requested_username):
     """Get a user's public profile"""
     conn = db_manager.get_db_connection()
@@ -81,12 +152,16 @@ def get_user_profile_by_username(user_id, requested_username):
     vendors_with_endorsements = []
     for idx, vendor_id in enumerate(requested_user.tech_stack_vendor_ids):
         # Check for endorsement
-        endorsement = User.check_endorsement_from_id(user_id, requested_user.id, cursor)
+        # endorsement = User.check_endorsement_from_id(user_id, requested_user.id, cursor)
+        endorsement = User.check_endorsement_from_id(vendor_id, user_id, requested_user.id, cursor)
+        print("DEB", vendor_id, requested_user.id)
+        endorsementCount = User.get_endorsements_count(vendor_id, requested_user.id, cursor)
 
         vendors_with_endorsements.append({
             'vendorId': vendor_id,
             'vendorName': requested_user.tech_stack_vendor_names[idx],
-            'endorsedByRequester': endorsement
+            'endorsedByRequester': endorsement,
+            'endorsementCount': endorsementCount,
         })
 
 
@@ -129,6 +204,7 @@ def get_user_profile_by_username(user_id, requested_username):
     return jsonify(response)
 
 @user_bp.route('/editProfile', methods=['PUT'])
+# @user_bp.route('/editProfile/<user_id>', methods=['PUT'])
 @token_required
 def edit_profile(user_id):
     if not user_id:
