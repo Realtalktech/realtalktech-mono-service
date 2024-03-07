@@ -10,7 +10,6 @@ import logging
 from sqlalchemy import exc, func
 
 vendor_bp = Blueprint('vendor_bp', __name__)
-db_manager = DBManager()
 
 logger = logging.getLogger(__name__)
 

@@ -1,13 +1,11 @@
 from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
-from rtt_data_app.utils.db_manager import DBManager
 from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
 from rtt_data_app.utils import User
 from rtt_data_app.auth import token_required
 
 user_bp = Blueprint('user_bp', __name__)
-db_manager = DBManager()
 
 @user_bp.route('/user/<requested_username>', methods=['GET'])
 @token_required

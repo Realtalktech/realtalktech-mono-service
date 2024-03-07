@@ -10,7 +10,6 @@ from config import TestingConfig
 import pymysql
 import pymysql.cursors
 import json
-from utils.db_manager import DBManager
 
 class TestAPI(TestCase):
 
@@ -20,7 +19,6 @@ class TestAPI(TestCase):
     
     def setUp(self):
         # Setup database before each test
-        self.db_manager = DBManager()
         conn = self.db_manager.get_db_connection()
         cursor = conn.cursor()
         self.user_id, self.category_ids, self.category_names, self.post_ids = self.insert_test_data(cursor)
