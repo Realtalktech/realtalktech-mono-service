@@ -5,7 +5,7 @@ from rtt_data_app.models import db
 from config import ProductionConfig, TestingConfig
 
 from rtt_data_app.utils.log_config import setup_global_logging
-setup_global_logging(TestingConfig.LOG_PATH) 
+setup_global_logging(ProductionConfig.LOG_PATH) 
 
 from rtt_data_app.routes import feed_bp, comment_bp, vendor_bp, login_bp, user_bp, post_bp
 
@@ -52,7 +52,7 @@ def create_app(config_class=ProductionConfig):
 
     return app
 
-app = create_app(config_class=TestingConfig)
+app = create_app(config_class=ProductionConfig)
 
 if __name__ == '__main__':
     # update_trie() # Initial Trie population
