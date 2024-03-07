@@ -9,7 +9,7 @@ from datetime import datetime
 import pymysql
 import pymysql.cursors
 import re
-from rtt_data_app.utils import DBManager
+# from rtt_data_app.utils import DBManager
 from rtt_data_app.models.user import User as model
 from rtt_data_app.models import UserDiscussCategory, DiscussCategory, InterestArea
 from rtt_data_app.models import UserInterestArea, UserPublicVendor, PublicVendor

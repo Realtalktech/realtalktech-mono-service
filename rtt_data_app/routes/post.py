@@ -1,11 +1,9 @@
 from flask import Blueprint, jsonify, request
-from rtt_data_app.utils import DBManager 
 from rtt_data_app.auth import token_required
 from werkzeug.exceptions import BadRequest, Unauthorized
 from rtt_data_app.utils import Post
 
 post_bp = Blueprint('post_bp', __name__)
-db_manager = DBManager()
 
 
 @post_bp.route('/makePost', methods=['POST'])

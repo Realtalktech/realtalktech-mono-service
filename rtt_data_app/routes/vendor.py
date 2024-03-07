@@ -3,7 +3,6 @@ from rtt_data_app.app import db
 from rtt_data_app.models import DiscoverCategory, DiscoverVendor, VendorDiscoverCategory
 import pymysql
 import pymysql.cursors
-from rtt_data_app.utils import DBManager
 from rtt_data_app.auth import token_required
 from rtt_data_app.utils.deprecated.responseFormatter import convert_keys_to_camel_case
 from werkzeug.exceptions import NotFound, InternalServerError, Unauthorized

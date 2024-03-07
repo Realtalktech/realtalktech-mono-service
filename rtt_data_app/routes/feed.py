@@ -1,12 +1,10 @@
 from flask import Blueprint, jsonify, request
 from rtt_data_app.app import db
-from rtt_data_app.utils import DBManager
 from rtt_data_app.models import Post, DiscussCategory, DiscoverVendor, PostDiscussCategory, PostDiscoverVendor, UserDiscussCategory, User
 from rtt_data_app.auth import token_required
 from sqlalchemy.orm import aliased
 
 feed_bp = Blueprint('feed_bp', __name__)
-db_manager = DBManager()
 
 @feed_bp.route('/feed', methods=['GET'])
 @token_required

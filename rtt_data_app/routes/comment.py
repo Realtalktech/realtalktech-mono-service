@@ -3,7 +3,6 @@ import pymysql
 import pymysql.cursors
 from rtt_data_app.app import db
 from rtt_data_app.models import Comment, CommentTag, CommentUpvote, User, Post
-from rtt_data_app.utils import DBManager
 from rtt_data_app.auth import token_required
 from rtt_data_app.utils.deprecated.responseFormatter import convert_keys_to_camel_case
 from sqlalchemy import func, exc
@@ -11,7 +10,6 @@ from werkzeug.exceptions import BadRequest, InternalServerError, Unauthorized
 import logging
 
 comment_bp = Blueprint('comment_bp', __name__)
-db_manager = DBManager()
 logger = logging.getLogger(__name__)
 
 @comment_bp.route('/getCommentsForPost', methods=['GET'])
