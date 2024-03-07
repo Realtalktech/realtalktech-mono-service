@@ -1,6 +1,9 @@
 alembic==1.13.1
+annotated-types==0.6.0
 APScheduler==3.10.4
 blinker==1.7.0
+boto3==1.34.40
+botocore==1.34.40
 certifi==2023.11.17
 cffi==1.16.0
 charset-normalizer==3.3.2
@@ -21,11 +24,14 @@ Jinja2==3.1.3
 jmespath==1.0.1
 Mako==1.3.2
 MarkupSafe==2.1.3
+mock==5.1.0
 numpy==1.26.3
 packaging==23.2
 pandas==2.2.0
 pluggy==1.4.0
 pycparser==2.21
+pydantic==2.6.3
+pydantic_core==2.16.3
 PyJWT==2.8.0
 PyMySQL==1.1.0
 pytest==7.4.4
