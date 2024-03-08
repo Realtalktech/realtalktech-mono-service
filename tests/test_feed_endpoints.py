@@ -56,10 +56,11 @@ def init_mock_feed():
     db.session.commit()
 
     # Create posts and link them to categories and vendors
+    mock_comment = Comment(post_id=1, user_id=1, comment_text="")
     posts = [
-        Post(title="AI Post", body="This is a post about AI", user_id=user1.id, is_anonymous=False),
-        Post(title="Engineering and Operations Post", body="This is a post about Engineering and Operations", user_id=user2.id, is_anonymous=False),
-        Post(title="Marketing Post", body="This is a post about Marketing", user_id=user1.id, is_anonymous=True)
+        Post(title="AI Post", body="This is a post about AI", user_id=user1.id, is_anonymous=False, comments=[mock_comment]),
+        Post(title="Engineering and Operations Post", body="This is a post about Engineering and Operations", user_id=user2.id, is_anonymous=False, comments=[mock_comment]),
+        Post(title="Marketing Post", body="This is a post about Marketing", user_id=user1.id, is_anonymous=True, comments=[mock_comment])
     ]
     db.session.add_all(posts)
     db.session.commit()

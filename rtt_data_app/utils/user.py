@@ -552,7 +552,7 @@ class User:
             user = model.query.filter_by(username=username).first()
         except exc.SQLAlchemyError as e:
             self.logger(str(e))
-            raise InternalServerError("An error occured while checking for username availability")
+            raise InternalServerError("An error occurred while checking for username availability")
         if user is None:
             return jsonify({
                 'message': "Username is available",
@@ -562,4 +562,31 @@ class User:
             return jsonify({
                 'message': "Username is unavailable",
                 'available': False
+            })
+    
+    def check_email_availability(self, email):
+        try:
+            user=model.query.filter_by(email=email).first()
+        except exc.SQLAlchemyError as e:
+            self.logger(str(e))
+            raise InternalServerError("An errror occurred while checking for email availability")
+        if user is not None:
+            return jsonify({
+                'message': "Email is unavailable",
+                'available': False
+            })
+        else:
+            # Raise error if not in standard email format
+            try:
+                email_info = validate_email(email, check_deliverability=True)
+                # replace with normalized form
+                email = email_info.normalized
+            except EmailNotValidError as e:
+                return jsonify({
+                    'message': str(e),
+                    'available': False
+                })
+            return jsonify({
+                'message': "Email is available",
+                'available': True
             })

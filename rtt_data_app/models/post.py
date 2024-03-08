@@ -17,3 +17,4 @@ class Post(db.Model):
     user = db.relationship('User', backref=backref('posts', lazy=True))
     categories = db.relationship('DiscussCategory', secondary='PostDiscussCategory', back_populates='posts')
     vendors = db.relationship('DiscoverVendor', secondary='PostDiscoverVendor', back_populates='posts')
+    comments = db.relationship('Comment', back_populates='post')

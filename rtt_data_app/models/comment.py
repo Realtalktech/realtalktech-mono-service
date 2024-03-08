@@ -15,3 +15,4 @@ class Comment(db.Model):
 
     user = db.relationship('User', back_populates='comments')
     upvotes = db.relationship('CommentUpvote', back_populates='comment', lazy='dynamic')
+    post = db.relationship('Post', back_populates='comments')

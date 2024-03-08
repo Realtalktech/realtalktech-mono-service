@@ -34,4 +34,8 @@ def get_onboarding():
 
 @login_bp.route('/validUsername/<username>', methods=['GET'])
 def is_valid_username(username):
-    return User().check_username_availability(username) 
+    return User().check_username_availability(username)
+
+@login_bp.route('/validEmail/<email>', methods = ['GET'])
+def is_valid_email(email):
+    return User().check_email_availability(email)
