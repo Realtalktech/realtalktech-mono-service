@@ -66,7 +66,7 @@ def get_feed(user_id):
         # Get num_upvotes, num_downvotes, and user_vote
         num_upvotes = PostUpvote.query.filter_by(post_id=post.id, is_downvote=False).count()
         num_downvotes = PostUpvote.query.filter_by(post_id=post.id, is_downvote=True).count()
-        user_vote:PostUpvote = PostUpvote.query.filter_by(post_id=post.id, user_id=user.id).first()
+        user_vote:PostUpvote = PostUpvote.query.filter_by(post_id=post.id, user_id=user_id).first()
         user_vote_status = None
         if user_vote:
             user_vote_status = not user_vote.is_downvote
