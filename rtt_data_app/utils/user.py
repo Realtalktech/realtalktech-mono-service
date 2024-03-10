@@ -466,6 +466,8 @@ class User:
                         UserPublicVendor.query.filter_by(user_id=user.id, vendor_id=vendor.id).delete()
                         # Remove all endorsements associated with the removed tech stack vendor
                         # UserPublicVendorEndorsement.query.filter_by(endorsee_user_id=user_id, vendor_id=vendor.id).delete()
+            
+            db.session.commit()
 
         except exc.SQLAlchemyError as e:
             db.session.rollback()
