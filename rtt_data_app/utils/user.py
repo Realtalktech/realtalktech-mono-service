@@ -426,6 +426,7 @@ class User:
                     new_company: str = None):
         try:
             user = model.query.filter_by(id=user_id).one()
+            self.logger.info("We have made it to the edit profile fn")
 
             if new_full_name:
                 user.full_name = new_full_name
@@ -441,6 +442,7 @@ class User:
             user.update_time = func.now()
 
             db.session.commit()
+            self.logger.info("Basic data should be updated now.")
             
             if new_tech_stack_names is not None:
                 # Get current user's tech stack names
