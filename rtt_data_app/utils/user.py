@@ -471,7 +471,7 @@ class User:
             
             db.session.commit()
 
-        except exc.SQLAlchemyError as e:
+        except Exception as e:
             db.session.rollback()
             self.logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")
