@@ -11,7 +11,7 @@ user_bp = Blueprint('user_bp', __name__)
 @token_required
 def get_user_profile_by_username(user_id, requested_username):
     """Get a user's public profile"""
-    if not user_id:
+    if user_id is None:
         raise Unauthorized
     
     # will raise bad request if user is not found
@@ -27,7 +27,7 @@ def get_user_profile_by_username(user_id, requested_username):
 @user_bp.route('/editProfile', methods=['PUT'])
 @token_required
 def edit_profile(user_id):
-    if not user_id:
+    if user_id is None:
         raise Unauthorized
     
     data:dict = request.json
@@ -54,7 +54,7 @@ def edit_profile(user_id):
 @user_bp.route('/endorse', methods = ['PUT'])
 @token_required
 def endorse_user(user_id):
-    if not user_id:
+    if user_id is None:
         raise Unauthorized
 
     data = request.json
