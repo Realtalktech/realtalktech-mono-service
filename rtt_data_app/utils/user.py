@@ -460,14 +460,14 @@ class User:
                         db.session.add(vendor)
                         vendor = PublicVendor.query.filter_by(vendor_name=tech_name).first()
                     
-                    tech_stack_addition = UserPublicVendor(user_id=user.id, vendor_id=vendor.id)
+                    tech_stack_addition = UserPublicVendor(user_id=user_id, vendor_id=vendor.id)
                     db.session.add(tech_stack_addition)
                 
                 # Find vendors to remove
                 for tech_name in set(current_tech_stack) - set(new_tech_stack_names):
                     vendor = PublicVendor.query.filter_by(vendor_name=tech_name).first()
                     if vendor:
-                        UserPublicVendor.query.filter_by(user_id=user.id, vendor_id=vendor.id).delete()
+                        UserPublicVendor.query.filter_by(user_id=user_id, vendor_id=vendor.id).delete()
                         # Remove all endorsements associated with the removed tech stack vendor
                         # UserPublicVendorEndorsement.query.filter_by(endorsee_user_id=user_id, vendor_id=vendor.id).delete()
             
