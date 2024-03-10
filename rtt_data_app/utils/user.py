@@ -443,6 +443,8 @@ class User:
 
             db.session.commit()
             self.logger.info("Basic data should be updated now.")
+
+            self.logger.info("We are editing tech stack now")
             
             if new_tech_stack_names is not None:
                 # Get current user's tech stack names
@@ -471,7 +473,9 @@ class User:
             
             db.session.commit()
 
-        except Exception as e:
+            self.logger.info("Tech stack should be updated")
+
+        except exc.SQLAlchemyError as e:
             db.session.rollback()
             self.logger.error(str(e))
             raise InternalServerError(f"Database error: {str(e)}")

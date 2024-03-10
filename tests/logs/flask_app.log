@@ -2,3 +2,12 @@
 [2024-03-08 15:41:20,733] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:119} ERROR - 'NoneType' object has no attribute 'id'
 [2024-03-08 15:41:21,681] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:108} ERROR - Missing required information to create comment
 [2024-03-08 15:41:21,750] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:108} ERROR - Missing required information to create comment
+[2024-03-10 14:07:30,078] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:415} ERROR - User with username nonexistentUser not found
+[2024-03-10 14:07:30,236] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:429} INFO - We have made it to the edit profile fn
+[2024-03-10 14:07:30,237] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:445} INFO - Basic data should be updated now.
+[2024-03-10 14:07:31,120] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:502} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-10 14:07:31,256] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/utils/user.py:509} ERROR - 'NoneType' object has no attribute 'vendor_id'
+[2024-03-10 14:07:31,847] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:50} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-10 14:07:31,979] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/vendor.py:119} ERROR - 'NoneType' object has no attribute 'id'
+[2024-03-10 14:07:32,899] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:108} ERROR - Missing required information to create comment
+[2024-03-10 14:07:32,964] {/Users/raghavmaini/Desktop/rttMVP/rttDataService/rtt_data_app/routes/comment.py:108} ERROR - Missing required information to create comment
