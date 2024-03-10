@@ -115,6 +115,7 @@ class User:
             
         else:
             user_details = {
+                'id': user.id,
                 'fullname': user.full_name,
                 'username': user.username,
                 'currentCompany': user.current_company,
@@ -231,7 +232,7 @@ class User:
                 vendors_with_endorsements.append({
                     'id': item['id'],
                     'name': item['name'],
-                    'totalEndorsements': self.__get_total_endorsements_from_id(item['id'], user_id),
+                    'endorsementCount': self.__get_total_endorsements_from_id(item['id'], user_id),
                     'userEndorsements': all_endorsements
                 })
         else:
@@ -240,7 +241,7 @@ class User:
                 vendors_with_endorsements.append({
                     'id': item['id'],
                     'name': item['name'],
-                    'totalEndorsements': self.__get_total_endorsements_from_id(item['id'], user_id),
+                    'endorsementCount': self.__get_total_endorsements_from_id(item['id'], user_id),
                     'endorsedByRequester': endorsement
                 })
         return vendors_with_endorsements
