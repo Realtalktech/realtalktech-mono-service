@@ -347,7 +347,8 @@ class User:
                      new_tech_stack = None,
                      new_bio = None,
                      new_linkedin = None,
-                     new_company = None
+                     new_company = None,
+                     new_username = None,
                     ):
         
         if new_full_name:
@@ -400,6 +401,9 @@ class User:
         
         if new_company:
             cursor.execute("""UPDATE User SET current_company = %s WHERE id = %s""", (new_company, self.id))
+
+        if new_username:
+            cursor.execute("""UPDATE User SET username = %s WHERE id = %s""", (new_username, self.id))
         
         cursor.execute("""UPDATE User SET update_time = CURRENT_TIMESTAMP(3) WHERE id = %s""",(self.id))
 

@@ -221,8 +221,9 @@ def edit_profile(user_id):
         new_bio = data.get('bio')
         new_linkedin = data.get('linkedin')
         new_company = data.get('company')
+        new_username = data.get('username')
         user = User.find_by_id(cursor, user_id=user_id, needed_info=['id', 'username', 'linkedin_url', 'bio'], tech_stack=True)
-        user.edit_profile(cursor, new_fullname, new_email, new_tech_stack, new_bio, new_linkedin, new_company)
+        user.edit_profile(cursor, new_fullname, new_email, new_tech_stack, new_bio, new_linkedin, new_company, new_username)
         conn.commit()
 
     except pymysql.MySQLError as e:
