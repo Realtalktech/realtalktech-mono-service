@@ -82,7 +82,7 @@ class User:
         # Fetch the user by username
         user = cls.find_by_username(cursor, 
                                     username = entered_username,
-                                    needed_info=['id', 'full_name', 'password', 'current_company', 'email', 'linkedin_url', 'bio'],
+                                    needed_info=['id', 'full_name', 'username', 'password', 'current_company', 'email', 'linkedin_url', 'bio'],
                                     tech_stack=True,
                                     interest_areas=True,
                                     industry_involvement=True,
@@ -312,7 +312,6 @@ class User:
     
     @classmethod
     def get_endorsements_count(cls, vendor_id, endorsee_id, cursor):
-        print("ENDORSEGETW", vendor_id, endorsee_id)
         # Check for endorsement
         cursor.execute("""
             SELECT COUNT(*) AS endorsement_count
@@ -323,7 +322,6 @@ class User:
         return endorsementCount
 
     def receive_endorsement(self, vendor_id, endorser_id, cursor):
-        print("ENDORSEINSERTW", vendor_id, endorser_id)
         cursor.execute(
             """INSERT INTO UserPublicVendorEndorsement (endorser_user_id, endorsee_user_id, vendor_id) VALUES (%s, %s, %s)""",
             (endorser_id, self.id, vendor_id)
