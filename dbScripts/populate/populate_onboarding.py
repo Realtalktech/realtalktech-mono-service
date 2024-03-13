@@ -13,8 +13,8 @@ class DataBuilder:
         conn = pymysql.connect(host=DB_HOST, user=DB_USER, password=DB_PASSWORD, db=DB_NAME, charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
         self.cursor = conn.cursor()
         self.discuss_categories = [
-            "AI", "Engineering", "Operations", "Marketing", "Sales", "Customer Success",
-            "Data", "Product", "HR & Talent", "Finance", "Leadership/Exec", "Founder",
+            "Artificial Intelligence", "Engineering", "Operations", "Marketing", "Sales", "Customer Success",
+            "Data", "Product", "HR & Talent", "Finance", "Leadership", "Founder",
             "Community"
         ]
         self.discuss_category_ids = []
@@ -33,7 +33,7 @@ class DataBuilder:
             "Sales Tools", "Marketing", "Analytics Tools & Software", "CAD & PLM", "Collaboration & Productivity",
             "Commerce", "Customer Service", "Data Privacy", "Design", "Development", "Digital Advertising",
             "ERP", "Governance, Risk & Compliance", "Hosting", "HR", "IT Infrastructure", "IT Management",
-            "Office", "Security", "Supply Chain & Logistics", "Vertical Industry", "Collaboration",
+            "Office", "Security", "Supply Chain & Logistics", "Vertical Industry",
             "Customer Management", "Revenue Operations", "Payments", "Accounting", "Learning Management System",
             "Robotic Process Automation", "Artificial Intelligence"
         ]

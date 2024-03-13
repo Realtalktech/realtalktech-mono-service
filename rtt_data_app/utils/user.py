@@ -62,7 +62,7 @@ class User:
         industry_ids = [industry.industry_id for industry in user_industries]
 
         # Get industry names based on the industry_ids
-        if industry_ids:  # Check if the list is not empty
+        if industry_ids: 
             industries = db.session.query(Industry.id, Industry.industry_name).filter(Industry.id.in_(industry_ids)).all()
             industry_involvement = [{'id': industry.id, 'name': industry.industry_name} for industry in industries]
         else:
@@ -115,7 +115,6 @@ class User:
             
         else:
             user_details = {
-                'id': user.id,
                 'fullname': user.full_name,
                 'username': user.username,
                 'currentCompany': user.current_company,
@@ -232,7 +231,7 @@ class User:
                 vendors_with_endorsements.append({
                     'id': item['id'],
                     'name': item['name'],
-                    'endorsementCount': self.__get_total_endorsements_from_id(item['id'], user_id),
+                    'totalEndorsements': self.__get_total_endorsements_from_id(item['id'], user_id),
                     'userEndorsements': all_endorsements
                 })
         else:
@@ -241,7 +240,7 @@ class User:
                 vendors_with_endorsements.append({
                     'id': item['id'],
                     'name': item['name'],
-                    'endorsementCount': self.__get_total_endorsements_from_id(item['id'], user_id),
+                    'totalEndorsements': self.__get_total_endorsements_from_id(item['id'], user_id),
                     'endorsedByRequester': endorsement
                 })
         return vendors_with_endorsements
@@ -427,7 +426,6 @@ class User:
                     new_company: str = None):
         try:
             user = model.query.filter_by(id=user_id).one()
-            self.logger.info("We have made it to the edit profile fn")
 
             if new_full_name:
                 user.full_name = new_full_name
@@ -443,9 +441,6 @@ class User:
             user.update_time = func.now()
 
             db.session.commit()
-            self.logger.info("Basic data should be updated now.")
-
-            self.logger.info("We are editing tech stack now")
             
             if new_tech_stack_names is not None:
                 # Get current user's tech stack names
@@ -461,20 +456,16 @@ class User:
                         db.session.add(vendor)
                         vendor = PublicVendor.query.filter_by(vendor_name=tech_name).first()
                     
-                    tech_stack_addition = UserPublicVendor(user_id=user_id, vendor_id=vendor.id)
+                    tech_stack_addition = UserPublicVendor(user_id=user.id, vendor_id=vendor.id)
                     db.session.add(tech_stack_addition)
                 
                 # Find vendors to remove
                 for tech_name in set(current_tech_stack) - set(new_tech_stack_names):
                     vendor = PublicVendor.query.filter_by(vendor_name=tech_name).first()
                     if vendor:
-                        UserPublicVendor.query.filter_by(user_id=user_id, vendor_id=vendor.id).delete()
+                        UserPublicVendor.query.filter_by(user_id=user.id, vendor_id=vendor.id).delete()
                         # Remove all endorsements associated with the removed tech stack vendor
                         # UserPublicVendorEndorsement.query.filter_by(endorsee_user_id=user_id, vendor_id=vendor.id).delete()
-            
-            db.session.commit()
-
-            self.logger.info("Tech stack should be updated")
 
         except exc.SQLAlchemyError as e:
             db.session.rollback()
@@ -561,7 +552,7 @@ class User:
             user = model.query.filter_by(username=username).first()
         except exc.SQLAlchemyError as e:
             self.logger(str(e))
-            raise InternalServerError("An error occurred while checking for username availability")
+            raise InternalServerError("An error occured while checking for username availability")
         if user is None:
             return jsonify({
                 'message': "Username is available",
@@ -571,31 +562,4 @@ class User:
             return jsonify({
                 'message': "Username is unavailable",
                 'available': False
-            })
-    
-    def check_email_availability(self, email):
-        try:
-            user=model.query.filter_by(email=email).first()
-        except exc.SQLAlchemyError as e:
-            self.logger(str(e))
-            raise InternalServerError("An errror occurred while checking for email availability")
-        if user is not None:
-            return jsonify({
-                'message': "Email is unavailable",
-                'available': False
-            })
-        else:
-            # Raise error if not in standard email format
-            try:
-                email_info = validate_email(email, check_deliverability=True)
-                # replace with normalized form
-                email = email_info.normalized
-            except EmailNotValidError as e:
-                return jsonify({
-                    'message': str(e),
-                    'available': False
-                })
-            return jsonify({
-                'message': "Email is available",
-                'available': True
             })
