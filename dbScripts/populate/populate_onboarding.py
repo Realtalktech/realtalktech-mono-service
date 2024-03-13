@@ -13,14 +13,14 @@ class DataBuilder:
         conn = pymysql.connect(host=DB_HOST, user=DB_USER, password=DB_PASSWORD, db=DB_NAME, charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
         self.cursor = conn.cursor()
         self.discuss_categories = [
-            "AI", "Engineering", "Operations", "Marketing", "Sales", "Customer Success",
+            "Artificial Intelligence", "Engineering", "Operations", "Marketing", "Sales", "Customer Success",
             "Data", "Product", "HR & Talent", "Finance", "Leadership/Exec", "Founder",
             "Community"
         ]
         self.discuss_category_ids = []
         self.discuss_category_mappings = {}
         self.industries = [
-            "AdTech", "Angel or VC Firm", "AI", "Automation", "Big Data", "Biotech", "Blockchain",
+            "AdTech", "Angel or VC Firm", "Artificial Intelligence", "Automation", "Big Data", "Biotech", "Blockchain",
             "Business Intelligence", "Cannabis", "Cloud", "Consulting", "Web/Internet", "Crypto",
             "Cybersecurity", "Data Privacy", "Database", "eCommerce", "Edtech", "FinTech", "Gaming",
             "Healthtech", "HR Tech", "IaaS", "Insurance", "IoT", "Legal Tech", "Logistics", "Machine Learning",

@@ -5,5 +5,6 @@ dbScripts/connect/unsafeConnect.sh
 dbScripts/data/
 dbScripts/populate/populateProdVendors.py
 dbScripts/unsafeRefresh.sh
+tests/logs
 .DS_Store
 .pytest_cache
