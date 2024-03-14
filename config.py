@@ -1,13 +1,18 @@
+import os
+
 class Config(object):
     # Common Configurations like SECRET_KEY
     DEBUG = False
     TESTING = False
+    
+print("COOL2")
 
 class ProductionConfig(Config):
-    DB_HOST = 'realtalktechrdsstack-realtalktechdbinstance-c7ciisdczocf.cnqm62ueodz0.us-east-1.rds.amazonaws.com'
-    DB_USER = 'admin'
-    DB_PASSWORD = 'ReallyRealAboutTech123!'
-    DB_NAME = 'RealTalkTechDB'
+    DB_HOST = os.environ.get('DB_HOST')
+    DB_USER = os.environ.get('DB_USER')
+    DB_PASSWORD = os.environ.get('DB_PASSWORD')
+    DB_NAME = os.environ.get('DB_NAME')
+    SSL_CA = 'config/amazon-rds-ca-cert.pem'
 
 class DevelopmentConfig(Config):
     DEBUG = True
