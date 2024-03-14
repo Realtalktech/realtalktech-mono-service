@@ -8,6 +8,7 @@ class DBManager:
         user = current_app.config['DB_USER']
         password = current_app.config['DB_PASSWORD']
         db = current_app.config['DB_NAME']
+        ssl_ca = current_app.config['SSL_CA']
 
         return pymysql.connect(
             host=host,
@@ -15,5 +16,6 @@ class DBManager:
             password=password,
             db=db,
             charset='utf8mb4',
+            ssl_ca=ssl_ca,
             cursorclass=pymysql.cursors.DictCursor
         )
