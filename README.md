@@ -1,6 +1,6 @@
 # RealTalkTech
 
-# prod deploy test
+# prod 
 
 ## Description
 RealTalkTech is a dynamic social media platform designed for SaaS procurement. It allows users to create profiles, post content under various tech categories, comment, upvote, and engage with a community passionate about software buying. The platform is built with Flask and features robust RESTful APIs, backed by a MySQL database.
