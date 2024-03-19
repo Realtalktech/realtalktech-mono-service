@@ -307,7 +307,7 @@ def edit_password(user_id):
 
 @user_bp.route('/contactus', methods=['POST'])
 @token_required 
-def edit_password(user_id):
+def send_to_slack(user_id):
     data = request.get_json()
     name = data.get('name')
     email = data.get('email')
@@ -321,7 +321,7 @@ def edit_password(user_id):
     }
 
     webhook_url = os.getenv('SLACK_WEBHOOK_URL')
-    
+
     # Post the message to Slack
     response = requests.post(webhook_url, json=slack_message)
 
