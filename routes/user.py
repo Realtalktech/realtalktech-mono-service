@@ -1,11 +1,13 @@
 from flask import Blueprint, jsonify, request
 import pymysql
 import pymysql.cursors
+import requests
 from utils.db_manager import DBManager
 from utils.responseFormatter import convert_keys_to_camel_case
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import User
 from utils import token_required
+import os
 
 user_bp = Blueprint('user_bp', __name__)
 db_manager = DBManager()
@@ -18,7 +20,7 @@ def fetch_onboarding_information(user: User):
             'id': user.industry_involvement_ids[idx],
             'name': industry_name
         })
-    
+   
     interest_areas = []
     for idx, interest_area_name in enumerate(user.interest_area_names):
         interest_areas.append({
@@ -302,3 +304,26 @@ def edit_password(user_id):
     finally:
         cursor.close()
         conn.close()
+
+@user_bp.route('/contactus', methods=['POST'])
+@token_required 
+def edit_password(user_id):
+    data = request.get_json()
+    name = data.get('name')
+    email = data.get('email')
+    message = data.get('message')
+    username = data.get('username')
+    emailId = data.get('emailId')
+
+    # Prepare the payload for Slack
+    slack_message = {
+        'text': f"New message from {name}:\nEmail: {email}\nUsername: {username}\nEmail ID: {emailId}\nMessage: {message}"
+    }
+
+    webhook_url = os.getenv('SLACK_WEBHOOK_URL')
+    
+    # Post the message to Slack
+    response = requests.post(webhook_url, json=slack_message)
+
+    # Return the response to the client
+    return jsonify({'status': 'sent', 'response': response.text}), response.status_code
