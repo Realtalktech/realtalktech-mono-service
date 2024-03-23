@@ -8,7 +8,7 @@ class Config(object):
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
     DEBUG = True
-    LOG_PATH = '/logs/flask_app'
+    LOG_PATH = 'logs/'
     SSL_CONFIG = {
         'ssl': {
         'ca': '/config/global-bundle.pem'  # Path to the downloaded AWS RDS certificate
