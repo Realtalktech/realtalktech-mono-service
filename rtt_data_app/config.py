@@ -11,7 +11,7 @@ class ProductionConfig(Config):
     LOG_PATH = 'logs/'
     SSL_CONFIG = {
         'ssl': {
-        'ca': '/config/global-bundle.pem'  # Path to the downloaded AWS RDS certificate
+        'ca': 'config/global-bundle.pem'  # Path to the downloaded AWS RDS certificate
         }
     }
     SQLALCHEMY_ENGINE_OPTIONS = {'connect_args':SSL_CONFIG}
