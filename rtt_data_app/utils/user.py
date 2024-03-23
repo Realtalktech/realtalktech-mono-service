@@ -563,3 +563,20 @@ class User:
                 'message': "Username is unavailable",
                 'available': False
             })
+
+    def check_email_availability(self, email):
+        try:
+            user = model.query.filter_by(email=email).first()
+        except exc.SQLAlchemyError as e:
+            self.logger(str(e))
+            raise InternalServerError("An error occured while checking for email availability")
+        if user is None:
+            return jsonify({
+                'message': "Email is available",
+                'available': True
+            })
+        else:
+            return jsonify({
+                'message': "Email is unavailable",
+                'available': False
+            })
