@@ -11,7 +11,7 @@ class ProductionConfig(Config):
     basedir = os.path.abspath(os.path.dirname(__file__))
 
     # Build the path to the PEM file
-    pem_file = os.path.join(basedir, 'global-bundle.pem')
+    pem_file = os.path.join(basedir, 'config/global-bundle.pem')
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
     DEBUG = True
     LOG_PATH = 'logs/'
