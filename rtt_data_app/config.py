@@ -6,13 +6,8 @@ class Config(object):
     TESTING = False
 
 class ProductionConfig(Config):
-    DB_HOST = 'realtalktechrdsstack-realtalktechdbinstance-c7ciisdczocf.cnqm62ueodz0.us-east-1.rds.amazonaws.com'
-    DB_USER = 'admin'
-    DB_PASSWORD = 'ReallyRealAboutTech123!'
-    DB_NAME = 'RealTalkTechDB'
-    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}'
+    SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
     DEBUG = True
-
     LOG_PATH = '/var/log/flask_app'
 
 class DevelopmentConfig(Config):

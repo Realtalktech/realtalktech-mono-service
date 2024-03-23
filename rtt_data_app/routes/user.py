@@ -1,9 +1,11 @@
 from flask import Blueprint, jsonify, request
+import requests
 import pymysql
 import pymysql.cursors
 from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError
 from rtt_data_app.utils import User
 from rtt_data_app.auth import token_required
+import os
 
 user_bp = Blueprint('user_bp', __name__)
 
@@ -88,3 +90,27 @@ def edit_password(user_id):
     user = User()
     user.edit_password(user_id, old_password, new_password)
     return jsonify({'message': 'Password updated successfully'}), 200
+
+
+@user_bp.route('/contactus', methods=['POST'])
+@token_required 
+def send_to_slack(user_id):
+    data = request.get_json()
+    name = data.get('name')
+    email = data.get('email')
+    message = data.get('message')
+    username = data.get('username')
+    emailId = data.get('emailId')
+
+    # Prepare the payload for Slack
+    slack_message = {
+        'text': f"New message from {name}:\nEmail: {email}\nUsername: {username}\nEmail ID: {emailId}\nMessage: {message}"
+    }
+
+    webhook_url = os.getenv('SLACK_WEBHOOK_URL')
+
+    # Post the message to Slack
+    response = requests.post(webhook_url, json=slack_message)
+
+    # Return the response to the client
+    return jsonify({'status': 'sent', 'response': response.text}), response.status_code

@@ -2,7 +2,7 @@ from rtt_data_app import create_app, db
 from tests.databuilder import DataBuilder, DataInserter, UserFactory
 from rtt_data_app.models import User, DiscussCategory, DiscoverVendor, UserDiscussCategory, Post, PostDiscussCategory, PostDiscoverVendor
 from rtt_data_app.models import Comment, PostUpvote, CommentUpvote
-from config import TestingConfig
+from rtt_data_app.config import TestingConfig
 import pytest
 from unittest.mock import patch, MagicMock
 from tests.commons import LoginResponse

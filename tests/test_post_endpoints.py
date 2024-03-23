@@ -3,7 +3,7 @@ from unittest.mock import patch
 from rtt_data_app.app import app, create_app, db
 from rtt_data_app.models import Post, PostUpvote
 from tests.databuilder import DataBuilder, DataInserter
-from config import TestingConfig
+from rtt_data_app.config import TestingConfig
 from functools import wraps
 import pytest
 from unittest.mock import patch

@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from werkzeug.exceptions import BadRequest, Unauthorized, InternalServerError, NotFound
 from flask_cors import CORS
 from rtt_data_app.models import db
-from config import ProductionConfig, TestingConfig
+from rtt_data_app.config import ProductionConfig, TestingConfig
 
 from rtt_data_app.utils.log_config import setup_global_logging
 setup_global_logging(ProductionConfig.LOG_PATH) 
