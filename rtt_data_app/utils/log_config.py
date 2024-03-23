@@ -22,6 +22,6 @@ def setup_global_logging(log_path):
     logger.addHandler(handler)
 
     # If you want to also print to console, uncomment the following lines:
-    # console_handler = logging.StreamHandler()
-    # console_handler.setFormatter(formatter)
-    # logger.addHandler(console_handler)
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
