@@ -1,4 +1,5 @@
 import os
+import app
 
 class Config(object):
     # Common Configurations like SECRET_KEY
@@ -6,12 +7,17 @@ class Config(object):
     TESTING = False
 
 class ProductionConfig(Config):
+    # Get the directory of the current file
+    basedir = os.path.abspath(os.path.dirname(__file__))
+
+    # Build the path to the PEM file
+    pem_file = os.path.join(basedir, 'global-bundle.pem')
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
     DEBUG = True
     LOG_PATH = 'logs/'
     SSL_CONFIG = {
         'ssl': {
-        'ca': 'config/global-bundle.pem'  # Path to the downloaded AWS RDS certificate
+            'ca': pem_file # Path to the downloaded AWS RDS certificate
         }
     }
     SQLALCHEMY_ENGINE_OPTIONS = {'connect_args':SSL_CONFIG}
