@@ -1,1 +1,1 @@
-web: gunicorn rtt_data_app:app -w 4
+web: gunicorn rtt_data_app:app
