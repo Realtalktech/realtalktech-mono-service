@@ -1,5 +1,4 @@
 import os
-import app
 
 class Config(object):
     # Common Configurations like SECRET_KEY
