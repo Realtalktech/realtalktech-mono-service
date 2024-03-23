@@ -8,7 +8,7 @@ class Config(object):
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
     DEBUG = True
-    LOG_PATH = '/var/log/flask_app'
+    LOG_PATH = '/logs/flask_app'
 
 class DevelopmentConfig(Config):
     DEBUG = True
