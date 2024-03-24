@@ -32,10 +32,11 @@ def logout():
 def get_onboarding():
     return User().get_onboarding_information()
 
-@login_bp.route('/validUsername/<username>', methods=['GET'])
-def is_valid_username(username):
-    return User().check_username_availability(username)
-
-@login_bp.route('/validEmail/<email>', methods = ['GET'])
-def is_valid_email(email):
-    return User().check_email_availability(email)
+@login_bp.route('/user/check', methods=['GET'])
+def check():
+    email = request.args.get('email', type=str)
+    username = request.args.get('username', type=str)
+    if username is not None:
+        return User().check_username_availability(username)
+    else:
+        return User().check_email_availability(email)
